@@ -56,13 +56,13 @@ def _daily(lats: list[float], lons: list[float], start: str, end: str) -> list[d
 def county_rain(spec: StormSpec) -> pd.DataFrame:
     """Per county FIPS: rain_storm_mm, rain_before_mm."""
     CACHE.mkdir(parents=True, exist_ok=True)
-    path = CACHE / f"{spec.key}.csv"
+    c = counties()
+    path = CACHE / f"{spec.key}_{len(c)}.csv"
     if path.exists():
         return pd.read_csv(path, dtype={"fips": str}).set_index("fips")
     day0 = spec.landfall.date()
     s0, s1 = day0 + timedelta(days=STORM_DAYS[0]), day0 + timedelta(days=STORM_DAYS[1])
     b0 = s0 - timedelta(days=BEFORE_DAYS)
-    c = counties()
     rows = []
     for i in range(0, len(c), BATCH):
         part = c.iloc[i : i + BATCH]

@@ -421,7 +421,12 @@ def main(argv=None) -> None:
             modes = ["best"]  # training-only storms need only the hindcast
         for mode in modes:
             n = a.train_sims if (mode == "best" and a.train_sims) else a.sims
-            run(spec, mode=mode, sims=n, device=a.device, seed=a.seed, chunk=a.chunk)
+            try:
+                run(spec, mode=mode, sims=n, device=a.device, seed=a.seed, chunk=a.chunk)
+            except Exception as exc:  # e.g. no OFCL forecast for that cycle: keep the other storms going
+                if mode == "best":
+                    raise
+                print(f"  {spec.key}/forecast skipped: {exc}")
 
 
 if __name__ == "__main__":

@@ -19,7 +19,7 @@ import pandas as pd
 import shapely
 from shapely.ops import unary_union
 
-from gridsight.config import GEO_CRS, METRIC_CRS
+from gridsight.config import BBOX, GEO_CRS, METRIC_CRS
 from gridsight.response.common import RAW_DIR, download
 
 COUNTY_URL = "https://www2.census.gov/geo/tiger/GENZ2023/shp/cb_2023_us_county_5m.zip"
@@ -27,12 +27,17 @@ STATE_URL = "https://www2.census.gov/geo/tiger/GENZ2023/shp/cb_2023_us_state_20m
 ZCTA_URL = "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2023_Gazetteer/2023_Gaz_zcta_national.zip"
 MCC_URL = "https://ndownloader.figshare.com/files/42547708"  # EAGLE-I MCC.csv
 
-STATE_FIPS = {"13": "GA", "45": "SC"}
+STATE_FIPS = {"13": "GA", "45": "SC", "12": "FL", "01": "AL", "37": "NC", "47": "TN"}
+# Georgia and South Carolina in full; neighbouring states only where the line network
+# (config.BBOX) covers the county, so every county has the same exposure features.
+CORE_STATES = {"GA", "SC"}
+NEIGHBOUR_MARGIN_DEG = 0.15
 
 
 @lru_cache(maxsize=1)
 def counties() -> gpd.GeoDataFrame:
-    """GA + SC counties with centroid (internal point), area and customers."""
+    """GA + SC counties, plus FL / AL / NC / TN counties inside the network area, with
+    centroid (internal point), area and customers."""
     path = download(COUNTY_URL, RAW_DIR / "cb_2023_us_county_5m.zip")
     gdf = gpd.read_file(f"zip://{path}")
     gdf = gdf[gdf["STATEFP"].isin(STATE_FIPS)].copy()
@@ -42,6 +47,10 @@ def counties() -> gpd.GeoDataFrame:
     gdf = gdf.to_crs(GEO_CRS)
     pts = gdf.geometry.representative_point()
     gdf["clon"], gdf["clat"] = pts.x, pts.y
+    w, s_, e, n = BBOX
+    m = NEIGHBOUR_MARGIN_DEG
+    inside = gdf["clon"].between(w + m, e - m) & gdf["clat"].between(s_ + m, n - m)
+    gdf = gdf[gdf["state"].isin(CORE_STATES) | inside].copy()
     gdf["area_km2"] = gdf.to_crs(METRIC_CRS).geometry.area / 1e6
     mcc = customers()
     gdf["customers"] = gdf["fips"].map(mcc).fillna(0).astype(int)

@@ -118,7 +118,7 @@ def check_contract(files: dict) -> list[str]:
             errs.append("segment shape")
             break
     for c in files["counties.json"]:
-        if set(c) != {"fips", "name", "state", "customers", "predictedPeakOut", "actualPeakOut", "centroid"} or c["state"] not in ("GA", "SC"):
+        if set(c) != {"fips", "name", "state", "customers", "predictedPeakOut", "actualPeakOut", "centroid"} or c["state"] not in ("GA", "SC", "FL", "AL", "NC", "TN"):
             errs.append("county shape")
             break
     for z in files["zones.json"]:
@@ -160,9 +160,14 @@ def main(argv=None) -> None:
 
     best = {k: simulate.load(k, "best") for k in STORMS}
     table = outages.build_table(best, STORMS)
-    fc = {k: simulate.load(k, "forecast") for k in published}
+    fc = {}
+    for k in published:
+        try:
+            fc[k] = simulate.load(k, "forecast")
+        except Exception as exc:  # no forecast run: that storm is published from the best track only
+            print(f"  {k}: no forecast simulation ({exc})")
     apply_best = {k: table[table.storm == k] for k in published}
-    apply_fc = {k: outages.features(fc[k], STORMS[k]).reset_index().assign(storm=k) for k in published}
+    apply_fc = {k: outages.features(fc[k], STORMS[k]).reset_index().assign(storm=k) for k in fc}
     preds_best, cv_best = outages.leave_one_storm_out(table, apply_best)
     preds_fc, cv_fc = outages.leave_one_storm_out(table, apply_fc)
     preds, cv = (preds_best, cv_best) if a.track == "best" else (preds_fc, cv_fc)

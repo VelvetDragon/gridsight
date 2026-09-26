@@ -36,7 +36,7 @@ FILE_IDS = {
     2024: 53581661,
 }
 SORT_KEY = {2016: "time", 2017: "time", 2018: "time", 2019: "time", 2020: "time", 2021: "time", 2022: "time", 2023: "time", 2024: "fips"}
-STATES = ("13", "45")  # Georgia, South Carolina
+STATES = ("01", "12", "13", "37", "45", "47")  # AL, FL, GA, NC, SC, TN (sorted: the 2024 file is FIPS-sorted)
 CACHE = RESP_CACHE / "eaglei"
 CACHE.mkdir(parents=True, exist_ok=True)
 CHUNK = 64 * 1024
@@ -116,7 +116,7 @@ def _parse(block: bytes, cols: list[str]) -> pd.DataFrame:
 
 def fetch_window(year: int, t0: datetime, t1: datetime) -> pd.DataFrame:
     """GA/SC county rows with t0 <= time <= t1 (cached)."""
-    name = CACHE / f"eaglei_{year}_{t0:%Y%m%d%H}_{t1:%Y%m%d%H}.parquet"
+    name = CACHE / f"eaglei_{year}_{t0:%Y%m%d%H}_{t1:%Y%m%d%H}_{len(STATES)}st.parquet"
     if name.exists():
         return pd.read_parquet(name)
     cols = _header(year)

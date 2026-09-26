@@ -446,7 +446,8 @@ def briefing_clip(d: Data) -> Clip | None:
             if u in seg:
                 seg[u] += float(z.get("expectedDamagedSegments", 0)) / max(len(utils), 1)
 
-    parts = [f"Storm crew briefing for Hurricane {name}."]
+    peak_kt = max((p.get("windKt", 0) for p in (d.track or {}).get("track", [])), default=64)
+    parts = [f"Storm crew briefing for {'Hurricane' if peak_kt >= 64 else 'Tropical Storm'} {name}."]
     if ga:
         parts.append(
             f"On the Georgia side, the heaviest outages are expected in {say_list([county_label(c) for c in ga])}, "

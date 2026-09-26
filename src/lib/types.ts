@@ -187,7 +187,7 @@ export interface LineSegmentRisk {
 export interface CountyOutage {
   fips: string;
   name: string;
-  state: "SC" | "GA";
+  state: "SC" | "GA" | "FL" | "AL" | "NC" | "TN";
   customers: number;
   predictedPeakOut: number;
   actualPeakOut: number | null;

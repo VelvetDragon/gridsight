@@ -185,7 +185,7 @@ def county_canopy() -> pd.Series:
     """Mean canopy fraction (0-1) per county FIPS."""
     from gridsight.response.geo import counties
 
-    path = CACHE / f"counties_{YEAR}.csv"
+    path = CACHE / f"counties_{YEAR}_{len(counties())}.csv"
     if path.exists():
         return pd.read_csv(path, dtype={"fips": str}).set_index("fips")["canopy"]
     g = grid()

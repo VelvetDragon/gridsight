@@ -33,6 +33,8 @@ export function More({ label, children }: { label: string; children: ReactNode }
   );
 }
 
+const SHORT_LIST = 5;
+
 export function StormPicker({
   storms,
   stormId,
@@ -42,6 +44,7 @@ export function StormPicker({
   stormId: string | null;
   onStorm: (id: string) => void;
 }) {
+  const [all, setAll] = useState(false);
   if (!storms) {
     return (
       <div className="flex flex-col gap-2">
@@ -50,9 +53,11 @@ export function StormPicker({
       </div>
     );
   }
+  const list = [...storms].sort((a, b) => Number(b.featured) - Number(a.featured) || b.year - a.year);
+  const shown = all || list.length <= SHORT_LIST ? list : list.filter((s, i) => i < SHORT_LIST || s.id === stormId);
   return (
     <div role="radiogroup" aria-label="Choose a storm" className="-mx-2 flex flex-col gap-0.5">
-      {storms.map((s) => {
+      {shown.map((s) => {
         const on = s.id === stormId;
         return (
           <button
@@ -83,6 +88,16 @@ export function StormPicker({
           </button>
         );
       })}
+      {list.length > SHORT_LIST ? (
+        <button
+          type="button"
+          onClick={() => setAll((v) => !v)}
+          className="mx-3 mt-1 flex items-center gap-1 self-start text-[13px] font-medium text-ink-2 hover:text-ink"
+        >
+          {all ? "Show fewer storms" : `Show all ${list.length} storms`}
+          <ChevronDown size={14} aria-hidden className={cx("transition-transform duration-200", all && "rotate-180")} />
+        </button>
+      ) : null}
     </div>
   );
 }

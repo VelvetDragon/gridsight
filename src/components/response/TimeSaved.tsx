@@ -101,6 +101,18 @@ export function TimeSavedCard({ aid }: { aid: MutualAid }) {
     `Hours until 90% of customers have power: ${separate.hoursTo90pct} h each on its own, ${coordinated.hoursTo90pct} h working together (mutual-aid scenarios from the pipeline, mutual-aid.json).`,
     ...aid.assumptions,
   ];
+  if (saved.to90 < 0.5 && saved.vulnerableTo90 < 0.5) {
+    return (
+      <div className="flex flex-col gap-2">
+        <p className="display text-[22px] leading-7 font-medium text-ink">Each company can handle this one alone</p>
+        <p className="text-[13px] leading-5 text-ink-2">
+          The damage is light or far apart, so sharing crews does not bring power back sooner for this storm. Sharing a staging
+          yard where the damage is close still saves driving and set-up (see Team up on the right).
+        </p>
+        <HowCalculated lines={lines} />
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-3">
       <div>
@@ -111,10 +123,12 @@ export function TimeSavedCard({ aid }: { aid: MutualAid }) {
           when 90% of homes are restored, if both companies share crews and yards.
         </p>
       </div>
-      <p className="rounded-[10px] bg-white/55 px-3 py-2 text-[13px] leading-5 text-ink">
-        Vulnerable residents get power back{" "}
-        <span className="font-semibold">{fmtHours(saved.vulnerableTo90)} sooner</span>.
-      </p>
+      {saved.vulnerableTo90 >= 0.5 ? (
+        <p className="rounded-[10px] bg-white/55 px-3 py-2 text-[13px] leading-5 text-ink">
+          Vulnerable residents get power back{" "}
+          <span className="font-semibold">{fmtHours(saved.vulnerableTo90)} sooner</span>.
+        </p>
+      ) : null}
       <RestorationChart separate={separate} coordinated={coordinated} />
       <HowCalculated lines={lines} />
     </div>
