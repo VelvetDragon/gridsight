@@ -202,7 +202,7 @@ function Impact({ data, t }: { data: ResponseData; t: TeamUp }) {
       <div className="mt-3 grid grid-cols-2 gap-2">
         {top ? <Stat big={hours(top.hours)} label={`sooner power for ${top.name}`} /> : null}
         {imp.customerHours > 0 ? (
-          <Stat big={compact(imp.customerHours)} label="fewer customer-hours in the dark" />
+          <Stat big={`up to ${compact(imp.customerHours)}`} label="fewer customer-hours in the dark" />
         ) : null}
         {imp.costUsd > 0 ? <Stat big={fmtUsd(imp.costUsd, { compact: true })} label="crew time for the help" /> : null}
         {imp.sharedYards ? (
@@ -389,7 +389,8 @@ function TeamUpBody({
             </li>
             <li>
               Customer-hours: customers predicted out in the state (South Carolina for Dominion, Georgia for Georgia Power) x
-              hours sooner x {AVERAGE_GAIN}, because restoration is spread over the outage.
+              hours sooner x {AVERAGE_GAIN}, because restoration is spread over the outage. It is an upper bound: the crew
+              math covers transmission lines, and many homes also wait on local distribution repairs.
             </li>
             {t.assumptions.map((a) => (
               <li key={a}>{a}</li>
