@@ -310,6 +310,20 @@ async function cachePut(key: string, value: { utility: CatalogUtility; projects:
   }
 }
 
+/**
+ * Public, non-CEII plan documents for utilities we already know where to find.
+ * Used when no link is given, so a name alone works even without web search.
+ */
+const SERTP_2026 =
+  "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf";
+const KNOWN_PLANS: { test: RegExp; url: string }[] = [
+  { test: /duke|tennessee valley|\btva\b|alabama power|mississippi power|georgia transmission|\bgtc\b|meag|lg&e|louisville gas|kentucky utilities|powersouth|associated electric|\baeci\b|southern company/i, url: SERTP_2026 },
+];
+
+function knownPlanUrl(name: string): string | null {
+  return KNOWN_PLANS.find((k) => k.test.test(name))?.url ?? null;
+}
+
 export async function findUtilityPlan(input: { name: string; url?: string | null }, emit: Emit): Promise<void> {
   const name = input.name.trim();
   if (!geminiKey()) {
@@ -329,8 +343,10 @@ export async function findUtilityPlan(input: { name: string; url?: string | null
   let candidates: Candidate[];
   let via: "search" | "knowledge" | "provided";
   let hinted: SearchOut["utility"];
-  if (input.url) {
-    candidates = [{ url: input.url, title: fileTitle(input.url) }];
+  const known = input.url ? null : knownPlanUrl(name);
+  if (input.url || known) {
+    const url = (input.url ?? known) as string;
+    candidates = [{ url, title: fileTitle(url) }];
     via = "provided";
   } else {
     const found = await findDocument(name, emit);
