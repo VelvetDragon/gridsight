@@ -118,7 +118,7 @@ export function OutageChart({ storm, fips, state, height = 160, className }: Out
   const hovered = geom && hover != null ? geom.pts[hover] : null;
   const badge =
     curve?.source === "tiger" ? (
-      <span className="inline-flex h-[20px] items-center gap-1 rounded-full bg-[rgba(51,65,85,0.1)] px-2 text-[11px] font-medium text-ink-2">
+      <span className="inline-flex h-[20px] shrink-0 items-center gap-1 rounded-full bg-[rgba(51,65,85,0.1)] px-2 text-[11px] font-medium whitespace-nowrap text-ink-2">
         <Database size={11} aria-hidden />
         Live from Tiger Data
       </span>
@@ -130,8 +130,8 @@ export function OutageChart({ storm, fips, state, height = 160, className }: Out
 
   return (
     <figure className={cx("flex flex-col gap-1.5 text-ink", className)}>
-      <figcaption className="flex items-baseline justify-between gap-2">
-        <span className="text-[12px] font-medium">
+      <figcaption className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+        <span className="min-w-0 text-[12px] font-medium">
           Customers out{curve ? ` · ${curve.label}` : ""}
         </span>
         {badge}

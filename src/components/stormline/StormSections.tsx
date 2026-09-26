@@ -345,7 +345,7 @@ export function RealOutages({ stormId }: { stormId: string }) {
         <div role="group" aria-label="Which state" className="inline-flex h-7 items-center rounded-[8px] border border-hairline p-0.5">
           {([undefined, "GA", "SC"] as const).map((s) => (
             <button
-              key={s ?? "both"}
+              key={s ?? "all"}
               type="button"
               aria-pressed={state === s}
               onClick={() => setState(s)}
@@ -354,7 +354,7 @@ export function RealOutages({ stormId }: { stormId: string }) {
                 state === s ? "bg-ink text-white" : "text-ink-2 hover:bg-wash-2",
               )}
             >
-              {s ?? "Both"}
+              {s ?? "All"}
             </button>
           ))}
         </div>
