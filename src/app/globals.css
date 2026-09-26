@@ -2,23 +2,27 @@
 
 /*
  * GridSight design tokens.
- * Paper and ink neutrals, one colour per utility, one ordered scale for
- * overlap tiers, and a slate + single warm alert tone for storm response.
+ * Warm paper and ink neutrals, one colour per company (the same on the map and
+ * in the panels), one ordered scale for overlap tiers, and slate + a single
+ * warm alert tone for storm response.
  */
 :root {
-  --paper: #f4f1eb;
-  --glass: rgba(250, 248, 244, 0.84);
-  --glass-strong: rgba(252, 251, 248, 0.92);
-  --hairline: rgba(20, 22, 28, 0.08);
-  --hairline-strong: rgba(20, 22, 28, 0.14);
-  --ink: #16181d;
-  --ink-2: #3a3f4b;
-  --ink-3: #5a6070;
-  --wash: rgba(20, 22, 28, 0.04);
-  --wash-2: rgba(20, 22, 28, 0.07);
+  --paper: #f2eee6;
+  --glass: rgba(255, 255, 255, 0.58);
+  --glass-strong: rgba(255, 255, 255, 0.78);
+  --glass-edge: rgba(255, 255, 255, 0.7);
+  --hairline: rgba(20, 24, 30, 0.09);
+  --hairline-strong: rgba(20, 24, 30, 0.16);
+  --ink: #15181e;
+  --ink-2: #363c48;
+  --ink-3: #555c6b;
+  --wash: rgba(20, 24, 30, 0.04);
+  --wash-2: rgba(20, 24, 30, 0.07);
 
   --desc: #0e7c7b;
+  --desc-soft: rgba(14, 124, 123, 0.1);
   --gpc: #c2410c;
+  --gpc-soft: rgba(194, 65, 12, 0.09);
   --river: #3b82c4;
 
   --tier-crossing: #1d2533;
@@ -31,9 +35,10 @@
 
   --focus: #1f6feb;
 
-  --shadow-panel: 0 1px 1px rgba(20, 22, 28, 0.04),
-    0 4px 12px -2px rgba(20, 22, 28, 0.08), 0 16px 40px -12px rgba(20, 22, 28, 0.16);
-  --shadow-float: 0 1px 2px rgba(20, 22, 28, 0.08), 0 8px 24px -6px rgba(20, 22, 28, 0.18);
+  --shadow-panel: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(20, 24, 30, 0.06),
+    0 12px 32px rgba(20, 24, 30, 0.1);
+  --shadow-float: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(20, 24, 30, 0.08),
+    0 8px 24px rgba(20, 24, 30, 0.14);
 }
 
 @theme inline {
@@ -46,7 +51,9 @@
   --color-hairline: var(--hairline);
   --color-hairline-strong: var(--hairline-strong);
   --color-desc: var(--desc);
+  --color-desc-soft: var(--desc-soft);
   --color-gpc: var(--gpc);
+  --color-gpc-soft: var(--gpc-soft);
   --color-river: var(--river);
   --color-slate: var(--slate);
   --color-alert: var(--alert);
@@ -55,8 +62,9 @@
   --color-tier-row: var(--tier-row);
   --color-tier-logistics: var(--tier-logistics);
   --color-tier-crew: var(--tier-crew);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans-ui);
+  --font-mono: var(--font-numbers);
+  --font-display: var(--font-display);
   --shadow-panel: var(--shadow-panel);
   --shadow-float: var(--shadow-float);
 }
@@ -69,43 +77,59 @@ body {
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans-ui), ui-sans-serif, system-ui, sans-serif;
   font-size: 14px;
-  line-height: 1.45;
-  font-feature-settings: "ss01", "cv11";
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Glass surface: translucent paper over the map. */
+/* Real glass: the map stays visible, softened, behind every panel. */
 @utility glass {
   background: var(--glass);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  backdrop-filter: blur(18px) saturate(1.4);
-  border: 1px solid var(--hairline);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--glass-edge);
   box-shadow: var(--shadow-panel);
 }
 
 @utility glass-strong {
   background: var(--glass-strong);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  backdrop-filter: blur(18px) saturate(1.4);
-  border: 1px solid var(--hairline);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--glass-edge);
   box-shadow: var(--shadow-float);
 }
 
-/* Small uppercase section label. */
+/* Panel and section titles. */
+@utility display {
+  font-family: var(--font-display), Georgia, serif;
+  font-variation-settings: "SOFT" 60, "opsz" 36;
+  letter-spacing: -0.01em;
+}
+
+/* Quiet sentence-case section label. */
 @utility eyebrow {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+/* The one small-caps label, used sparingly (legend group headings). */
+@utility smallcaps {
   font-size: 11px;
   line-height: 16px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-3);
 }
 
+/* Tabular numbers only: km, $, months. */
 @utility num {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: var(--font-numbers), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
+  font-size: 0.93em;
   letter-spacing: -0.01em;
 }
 
@@ -178,7 +202,7 @@ input[type="range"].range::-moz-range-thumb {
 /* ---------- Map chrome ---------- */
 .maplibregl-ctrl-attrib {
   font-size: 11px !important;
-  background: rgba(250, 248, 244, 0.82) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
   color: var(--ink-3) !important;
   border-radius: 6px 0 0 0;
 }
@@ -199,10 +223,10 @@ input[type="range"].range::-moz-range-thumb {
 .gs-popup .maplibregl-popup-content {
   padding: 0;
   background: var(--glass-strong);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  backdrop-filter: blur(18px) saturate(1.4);
-  border: 1px solid var(--hairline);
-  border-radius: 12px;
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--glass-edge);
+  border-radius: 14px;
   box-shadow: var(--shadow-float);
 }
 .gs-popup .maplibregl-popup-tip {
@@ -299,7 +323,7 @@ input[type="range"].range::-moz-range-thumb {
 /* Without backdrop blur, glass needs to be nearly opaque to stay legible. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   :root {
-    --glass: rgba(250, 248, 244, 0.97);
-    --glass-strong: rgba(252, 251, 248, 0.98);
+    --glass: rgba(252, 251, 248, 0.96);
+    --glass-strong: rgba(253, 252, 250, 0.98);
   }
 }
