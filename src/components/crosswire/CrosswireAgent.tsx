@@ -104,13 +104,54 @@ function useTools(cw: Cw) {
     compare: async ({ you, neighbor }: { you?: string; neighbor?: string }) => {
       const a = utilityId(you);
       const b = utilityId(neighbor);
+      const known = (ref.current.catalog?.utilities ?? []).map((u) => u.name);
       if (!a || !b || a === b) {
-        return json({ error: "I need two different utilities I know.", known: (ref.current.catalog?.utilities ?? []).map((u) => u.name) });
+        return json({ error: "I need two different utilities I know. For a new one, use find_utility.", known });
       }
-      ref.current.setPair(a, b);
-      await wait((c) => !!c.bundle && c.bundle.you.id === a && c.bundle.neighbor.id === b && !c.pairLoading);
+      const open = ref.current.pairIds;
+      const already = !!open && ((open[0] === a && open[1] === b) || (open[0] === b && open[1] === a));
+      if (!already) ref.current.setPair(a, b);
+      const ok = await wait(
+        (c) =>
+          !!c.bundle &&
+          !c.pairLoading &&
+          [c.bundle.you.id, c.bundle.neighbor.id].sort().join() === [a, b].sort().join(),
+      );
       const c = ref.current;
-      return json({ opened: c.bundle ? [c.bundle.you.name, c.bundle.neighbor.name] : [a, b], matches: c.ranked.length });
+      if (!ok || !c.plan) return json({ opening: true, note: "Still loading; ask pair_summary in a moment." });
+      return json({
+        opened: [c.bundle!.you.name, c.bundle!.neighbor.name],
+        placesWherePlansMeet: c.plan.overlaps.length,
+        next: "Call pair_summary for the details.",
+      });
+    },
+
+    find_utility: async ({ name }: { name?: string }) => {
+      const q = (name ?? "").trim();
+      if (!q) return json({ error: "Which utility?" });
+      const have = utilityId(q);
+      if (have) return json({ alreadyKnown: true, utility: ref.current.catalog?.utilities.find((u) => u.id === have)?.name });
+      const before = new Set((ref.current.catalog?.utilities ?? []).map((u) => u.id));
+      void ref.current.find(q);
+      const ok = await wait((c) => c.finding?.status === "failed" || (c.catalog?.utilities ?? []).some((u) => !before.has(u.id)));
+      for (let i = 0; i < 250 && !ok; i++) {
+        const c = ref.current;
+        if (c.finding?.status === "failed" || (c.catalog?.utilities ?? []).some((u) => !before.has(u.id))) break;
+        await new Promise((r) => setTimeout(r, 200));
+      }
+      const c = ref.current;
+      const added = (c.catalog?.utilities ?? []).find((u) => !before.has(u.id));
+      if (!added) {
+        return json({ found: false, reason: c.finding?.error ?? "The search took too long; the Find button can keep trying." });
+      }
+      await wait((x) => !!x.bundle && !x.pairLoading && x.bundle.neighbor.id === added.id);
+      const d = ref.current;
+      return json({
+        found: added.name,
+        source: "its public transmission plan, read with Gemini",
+        opened: d.bundle ? [d.bundle.you.name, d.bundle.neighbor.name] : null,
+        placesWherePlansMeet: d.plan?.overlaps.length ?? null,
+      });
     },
 
     pair_summary: async () => {

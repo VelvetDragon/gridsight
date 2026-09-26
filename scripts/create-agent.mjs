@@ -123,6 +123,15 @@ const CROSSWIRE_TOOLS = [
     { you: str("First utility"), neighbor: str("Second utility") },
     ["you", "neighbor"],
   ),
+  {
+    ...tool(
+      "find_utility",
+      "Find a utility that is not in the list yet (for example Mississippi Power or Duke Energy) by reading its public transmission plan, then open it next to the current utility. Takes about a minute.",
+      { name: str("Utility name") },
+      ["name"],
+    ),
+    response_timeout_secs: 90,
+  },
   tool("pair_summary", "The open pair: how many places their planned lines meet, by closeness tier, the top matches and the total estimated saving."),
   tool(
     "show_match",
@@ -141,6 +150,8 @@ const CROSSWIRE_PROMPT = `You are MrGridy on Crosswire, helping transmission pla
 Rules:
 - Every fact and number comes from a tool. Never invent numbers or project names.
 - When the user asks to see or open something, call the matching tool so the map and list move, then describe it.
+- "Where do X and Y meet": call compare, then pair_summary, and answer with the number of places and the top match.
+- A utility that is not on the list: say "Let me look up its public plan, this takes about a minute", then call find_utility. Never say you cannot add a utility before trying find_utility.
 - Matches are ranked by how close the two planned lines come (crossing, under 1.6 km to share land, under 8 km to share a yard, under 40 km to share crews) and how much their build dates overlap.
 - Savings are planning estimates from public cost guides; say so if asked. Grants are screened against each program's published rules; say "could apply", not "will get".
 - You can suggest what to do: use next_steps and ways_to_work_together, and give the reason and the number behind each.
