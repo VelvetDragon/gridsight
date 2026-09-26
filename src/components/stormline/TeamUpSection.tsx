@@ -3,7 +3,7 @@
 import { ArrowRight, Handshake, PanelRightClose, PanelRightOpen, Tent, Truck, Users } from "lucide-react";
 import type { ResponseData } from "@/lib/data";
 import { fmtInt, fmtUsd } from "@/lib/format";
-import { AVERAGE_GAIN, teamUpImpact, type TeamUp, type TeamUpMove, type TeamUpOwner } from "@/lib/teamup";
+import { andList, AVERAGE_GAIN, teamUpImpact, type TeamUp, type TeamUpMove, type TeamUpOwner } from "@/lib/teamup";
 import { timeSaved } from "@/lib/savings";
 import { NAV_CLEARANCE } from "../shell/AppShell";
 import { RAIL_GUTTER } from "../shell/Rail";
@@ -28,17 +28,17 @@ function hours(h: number): string {
 function lead(t: TeamUp, storm: string): string {
   const name = new Map(t.owners.map((o) => [o.id, o.name]));
   const need = t.owners.filter((o) => o.role === "needs help");
-  const help = t.owners.filter((o) => o.role === "can help" && o.lineKm >= 300);
   const lends = t.moves.filter((m) => m.kind === "lend");
   if (!need.length) {
     return `${storm} damages lines on ${t.owners.filter((o) => o.damagedSections >= 1).length} systems, but every utility can finish its own repairs within a day. Sharing yards still saves driving.`;
   }
-  const needNames = need.slice(0, 3).map((o) => o.name).join(", ");
+  const needNames = andList(need.slice(0, 3).map((o) => o.name));
   if (!lends.length) {
     return `${needNames} would each need more than a day of repairs on their own, and the neighbours with spare crews are too few or too far to make a real difference. Call national mutual aid early.`;
   }
-  const givers = [...new Set(lends.map((m) => name.get(m.from) ?? m.from))].slice(0, 3).join(", ");
-  return `${needNames} would need more than a day of repairs on their own. ${givers} ${givers.includes(",") ? "have" : "has"} crews to spare and ${help.length > 1 ? "are" : "is"} close enough to help.`;
+  const giverList = [...new Set(lends.map((m) => name.get(m.from) ?? m.from))].slice(0, 3);
+  const many = giverList.length > 1;
+  return `${needNames} would need more than a day of repairs on their own. ${andList(giverList)} ${many ? "have" : "has"} crews to spare and ${many ? "are" : "is"} close enough to help.`;
 }
 
 function MoveRow({ m, names, onFly }: { m: TeamUpMove; names: Map<string, string>; onFly: (pts: Position[], key: string) => void }) {
@@ -125,7 +125,7 @@ function Impact({ data, t }: { data: ResponseData; t: TeamUp }) {
           <Stat big={`${imp.sharedYards}`} label={`staging yard${imp.sharedYards > 1 ? "s" : ""} shared instead of ${imp.sharedYards * 2}`} />
         ) : null}
         {aid && aid.vulnerableTo90 > 0 ? (
-          <Stat big={hours(aid.vulnerableTo90)} label="sooner for residents on medical equipment (Dominion + Georgia Power)" />
+          <Stat big={hours(aid.vulnerableTo90)} label="sooner for people on medical equipment" />
         ) : null}
       </div>
       <p className="mt-3 text-[13px] leading-[19px] text-ink-2">

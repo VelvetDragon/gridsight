@@ -63,7 +63,7 @@ KEEP_HOURS = 24.0  # a lender keeps enough crews to finish its own work within a
 KEEP_SHARE = 0.5  # and never sends more than half its crews
 NEED_HOURS = 24.0  # a utility needs help when its crews alone need more than a day
 MIN_SECTIONS = 1.0  # owners with less expected damage are listed as not hit
-MIN_KM = 300.0  # below this much line on the map, crew numbers are too uncertain to lend or receive
+MIN_KM = 1000.0  # below this much line on the map, crew numbers are too uncertain to lend or receive
 DAMAGED_P = 0.2  # a section counts as damaged for the yard / crew tiers at p >= 0.2
 YARD_KM, CREW_KM = 8.0, 40.0
 DRIVE_KMH = 80.0  # highway average; straight line x ROAD_FACTOR

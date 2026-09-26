@@ -46,6 +46,12 @@ export interface TeamUp {
   sources: Record<string, unknown>;
 }
 
+/** "A", "A and B", "A, B and C". */
+export function andList(items: string[]): string {
+  if (items.length < 2) return items.join("");
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
 export function isTeamUp(v: unknown): v is TeamUp {
   const t = v as TeamUp | null;
   return !!t && Array.isArray(t.owners) && Array.isArray(t.moves);
@@ -81,7 +87,8 @@ export function teamUpImpact(t: TeamUp, counties: { state: string; predictedPeak
   const out = (st: string) => counties.filter((c) => c.state === st).reduce((a, c) => a + c.predictedPeakOut, 0);
   const sooner = [...byTo.entries()]
     .map(([id, hours]) => ({ id, name: name.get(id) ?? id, hours, customers: STATE_OF[id] ? out(STATE_OF[id]) : null }))
-    .sort((a, b) => b.hours - a.hours);
+    // Utilities whose customers we can count come first; then by hours.
+    .sort((a, b) => Number(b.customers != null) - Number(a.customers != null) || b.hours - a.hours);
   const customerHours = sooner.reduce((a, s) => a + (s.customers ?? 0) * s.hours * AVERAGE_GAIN, 0);
   return {
     sooner,

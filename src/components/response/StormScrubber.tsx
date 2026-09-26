@@ -31,14 +31,17 @@ export function StormScrubber({
 
   // Day labels at 00 UTC, 12 UTC as minor ticks.
   const ticks: ScrubberTick[] = [];
+  // Long replays label every other day, and never right at the end, so dates don't collide.
+  const every = (max - min) / (24 * HOUR) > 8 ? 2 : 1;
   const first = Math.ceil(min / (12 * HOUR)) * 12 * HOUR;
   for (let t = first; t <= max; t += 12 * HOUR) {
     const d = new Date(t);
-    const midnight = d.getUTCHours() === 0;
+    const day = Math.round(t / (24 * HOUR));
+    const labelled = d.getUTCHours() === 0 && day % every === 0 && max - t > 12 * HOUR;
     ticks.push({
       value: t,
-      label: midnight ? `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}` : "12Z",
-      minor: !midnight,
+      label: labelled ? `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}` : "",
+      minor: !labelled,
     });
   }
 

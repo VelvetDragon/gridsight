@@ -274,7 +274,68 @@ export function buildResponseLayers(props: ResponseSceneProps): Layer[] {
     }
   }
 
+  layers.push(...teamUpLayers(data));
   return layers;
+}
+
+/** Gentle arc between two points (quadratic curve bowed to the left of travel). */
+function arc(a: Position, b: Position, n = 32): Position[] {
+  const [dx, dy] = [b[0] - a[0], b[1] - a[1]];
+  const c: Position = [(a[0] + b[0]) / 2 - dy * 0.22, (a[1] + b[1]) / 2 + dx * 0.22];
+  return Array.from({ length: n + 1 }, (_, i) => {
+    const t = i / n;
+    const u = 1 - t;
+    return [u * u * a[0] + 2 * u * t * c[0] + t * t * b[0], u * u * a[1] + 2 * u * t * c[1] + t * t * b[1]];
+  });
+}
+
+const TEAM_RGB: [number, number, number] = [47, 111, 69];
+
+/** Who should team up, drawn on the map: lent crews as arcs, shared yards / crew areas as rings. */
+function teamUpLayers(data: ResponseData): Layer[] {
+  const t = data.teamUp;
+  if (!t) return [];
+  const lends = t.moves.filter((m) => m.kind === "lend").slice(0, 5);
+  const shared = t.moves.filter((m) => m.kind !== "lend").slice(0, 5);
+  return [
+    new PathLayer<(typeof lends)[number]>({
+      id: "r-team-arcs",
+      data: lends,
+      getPath: (m) => arc(m.path[0], m.path[1]),
+      getColor: [...TEAM_RGB, 210],
+      getWidth: (m) => 2 + Math.min(4, m.crews / 15),
+      widthUnits: "pixels",
+      capRounded: true,
+      getDashArray: [6, 4],
+      dashJustified: true,
+      extensions: [dashes],
+    } as ConstructorParameters<typeof PathLayer<(typeof lends)[number]>>[0] & PathStyleExtensionProps),
+    new ScatterplotLayer<(typeof lends)[number]>({
+      id: "r-team-arc-ends",
+      data: lends,
+      getPosition: (m) => m.path[1],
+      getRadius: 5,
+      radiusUnits: "pixels",
+      getFillColor: [...TEAM_RGB, 235],
+      getLineColor: [255, 255, 255, 255],
+      lineWidthUnits: "pixels",
+      getLineWidth: 2,
+      stroked: true,
+    }),
+    new ScatterplotLayer<(typeof shared)[number]>({
+      id: "r-team-shared",
+      data: shared,
+      getPosition: (m) => m.at,
+      getRadius: (m) => (m.kind === "yard" ? 9 : 13),
+      radiusUnits: "pixels",
+      filled: true,
+      getFillColor: (m) => (m.kind === "yard" ? [...TEAM_RGB, 70] : [...TEAM_RGB, 25]),
+      stroked: true,
+      getLineColor: [...TEAM_RGB, 230],
+      lineWidthUnits: "pixels",
+      getLineWidth: 2,
+    }),
+  ];
 }
 
 type StormFrameRow = { position: Position; r: number };
@@ -293,6 +354,35 @@ export function responseMarkers(props: ResponseSceneProps): MapMarker[] {
           `Shared yard: ${y.label}. Serves ${y.serves.length} zones, up to ${y.maxDriveMinutes} min drive`,
         ),
       );
+    }
+  }
+  const team = data.teamUp;
+  if (team) {
+    const name = new Map(team.owners.map((o) => [o.id, o.name]));
+    for (const [i, m] of team.moves.filter((x) => x.kind === "lend").slice(0, 3).entries()) {
+      if (m.kind !== "lend") continue;
+      const mid = arc(m.path[0], m.path[1])[16];
+      markers.push({
+        id: `team-lend-${i}`,
+        position: mid,
+        node: (
+          <div className="gs-passive rounded-full border border-[#2F6F45]/30 bg-white/90 px-2 py-0.5 text-[11px] font-medium whitespace-nowrap text-[#2F6F45] shadow-[var(--shadow-float)]">
+            {fmtInt(m.crews)} crews · {name.get(m.from) ?? m.from} → {name.get(m.to) ?? m.to}
+          </div>
+        ),
+      });
+    }
+    for (const [i, m] of team.moves.filter((x) => x.kind === "yard").slice(0, 2).entries()) {
+      if (m.kind === "lend") continue;
+      markers.push({
+        id: `team-yard-${i}`,
+        position: m.at,
+        node: (
+          <div className="gs-passive translate-y-[-22px] rounded-full bg-[#2F6F45] px-2 py-0.5 text-[11px] font-medium whitespace-nowrap text-white shadow-[var(--shadow-float)]">
+            Share a yard: {name.get(m.a) ?? m.a} + {name.get(m.b) ?? m.b}
+          </div>
+        ),
+      });
     }
   }
   if (visible.track) {
