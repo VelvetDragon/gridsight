@@ -52,10 +52,6 @@ const TOWER_PHASES: V3[] = [
   [0, 0, 25.6],
   [8.6, 0, 25.6],
 ];
-const TOWER_EARTH: V3[] = [
-  [-3.0, 0, 37.5],
-  [3.0, 0, 37.5],
-];
 const POLE_PHASES: V3[] = [
   [-2.1, 0, 16.4],
   [2.1, 0, 16.4],
@@ -295,8 +291,8 @@ const TOWER_TINT = [STEEL, new THREE.Color(0.2, 0.55, 0.54), new THREE.Color(0.7
 const POLE_TINT = new THREE.Color(0.47, 0.38, 0.3);
 const WIRE_RGB: [number, number, number][] = [
   [0.2, 0.22, 0.26],
-  [14 / 255, 124 / 255, 123 / 255],
-  [194 / 255, 65 / 255, 12 / 255],
+  [0.05, 0.36, 0.36],
+  [0.55, 0.2, 0.06],
 ];
 const WIRE_STEPS = 10;
 const MAX_INSTANCES = 4500;
@@ -437,22 +433,21 @@ export class GridPass implements ThreePass {
     let v = 0;
     for (const sp of data.spans) {
       const pole = sp.a.pole || sp.b.pole;
-      const pts = pole ? POLE_PHASES : [...TOWER_PHASES, ...TOWER_EARTH];
+      const pts = pole ? POLE_PHASES : TOWER_PHASES;
       const la = frame.toLocal(sp.a.position[0], sp.a.position[1]);
       const lb = frame.toLocal(sp.b.position[0], sp.b.position[1]);
       const rgb = WIRE_RGB[sp.style] ?? WIRE_RGB[0];
       const sagBase = Math.min(0.032 * sp.meters, pole ? 4 : 9);
-      pts.forEach(([ax, , az], k) => {
-        const earth = !pole && k >= 3;
+      pts.forEach(([ax, , az]) => {
         const offA: [number, number] = [ax * sp.a.arm[0], ax * sp.a.arm[1]];
         const offB: [number, number] = [ax * sp.b.arm[0], ax * sp.b.arm[1]];
-        const col = earth ? [0.42, 0.45, 0.5, 0.75] : [...rgb, 0.95];
-        const w = earth ? 0.7 : 1.35;
+        const col = [...rgb, 0.9];
+        const w = 0.9;
         let prev: { p: number[]; o: number[]; d: number } | null = null;
         for (let s = 0; s <= WIRE_STEPS; s++) {
           const u = s / WIRE_STEPS;
           const p = [la[0] + (lb[0] - la[0]) * u, la[1] + (lb[1] - la[1]) * u, 0];
-          const sag = earth ? sagBase * 0.7 : sagBase;
+          const sag = sagBase;
           const o = [offA[0] + (offB[0] - offA[0]) * u, offA[1] + (offB[1] - offA[1]) * u, az - sag * catenarySag(u)];
           const d = sp.along + sp.meters * u;
           if (prev) {
@@ -470,7 +465,7 @@ export class GridPass implements ThreePass {
               color.push(...col);
               width.push(w);
               along.push(cx ? d : prev.d);
-              pulse.push(sp.building && !earth ? 1 : 0);
+              pulse.push(sp.building ? 1 : 0);
             }
             idx.push(v, v + 1, v + 2, v + 1, v + 3, v + 2);
             v += 4;
@@ -515,7 +510,7 @@ export class GridPass implements ThreePass {
     const a1 = p1.array as Float32Array;
     let v = 0;
     for (const sp of data.spans) {
-      const n = sp.a.pole || sp.b.pole ? POLE_PHASES.length : TOWER_PHASES.length + TOWER_EARTH.length;
+      const n = sp.a.pole || sp.b.pole ? POLE_PHASES.length : TOWER_PHASES.length;
       const za = terrain ? (map.queryTerrainElevation(sp.a.position as [number, number]) ?? 0) : 0;
       const zb = terrain ? (map.queryTerrainElevation(sp.b.position as [number, number]) ?? 0) : 0;
       for (let k = 0; k < n; k++) {
