@@ -8,32 +8,42 @@ export type DatasetState<T> =
   | { status: "error"; error: string }
   | ({ status: "ready" } & Bundle<T>);
 
+type Loader<T> = (signal: AbortSignal) => Promise<Bundle<T>>;
+
 /**
- * Loads a data bundle once on mount (client only). `retry` reloads after an error.
+ * Loads a data bundle on the client. Passing a different loader (for example a
+ * new storm) shows "loading" again until the new bundle arrives; a null loader
+ * stays in "loading" (nothing to fetch yet). `retry` reloads after an error.
  */
-export function useDataset<T>(
-  loader: (signal: AbortSignal) => Promise<Bundle<T>>,
-): [DatasetState<T>, () => void] {
+export function useDataset<T>(loader: Loader<T> | null): [DatasetState<T>, () => void] {
   const [attempt, setAttempt] = useState(0);
-  const [state, setState] = useState<DatasetState<T>>({ status: "loading" });
+  // Results are tagged with the loader and attempt that produced them, so a
+  // stale result is never shown for a newer request.
+  const [result, setResult] = useState<{ loader: Loader<T>; attempt: number; state: DatasetState<T> } | null>(null);
 
   useEffect(() => {
+    if (!loader) return;
     const ctrl = new AbortController();
     loader(ctrl.signal)
       .then((bundle) => {
-        if (!ctrl.signal.aborted) setState({ status: "ready", ...bundle });
+        if (!ctrl.signal.aborted) setResult({ loader, attempt, state: { status: "ready", ...bundle } });
       })
       .catch((err: unknown) => {
         if (ctrl.signal.aborted) return;
-        setState({ status: "error", error: err instanceof Error ? err.message : String(err) });
+        setResult({
+          loader,
+          attempt,
+          state: { status: "error", error: err instanceof Error ? err.message : String(err) },
+        });
       });
     return () => ctrl.abort();
   }, [loader, attempt]);
 
-  const retry = useCallback(() => {
-    setState({ status: "loading" });
-    setAttempt((n) => n + 1);
-  }, []);
+  const retry = useCallback(() => setAttempt((n) => n + 1), []);
 
-  return [state, retry];
+  const current =
+    result && loader && result.loader === loader && result.attempt === attempt
+      ? result.state
+      : ({ status: "loading" } as const);
+  return [current, retry];
 }
