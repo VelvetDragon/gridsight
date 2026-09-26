@@ -62,8 +62,10 @@ export interface Part {
   x: number;
   y: number;
   name: string;
-  /** Plain words, under the name on the map and big on the card. */
+  /** Plain words: what it does. */
   does: string;
+  /** How it connects to the parts explained before it. */
+  via: string;
   icon: LucideIcon;
   tone: Tone;
   stat: { value: string; label: string };
@@ -79,6 +81,7 @@ export const PARTS: Part[] = [
     y: 330,
     name: "Public records",
     does: "Where every number starts",
+    via: "Where the whole story starts",
     icon: FileText,
     tone: "amber",
     stat: { value: "0", label: "CEII documents used" },
@@ -96,6 +99,7 @@ export const PARTS: Part[] = [
     y: 180,
     name: "Plan pipeline",
     does: "Reads both plans and finds where they meet",
+    via: "Reads the public records",
     icon: Route,
     tone: "emerald",
     stat: { value: "114", label: "planned projects placed on the map" },
@@ -113,6 +117,7 @@ export const PARTS: Part[] = [
     y: 480,
     name: "Storm model",
     does: "Replays every past hurricane over both grids",
+    via: "Also reads the public records",
     icon: Wind,
     tone: "emerald",
     stat: { value: "10,000", label: "runs per storm, on a GPU" },
@@ -130,6 +135,7 @@ export const PARTS: Part[] = [
     y: 380,
     name: "Ready-made results",
     does: "Everything the pipeline found, saved as files",
+    via: "Written by the plan pipeline",
     icon: FileJson,
     tone: "cyan",
     stat: { value: "50", label: "overlaps ready before anyone asks" },
@@ -147,6 +153,7 @@ export const PARTS: Part[] = [
     y: 620,
     name: "Tiger Data",
     does: "Outage history, hour by hour",
+    via: "Filled by the storm model",
     icon: Database,
     tone: "violet",
     stat: { value: "8", label: "tables, plus an hourly roll-up" },
@@ -164,6 +171,7 @@ export const PARTS: Part[] = [
     y: 120,
     name: "Voice clips",
     does: "Storm briefings, recorded ahead of time",
+    via: "Recorded ahead of time with ElevenLabs",
     icon: Volume2,
     tone: "cyan",
     stat: { value: "EN + ES", label: "briefings in two languages" },
@@ -181,6 +189,7 @@ export const PARTS: Part[] = [
     y: 320,
     name: "Web app",
     does: "What the planner sees and clicks",
+    via: "Opens the ready-made results",
     icon: Monitor,
     tone: "cyan",
     stat: { value: "4", label: "screens: Switchboard, Crosswire, Stormline, Ledger" },
@@ -198,6 +207,7 @@ export const PARTS: Part[] = [
     y: 110,
     name: "Map",
     does: "Draws both plans and every storm",
+    via: "Draws what the web app loads",
     icon: Map,
     tone: "cyan",
     stat: { value: "4", label: "match tiers: cross, 1.6 km, 8 km, 40 km" },
@@ -215,6 +225,7 @@ export const PARTS: Part[] = [
     y: 110,
     name: "Match finder",
     does: "Ranks matches on the planner's own laptop",
+    via: "Runs inside the web app",
     icon: Cpu,
     tone: "cyan",
     stat: { value: "3,240", label: "pairs of lines compared" },
@@ -232,6 +243,7 @@ export const PARTS: Part[] = [
     y: 200,
     name: "Add a utility",
     does: "Finds and reads a plan we have never seen",
+    via: "The web app sends it a utility's name",
     icon: Server,
     tone: "violet",
     stat: { value: "5", label: "steps streamed live: search, download, read, extract, place" },
@@ -249,6 +261,7 @@ export const PARTS: Part[] = [
     y: 390,
     name: "Memo writer",
     does: "Turns a match into a memo and a phone call",
+    via: "The web app asks it for a memo",
     icon: Server,
     tone: "violet",
     stat: { value: "~50 s", label: "call between the two planners" },
@@ -266,6 +279,7 @@ export const PARTS: Part[] = [
     y: 590,
     name: "Storm feed",
     does: "Outage charts and live storms",
+    via: "The web app asks, Tiger Data answers",
     icon: Server,
     tone: "violet",
     stat: { value: "10 min", label: "live storm answers are kept" },
@@ -283,6 +297,7 @@ export const PARTS: Part[] = [
     y: 300,
     name: "Answer cache",
     does: "Remembers every answer so we never pay twice",
+    via: "Add a utility checks here first",
     icon: Boxes,
     tone: "emerald",
     stat: { value: "0", label: "AI calls for a question asked before" },
@@ -300,6 +315,7 @@ export const PARTS: Part[] = [
     y: 680,
     name: "Hurricane Center",
     does: "Where the live storms come from",
+    via: "The storm feed checks it every 10 minutes",
     icon: CloudLightning,
     tone: "amber",
     stat: { value: "LIVE", label: "" },
@@ -317,6 +333,7 @@ export const PARTS: Part[] = [
     y: 140,
     name: "Gemini",
     does: "Reads long PDFs and writes plain text",
+    via: "The cache calls it when it has no answer",
     icon: Sparkles,
     tone: "amber",
     stat: { value: "1", label: "fixed format for every plan it reads" },
@@ -334,6 +351,7 @@ export const PARTS: Part[] = [
     y: 320,
     name: "ElevenLabs",
     does: "Gives the call two real voices",
+    via: "Voices the memo writer's call scripts",
     icon: AudioLines,
     tone: "amber",
     stat: { value: "2", label: "voices, one per utility" },
@@ -351,6 +369,7 @@ export const PARTS: Part[] = [
     y: 500,
     name: "OpenStreetMap",
     does: "Turns place names into points on the map",
+    via: "The cache calls it to place each project",
     icon: MapPin,
     tone: "amber",
     stat: { value: "1 / s", label: "polite, cached lookups" },
@@ -389,25 +408,38 @@ export const EDGES: { a: string; b: string; backup?: boolean }[] = [
   { a: "cache", b: "osm" },
 ];
 
-/** One chapter per part, in build order. `spawn` are the blanks that appear when it starts. */
+/**
+ * One chapter per part, in story order: each part is explained right after the
+ * part it talks to. `spawn` are the blanks that grow out when a chapter starts.
+ */
 export const CHAPTERS: { fill: string; spawn: string[] }[] = [
+  // Where two plans meet
   { fill: "sources", spawn: ["sources"] },
-  { fill: "pipeline", spawn: ["pipeline", "gpu"] },
-  { fill: "gpu", spawn: [] },
-  { fill: "static", spawn: ["static", "tiger"] },
-  { fill: "tiger", spawn: [] },
-  { fill: "audio", spawn: ["audio"] },
+  { fill: "pipeline", spawn: ["pipeline"] },
+  { fill: "static", spawn: ["static"] },
   { fill: "app", spawn: ["app"] },
-  { fill: "map", spawn: ["map", "worker", "find", "explain", "storm"] },
+  { fill: "map", spawn: ["map", "worker"] },
   { fill: "worker", spawn: [] },
-  { fill: "find", spawn: [] },
-  { fill: "explain", spawn: [] },
-  { fill: "storm", spawn: [] },
-  { fill: "cache", spawn: ["cache", "nhc"] },
-  { fill: "gemini", spawn: ["gemini", "elevenlabs", "osm"] },
-  { fill: "elevenlabs", spawn: [] },
+  // When a hurricane hits
+  { fill: "gpu", spawn: ["gpu"] },
+  { fill: "tiger", spawn: ["tiger"] },
+  { fill: "storm", spawn: ["storm"] },
+  { fill: "nhc", spawn: ["nhc"] },
+  // Reading new plans and briefing planners
+  { fill: "find", spawn: ["find"] },
+  { fill: "cache", spawn: ["cache"] },
+  { fill: "gemini", spawn: ["gemini", "osm"] },
   { fill: "osm", spawn: [] },
-  { fill: "nhc", spawn: [] },
+  { fill: "explain", spawn: ["explain"] },
+  { fill: "elevenlabs", spawn: ["elevenlabs"] },
+  { fill: "audio", spawn: ["audio"] },
+];
+
+/** The three stories the chapters are grouped into, by first chapter. */
+export const ACTS: { from: number; title: string }[] = [
+  { from: 0, title: "Where two plans meet" },
+  { from: 6, title: "When a hurricane hits" },
+  { from: 10, title: "Reading new plans and briefing planners" },
 ];
 
 export interface Flow {
