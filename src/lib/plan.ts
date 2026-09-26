@@ -1,6 +1,6 @@
 /** Derived facts about an overlap, shared by the list, drawer and memo. */
 import { fmtKm, fmtMinutes, fmtMonthYear, fmtMonths, fmtUsd, ACTION_LABEL, fmtKv } from "./format";
-import { tierFull } from "./theme";
+import { tierFull, UTILITY_NAME } from "./theme";
 import { windowOverlap } from "./timeline";
 import type { Overlap, Project } from "./types";
 
@@ -68,8 +68,10 @@ export function buildMemo(o: Overlap, desc: Project, gpc: Project, rank: number)
   lines.push(`Prepared with MrGridy. Opportunity #${rank} of the current ranking.`);
   lines.push("");
   lines.push("WHAT");
-  lines.push(`- Dominion Energy (DESC): ${desc.name} (${projectLine(desc)}), in service ${fmtMonthYear(desc.inService)}.`);
-  lines.push(`- Georgia Power: ${gpc.name} (${projectLine(gpc)}), in service ${fmtMonthYear(gpc.inService)}.`);
+  lines.push(
+    `- ${UTILITY_NAME.DESC}: ${desc.name} (${projectLine(desc)}), in service ${fmtMonthYear(desc.inService)}.`,
+  );
+  lines.push(`- ${UTILITY_NAME.GPC}: ${gpc.name} (${projectLine(gpc)}), in service ${fmtMonthYear(gpc.inService)}.`);
   lines.push("");
   lines.push("WHY COORDINATE");
   lines.push(`- ${tierFull(o.tier)}. Distance apart ${fmtKm(o.distanceKm)} in a straight line.`);
@@ -79,7 +81,8 @@ export function buildMemo(o: Overlap, desc: Project, gpc: Project, rank: number)
       ? `- Build windows overlap ${fmtMonths(o.timelineOverlapMonths)} (${fmtMonthYear(shared[0])} to ${fmtMonthYear(shared[1])}).`
       : "- Build windows do not overlap; sharing means sequencing the work.",
   );
-  if (o.robustness === "uncertain") lines.push("- Location confidence is limited for at least one project; confirm routes before committing.");
+  if (o.robustness === "uncertain")
+    lines.push("- Location confidence is limited for at least one project; confirm routes before committing.");
   lines.push("");
   lines.push("WHAT THEY CAN SHARE");
   for (const s of o.shareable) lines.push(`- ${s}`);
@@ -91,12 +94,16 @@ export function buildMemo(o: Overlap, desc: Project, gpc: Project, rank: number)
     lines.push("");
     lines.push("SUGGESTED STAGING YARD");
     lines.push(`- ${y.label} (${y.position[1].toFixed(4)}, ${y.position[0].toFixed(4)})`);
-    lines.push(`- Drive: Dominion Energy ${fmtMinutes(y.driveMinutesDesc)}, Georgia Power ${fmtMinutes(y.driveMinutesGpc)}.`);
+    lines.push(
+      `- Drive: ${UTILITY_NAME.DESC} ${fmtMinutes(y.driveMinutesDesc)}, ${UTILITY_NAME.GPC} ${fmtMinutes(y.driveMinutesGpc)}.`,
+    );
   }
   if (o.cost) {
     lines.push("");
     lines.push(`ESTIMATED SAVINGS: ${fmtUsd(o.cost.totalUsd)} (order of magnitude)`);
-    lines.push(`- Land ${fmtUsd(o.cost.landSavingsUsd)}, mobilization ${fmtUsd(o.cost.mobilizationSavingsUsd)}, yard ${fmtUsd(o.cost.yardSavingsUsd)}.`);
+    lines.push(
+      `- Land ${fmtUsd(o.cost.landSavingsUsd)}, mobilization ${fmtUsd(o.cost.mobilizationSavingsUsd)}, yard ${fmtUsd(o.cost.yardSavingsUsd)}.`,
+    );
   }
   lines.push("");
   lines.push("SUGGESTED NEXT STEP");
