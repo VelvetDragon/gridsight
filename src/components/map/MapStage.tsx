@@ -2,7 +2,6 @@
 
 import type { Layer, PickingInfo } from "@deck.gl/core";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
-import { FlightOverlay } from "./fx/FlightOverlay";
 import { FxControls } from "./fx/FxControls";
 import { useFx } from "./fx/useFx";
 import MapCanvas, { type MapMarker, type MapPadding, type MapPopup, type ViewRequest } from "./MapCanvas";
@@ -93,9 +92,6 @@ export default function MapStage({ mode, plan, response, popup, view, padding }:
         fx={fx.controller}
       />
       <FxControls fx={fx} className="absolute z-20" style={fxControlsStyle} />
-      {mode === "plan" ? (
-        <FlightOverlay fx={fx} plan={plan} buttonStyle={{ top: fxControlsStyle.top, right: fxControlsStyle.right + 70 }} />
-      ) : null}
       {hover ? (
         <div
           className="glass-strong pointer-events-none absolute z-30 max-w-[300px] rounded-[10px] px-3 py-2"
