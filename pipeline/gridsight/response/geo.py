@@ -41,11 +41,11 @@ def counties() -> gpd.GeoDataFrame:
     gdf["name"] = gdf["NAME"]
     gdf = gdf.to_crs(GEO_CRS)
     pts = gdf.geometry.representative_point()
-    gdf["cx"], gdf["cy"] = pts.x, pts.y
+    gdf["clon"], gdf["clat"] = pts.x, pts.y
     gdf["area_km2"] = gdf.to_crs(METRIC_CRS).geometry.area / 1e6
     mcc = customers()
     gdf["customers"] = gdf["fips"].map(mcc).fillna(0).astype(int)
-    return gdf[["fips", "name", "state", "cx", "cy", "area_km2", "customers", "geometry"]].reset_index(drop=True)
+    return gdf[["fips", "name", "state", "clon", "clat", "area_km2", "customers", "geometry"]].reset_index(drop=True)
 
 
 @lru_cache(maxsize=1)
