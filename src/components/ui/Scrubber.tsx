@@ -93,7 +93,8 @@ export function Scrubber({
               <span
                 key={`${t.value}-${t.label}`}
                 className={cx(
-                  "num absolute top-0 -translate-x-1/2 text-[11px] text-ink-3",
+                  "num absolute top-0 text-[11px] whitespace-nowrap text-ink-3",
+                  left > 94 ? "-translate-x-full" : left < 4 ? "" : "-translate-x-1/2",
                   t.minor && "hidden @[520px]:inline",
                 )}
                 style={{ left: `${left}%` }}
