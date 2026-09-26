@@ -8,7 +8,7 @@
  */
 :root {
   --paper: #f2eee6;
-  --glass: rgba(255, 255, 255, 0.58);
+  --glass: rgba(255, 255, 255, 0.62);
   --glass-strong: rgba(255, 255, 255, 0.78);
   --glass-edge: rgba(255, 255, 255, 0.7);
   --hairline: rgba(20, 24, 30, 0.09);
@@ -218,6 +218,22 @@ input[type="range"].range::-moz-range-thumb {
 }
 .maplibregl-ctrl-group button + button {
   border-top: 1px solid var(--hairline) !important;
+}
+
+/*
+ * deck.gl's overlay canvas is added as a map control, after the markers in the
+ * DOM. Lift markers and popups so labels always read on top of the lines.
+ */
+.maplibregl-marker {
+  z-index: 3;
+}
+.maplibregl-popup {
+  z-index: 4;
+}
+
+/* On-map labels never block clicks on the layers beneath them. */
+.maplibregl-marker:has(> .gs-passive) {
+  pointer-events: none;
 }
 
 .gs-popup .maplibregl-popup-content {

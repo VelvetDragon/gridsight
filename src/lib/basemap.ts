@@ -7,6 +7,13 @@ import type { StyleSpecification } from "maplibre-gl";
 
 export const BASEMAP_URL = "https://tiles.openfreemap.org/styles/positron";
 
+/**
+ * Georgia and South Carolina outlines, committed with the app (not pipeline output).
+ * Source: U.S. Census Bureau, 2018 Cartographic Boundary File, States, 1:20,000,000
+ * (cb_2018_us_state_20m), public domain; simplified to about 0.006° and rounded.
+ */
+export const STATES_URL = "/data/context/states.geojson";
+
 const PAPER = "#F2EEE6";
 const WATER = "#BCD7EA";
 const SAGE = "#E1E7D6";
@@ -64,10 +71,35 @@ const PAINT: Record<string, Paint> = {
 /** Layers hidden to keep the map quiet (GridSight draws its own state labels). */
 const HIDDEN = new Set(["label_state", "highway-shield-non-us", "highway-shield-us-interstate", "road_shield_us"]);
 
-export function naturalizeStyle(style: StyleSpecification): StyleSpecification {
+/**
+ * Soft state tints drawn inside the basemap (under roads and labels): Georgia a
+ * faint warm orange, South Carolina a faint teal, matching each company's colour.
+ */
+function withStateTints(style: StyleSpecification, states: unknown): StyleSpecification {
+  if (!states) return style;
+  const at = style.layers.findIndex((l) => l.id === "landcover_wood");
+  const insertAt = at >= 0 ? at + 1 : 1;
+  const tint = {
+    id: "gs-state-tint",
+    type: "fill",
+    source: "gs-states",
+    paint: {
+      "fill-color": ["match", ["get", "state"], "GA", "#C2410C", "#0E7C7B"],
+      "fill-opacity": ["match", ["get", "state"], "GA", 0.07, 0.085],
+    },
+  } as StyleSpecification["layers"][number];
   return {
     ...style,
-    layers: style.layers.map((layer) => {
+    sources: { ...style.sources, "gs-states": { type: "geojson", data: states as never } },
+    layers: [...style.layers.slice(0, insertAt), tint, ...style.layers.slice(insertAt)],
+  };
+}
+
+export function naturalizeStyle(style: StyleSpecification, states: unknown = null): StyleSpecification {
+  const tinted = withStateTints(style, states);
+  return {
+    ...tinted,
+    layers: tinted.layers.map((layer) => {
       if (HIDDEN.has(layer.id)) return { ...layer, layout: { ...layer.layout, visibility: "none" } } as typeof layer;
       const paint = PAINT[layer.id];
       if (!paint) return layer;
@@ -77,13 +109,24 @@ export function naturalizeStyle(style: StyleSpecification): StyleSpecification {
 }
 
 /** Fetch and re-colour the basemap; falls back to the stock style URL on failure. */
+async function loadStates(signal?: AbortSignal): Promise<unknown> {
+  try {
+    const res = await fetch(STATES_URL, { signal });
+    if (!res.ok) return null;
+    const body = (await res.json()) as { features?: unknown };
+    return Array.isArray(body.features) ? body : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function loadNaturalStyle(signal?: AbortSignal): Promise<StyleSpecification | string> {
   try {
-    const res = await fetch(BASEMAP_URL, { signal });
+    const [res, states] = await Promise.all([fetch(BASEMAP_URL, { signal }), loadStates(signal)]);
     if (!res.ok) return BASEMAP_URL;
     const style = (await res.json()) as StyleSpecification;
     if (!Array.isArray(style.layers)) return BASEMAP_URL;
-    return naturalizeStyle(style);
+    return naturalizeStyle(style, states);
   } catch {
     return BASEMAP_URL;
   }
