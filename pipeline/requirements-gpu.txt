@@ -1,0 +1,3 @@
+# Installed on the RunPod GPU pod on top of the PyTorch image.
+-r requirements.txt
+torch>=2.3
