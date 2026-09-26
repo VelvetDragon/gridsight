@@ -120,8 +120,19 @@ def hourly_curves(df) -> dict[str, Any]:
     df = df.assign(bucket=df["time"].dt.floor("1h"))
     wide = df.groupby(["bucket", "fips"])["customers_out"].max().unstack("fips")
     axis = pd.date_range(wide.index.min(), wide.index.max(), freq="1h", tz="UTC")
-    # EAGLE-I omits zero rows; a county that is missing for an hour had no reported outage.
-    wide = wide.reindex(axis).fillna(0).astype("int64")
+    # EAGLE-I omits zero rows, so a county missing from an hour in which other
+    # counties of its state reported had no outage (0). An hour with no rows for
+    # a whole state is a collection gap: carry the previous hour forward there.
+    wide = wide.reindex(axis)
+    for state_fips in STATE_FIPS:
+        cols = [c for c in wide.columns if c.startswith(state_fips)]
+        if not cols:
+            continue
+        block = wide[cols]
+        gap = block.isna().all(axis=1)
+        block.loc[~gap] = block.loc[~gap].fillna(0)
+        wide[cols] = block.ffill()
+    wide = wide.fillna(0).astype("int64")
     counties = {fips: wide[fips].tolist() for fips in wide.columns if wide[fips].max() > 0}
     totals = {}
     for state_fips, state in STATE_FIPS.items():
