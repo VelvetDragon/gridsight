@@ -21,10 +21,11 @@ export const PART_LABEL = {
 } as const;
 
 export const HONEST_NOTE =
-  "Counts only Dominion's disclosed costs; Georgia Power's costs are redacted, so real savings could be higher.";
+  "Counts only costs the utilities disclose; some redact theirs (Georgia Power does), so real savings could be higher.";
 
 /** "$4.2M", "$369k". */
 export function fmtMoney(n: number): string {
+  if (!Number.isFinite(n)) return "–";
   if (Math.abs(n) >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
   if (Math.abs(n) >= 1e3) return `$${Math.round(n / 1e3)}k`;
   return `$${Math.round(n)}`;
@@ -63,12 +64,14 @@ export function SavingsBar({ land, yard, crew }: { land: number; yard: number; c
         )}
       </div>
       <ul className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] leading-4 text-ink-2">
-        {parts.map((p) => (
-          <li key={p.k} className="flex items-center gap-1.5">
-            <span aria-hidden className="h-2 w-2 rounded-[2px]" style={{ background: PART_COLOR[p.k] }} />
-            {PART_LABEL[p.k]} <span className="num text-ink">{fmtMoney(p.v)}</span>
-          </li>
-        ))}
+        {parts
+          .filter((p) => p.v > 0)
+          .map((p) => (
+            <li key={p.k} className="flex items-center gap-1.5">
+              <span aria-hidden className="h-2 w-2 rounded-[2px]" style={{ background: PART_COLOR[p.k] }} />
+              {PART_LABEL[p.k]} <span className="num text-ink">{fmtMoney(p.v)}</span>
+            </li>
+          ))}
       </ul>
     </div>
   );
@@ -124,7 +127,15 @@ function YearSpark({ points, year }: { points: YearPoint[]; year: number | null 
 }
 
 /** Headline figure: a range with the central value highlighted, or a single "up to" value. */
-export function SavingsHeadline({ summary, size = "md" }: { summary: SavingsSummary; size?: "md" | "xl" }) {
+export function SavingsHeadline({
+  summary,
+  size = "md",
+  caption = true,
+}: {
+  summary: SavingsSummary;
+  size?: "md" | "xl";
+  caption?: boolean;
+}) {
   const central = useCountUp(summary.total);
   const low = useCountUp(summary.low);
   const high = useCountUp(summary.high);
@@ -144,7 +155,7 @@ export function SavingsHeadline({ summary, size = "md" }: { summary: SavingsSumm
           {fmtMoney(low)}–{fmtMoney(high)}
         </span>
       </p>
-      <p className="mt-0.5 text-[13px] text-ink-2">
+      <p className={cx("mt-0.5 text-[13px] text-ink-2", !caption && "hidden")}>
         estimated savings, most likely about{" "}
         <span className="rounded-[5px] bg-[rgba(110,139,94,0.16)] px-1.5 py-px font-semibold text-ink tabular-nums">
           {fmtMoney(central)}

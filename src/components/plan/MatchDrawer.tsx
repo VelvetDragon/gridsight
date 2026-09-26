@@ -185,7 +185,7 @@ function BigStat({ label, value, note }: { label: string; value: string; note?: 
   );
 }
 
-function ShareLadder({ overlap }: { overlap: Overlap }) {
+export function ShareLadder({ overlap }: { overlap: Overlap }) {
   const at = TIERS.indexOf(overlap.tier);
   const extras = overlap.shareable;
   return (
@@ -241,7 +241,7 @@ function ShareLadder({ overlap }: { overlap: Overlap }) {
   );
 }
 
-function DistanceBlock({ overlap }: { overlap: Overlap }) {
+export function DistanceBlock({ overlap }: { overlap: Overlap }) {
   const note = roadNote(overlap);
   const max = Math.max(overlap.distanceKm, overlap.roadKm ?? 0, 1);
   const bar = (km: number, strong: boolean) => (
@@ -283,7 +283,7 @@ function DistanceBlock({ overlap }: { overlap: Overlap }) {
   );
 }
 
-function YardBlock({ overlap }: { overlap: Overlap }) {
+export function YardBlock({ overlap }: { overlap: Overlap }) {
   const y = overlap.stagingYard!;
   const max = Math.max(60, y.driveMinutesDesc, y.driveMinutesGpc);
   return (
@@ -319,7 +319,7 @@ function YardBlock({ overlap }: { overlap: Overlap }) {
   );
 }
 
-function CostBlock({ overlap }: { overlap: Overlap }) {
+export function CostBlock({ overlap }: { overlap: Overlap }) {
   const c = overlap.cost;
   if (!c) return <p className="text-[13px] text-ink-3">No cost estimate for this pair.</p>;
   const rows: [string, number, string?][] = [
@@ -370,7 +370,7 @@ function CostBlock({ overlap }: { overlap: Overlap }) {
   );
 }
 
-function SourceLink({ project }: { project: Project }) {
+export function SourceLink({ project }: { project: Project }) {
   const href = sourceHref(project);
   const body = (
     <>
@@ -421,7 +421,17 @@ function SourceLink({ project }: { project: Project }) {
   );
 }
 
-function CopyMemo({ overlap, desc, gpc, rank }: { overlap: Overlap; desc: Project; gpc: Project; rank: number }) {
+export function CopyMemo({
+  overlap,
+  desc,
+  gpc,
+  rank,
+}: {
+  overlap: Overlap;
+  desc: Project;
+  gpc: Project;
+  rank: number;
+}) {
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   useEffect(() => {
     if (state === "idle") return;

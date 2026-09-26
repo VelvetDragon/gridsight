@@ -6,6 +6,7 @@ import { boundsOf, circleBounds, haversineKm, type Bounds } from "@/lib/geo";
 import { closestApproachTimes, REPLAY_STEP_MS, stormAt, trackTimes } from "@/lib/response";
 import type { Position } from "@/lib/types";
 import { useDataset } from "@/lib/useDataset";
+import { setUrlParams } from "@/lib/useUrlState";
 import { usePlayback } from "@/lib/usePlayback";
 import type { ViewRequest } from "../map/MapCanvas";
 import type { ResponseLayerId, ResponseSceneProps } from "../map/responseScene";
@@ -30,7 +31,9 @@ export function useResponseMode(initialStorm: string | null, initialTime: string
   const [indexState, retryIndex] = useDataset(loadStormIndex);
   const storms = indexState.status === "ready" ? indexState.data : null;
 
-  const [picked, setPicked] = useState<string | null>(initialStorm);
+  // The storm lives in the URL (?storm=) so the back button and shared links work.
+  const picked = initialStorm;
+  const setPicked = useCallback((id: string) => setUrlParams({ storm: id, t: null }, true), []);
   const stormId = useMemo(() => {
     if (!storms?.length) return null;
     if (picked && storms.some((s) => s.id === picked)) return picked;

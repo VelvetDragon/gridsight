@@ -10,6 +10,8 @@ import Map, { Marker, Popup, useControl, type MapRef } from "react-map-gl/maplib
 import { loadNaturalStyle } from "@/lib/basemap";
 import type { Bounds } from "@/lib/geo";
 import type { Position } from "@/lib/types";
+import type { FxController } from "./fx/FxController";
+import { FxMapHost } from "./fx/FxMapHost";
 
 // MapLibre loads its worker by URL; scripts/copy-maplibre-worker.mjs puts it in public/.
 if (typeof window !== "undefined") maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
@@ -50,20 +52,23 @@ export interface MapCanvasProps {
   view?: ViewRequest | null;
   padding: MapPadding;
   onHover?: (info: PickingInfo) => void;
-  onClick?: (info: PickingInfo) => void;
+  onClick?: (info: PickingInfo, event?: { srcEvent?: { shiftKey?: boolean } }) => void;
+  /** Realistic map effects; when set, layers pass through it on their way to the overlay. */
+  fx?: FxController | null;
 }
 
-function DeckOverlay(props: MapboxOverlayProps) {
+function DeckOverlay({ fx, ...props }: MapboxOverlayProps & { fx?: FxController | null }) {
   const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay(props));
   useEffect(() => {
-    overlay.setProps(props);
+    if (fx) fx.syncOverlay(overlay, props);
+    else overlay.setProps(props);
   });
   return null;
 }
 
 type LoadState = "loading" | "ready" | "error";
 
-export default function MapCanvas({ layers, markers = [], popup, view, padding, onHover, onClick }: MapCanvasProps) {
+export default function MapCanvas({ layers, markers = [], popup, view, padding, onHover, onClick, fx }: MapCanvasProps) {
   const mapRef = useRef<MapRef>(null);
   const [load, setLoad] = useState<LoadState>("loading");
   const lastViewKey = useRef<string | null>(null);
@@ -139,7 +144,8 @@ export default function MapCanvas({ layers, markers = [], popup, view, padding, 
             console.warn("[map]", e.error?.message ?? e);
           }}
         >
-          <DeckOverlay layers={layers} onHover={handleHover} onClick={onClick} pickingRadius={6} />
+          <DeckOverlay layers={layers} onHover={handleHover} onClick={onClick} pickingRadius={6} fx={fx} />
+          {fx ? <FxMapHost controller={fx} /> : null}
           {markers.map((m) => (
             <Marker
               key={m.id}
