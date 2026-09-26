@@ -52,7 +52,7 @@ export function riverFxLayers(river: LineCollection, { id, time, zoom }: RiverFx
   const data = riverPaths(river);
   if (!data.length) return [];
   // Width grows with zoom but stays a quiet background element.
-  const bodyPx = Math.min(22, Math.max(4.2, 4.2 * 1.45 ** (zoom - 7)));
+  const bodyPx = Math.min(22, Math.max(6, 6 * 1.45 ** (zoom - 7)));
   return [
     new PathLayer<RiverPath>({
       id: `${id}-fx-wash`,
@@ -80,7 +80,7 @@ export function riverFxLayers(river: LineCollection, { id, time, zoom }: RiverFx
       flowMode: "water",
       flowSpeed: 16,
       flowSpacing: 46,
-      flowDashLength: 0.42,
+      flowDashLength: 0,
       flowAccent: LIGHT,
     }),
   ];

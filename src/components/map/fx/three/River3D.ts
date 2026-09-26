@@ -2,8 +2,8 @@
  * The Savannah River as a 3D water surface: a ribbon built from the
  * downstream-oriented centreline, shaded with scrolling ripple normals,
  * depth tint (deep channel, light banks), Fresnel sky reflection, sun
- * glints that appear when the camera tilts, and soft foam at the banks.
- * Flow runs downstream (Augusta to the Atlantic) along arc length.
+ * glints that appear when the camera tilts, lighter banks and a slow
+ * low-contrast shimmer. Flow runs downstream (Augusta to the Atlantic) along arc length.
  */
 import type * as maplibregl from "maplibre-gl";
 import * as THREE from "three";
@@ -80,8 +80,8 @@ void main() {
   vec2 T = normalize(vT);
   vec3 N = normalize(vec3(T * dn.x + vec2(-T.y, T.x) * dn.y, 1.0));
 
-  vec3 deep = vec3(0.15, 0.38, 0.56);
-  vec3 shallow = vec3(0.44, 0.67, 0.80);
+  vec3 deep = vec3(0.30, 0.52, 0.70);
+  vec3 shallow = vec3(0.55, 0.72, 0.84);
   vec3 base = mix(deep, shallow, smoothstep(0.15, 1.0, ax));
   base *= 0.93 + 0.14 * h * detail;
 
@@ -94,29 +94,16 @@ void main() {
   float rv = max(dot(R, V), 0.0);
   col += vec3(1.0, 0.97, 0.9) * (pow(rv, 140.0) * 1.8 * detail + pow(rv, 10.0) * 0.1);
 
-  // Drifting flow streaks: the readable cue at low zoom.
-  float sp = uMpp * 46.0;
-  float streak = 0.0;
-  for (int i = 0; i < 3; i++) {
-    float fi = float(i);
-    float lane = (fi - 1.0) * 0.45;
-    float u = (vDist - uFlow * (1.0 + 0.2 * fi)) / (sp * (1.0 + 0.37 * fi)) + fi * 0.37;
-    float f = fract(u);
-    float rnd = hash(vec2(floor(u), fi * 13.0));
-    float len = 0.42 * (0.5 + 0.7 * rnd);
-    float t = f / len;
-    float s = t < 1.0 ? t * t * (1.0 - smoothstep(0.82, 1.0, t)) : 0.0;
-    s *= step(0.25, rnd);
-    float laneMask = mix(0.8, exp(-pow((vSide - lane) / 0.22, 2.0)), smoothstep(3.0, 9.0, px));
-    streak = max(streak, s * laneMask);
-  }
-  col = mix(col, vec3(0.95, 0.98, 1.0), streak * mix(0.75, 0.35, detail));
+  // A slow, low-contrast shimmer drifting downstream: the flow cue at any zoom.
+  float sw = uMpp * 60.0;
+  float sh = noise(vec2((vDist - uFlow) / sw, vSide * 1.3 + 4.0)) * 0.6 + noise(vec2((vDist - uFlow * 1.3) / (sw * 0.45), vSide * 2.1 - 2.0)) * 0.4;
+  col += vec3(0.05, 0.06, 0.06) * smoothstep(0.45, 0.85, sh) * (1.0 - 0.6 * ax);
 
   // Soft foam along the banks.
   float foam = smoothstep(0.8, 0.97, ax) * (0.45 + 0.55 * noise(vec2((vDist - uRipple * 0.3) / (wl * 0.8), vSide * 3.0)));
-  col = mix(col, vec3(0.93, 0.96, 0.98), foam * 0.55 * detail);
+  col = mix(col, vec3(0.9, 0.94, 0.97), foam * 0.3 * detail);
 
-  float alpha = uOpacity * (1.0 - smoothstep(0.9, 1.0, ax));
+  float alpha = uOpacity * (1.0 - smoothstep(0.82, 1.0, ax));
   gl_FragColor = vec4(col, alpha);
 }
 `;
@@ -209,7 +196,7 @@ export class RiverPass implements ThreePass {
     let base = 0;
     for (const line of lines) {
       const avg = line.distances[line.distances.length - 1] / Math.max(1, line.path.length - 1);
-      const path = avg > 700 ? smooth(line.path, 3) : line.path;
+      const path = smooth(line.path, avg > 700 ? 3 : 2);
       const pts = path.map((p) => frame.toLocal(p[0], p[1]));
       let d = 0;
       for (let i = 0; i < pts.length; i++) {
@@ -288,11 +275,13 @@ export class RiverPass implements ThreePass {
     const lat = map.getCenter().lat;
     const mpp = (40075016.686 * Math.cos((lat * Math.PI) / 180)) / (512 * 2 ** zoom);
     // Flow advances in screen space so it reads the same at every zoom.
-    this.flow += dt * 16 * mpp;
+    this.flow += dt * 9 * mpp;
     this.ripple += dt * Math.max(0.6, 6 * mpp);
     const pitch = (map.getPitch() * Math.PI) / 180;
     const bearing = (map.getBearing() * Math.PI) / 180;
-    m.uniforms.uHalfWidth.value = Math.max(70, 2.3 * mpp);
+    m.uniforms.uHalfWidth.value = Math.max(55, 3.2 * mpp);
+    // Up close the basemap's own water outline shows through the surface.
+    m.uniforms.uOpacity.value = 0.94 - 0.14 * Math.max(0, Math.min(1, (zoom - 11) / 2));
     m.uniforms.uFlow.value = this.flow;
     m.uniforms.uRipple.value = this.ripple;
     m.uniforms.uMpp.value = mpp;
