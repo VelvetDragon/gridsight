@@ -7,6 +7,7 @@ import { fmtInt, fmtMinutes } from "@/lib/format";
 import { fmtMae, stormKey, zoneLabel } from "@/lib/response";
 import type { RepairZone, StormIndexEntry } from "@/lib/types";
 import { SkeletonRows } from "../ui/states";
+import { TimeSavedCard } from "./TimeSaved";
 import { cx, Divider, IconButton, Panel, PanelHeader, SectionTitle, Tooltip, UtilityDot } from "../ui/primitives";
 
 function Section({ title, children, aside }: { title: string; children: ReactNode; aside?: ReactNode }) {
@@ -129,6 +130,14 @@ function ResponseDetails({
 
   return (
     <>
+      {data.mutualAid ? (
+        <>
+          <Section title="Time saved by working together">
+            <TimeSavedCard aid={data.mutualAid} />
+          </Section>
+          <Divider className="mx-5" />
+        </>
+      ) : null}
       <Section title="How it was simulated">
         <div className="grid grid-cols-2 gap-3 rounded-[10px] border border-hairline bg-white/55 px-3.5 py-3">
           <div>
