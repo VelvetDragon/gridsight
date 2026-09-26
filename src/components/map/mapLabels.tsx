@@ -1,8 +1,8 @@
 "use client";
 
 import { haversineKm } from "@/lib/geo";
-import { UTILITY_HEX } from "@/lib/theme";
-import type { Position, UtilityId } from "@/lib/types";
+import { UTILITY_HEX, UTILITY_NAME } from "@/lib/theme";
+import type { Position, Project, UtilityId } from "@/lib/types";
 import type { MapMarker } from "./MapCanvas";
 
 /** Large, quiet state labels placed inside each state, clear of the river. */
@@ -78,7 +78,7 @@ export function projectLabel(
           <span aria-hidden className="w-[3px] shrink-0 rounded-full" style={{ background: UTILITY_HEX[utility] }} />
           <span className="min-w-0">
             <span className="font-semibold" style={{ color: UTILITY_HEX[utility] }}>
-              {utility === "DESC" ? "Dominion:" : "Georgia Power:"}
+              {UTILITY_NAME[utility]}:
             </span>{" "}
             <span className="text-ink">{shortName(name)}</span>
           </span>
@@ -103,18 +103,22 @@ export function distanceLabel(id: string, position: Position, km: number, touchi
   };
 }
 
-export function ringLabel(id: string, position: Position, text: string, placement: "on" | "below" = "on"): MapMarker {
+/** Typography-led label for a line or station the user picked. */
+export function selectionLabel(id: string, position: Position, p: Project): MapMarker {
   return {
     id,
     position,
     node: (
-      <div
-        className="gs-passive"
-        style={placement === "below" ? { transform: "translateY(calc(50% + 4px))" } : undefined}
-      >
-        <span className="rounded-full border border-white/70 bg-white/95 px-2 py-0.5 text-[11px] font-medium whitespace-nowrap text-ink-2 shadow-[0_1px_2px_rgba(20,24,30,0.08)]">
-          {text}
-        </span>
+      <div className="gs-passive" style={{ transform: "translateY(calc(-50% - 14px))" }}>
+        <div className="max-w-[240px] rounded-[8px] border border-white bg-white/95 px-2 py-1 text-[12px] leading-4 shadow-[var(--shadow-float)]">
+          <span
+            className="block text-[10px] font-semibold tracking-[0.06em] uppercase"
+            style={{ color: UTILITY_HEX[p.utility] }}
+          >
+            Your pick · {UTILITY_NAME[p.utility]}
+          </span>
+          <span className="text-ink">{shortName(p.name)}</span>
+        </div>
       </div>
     ),
   };

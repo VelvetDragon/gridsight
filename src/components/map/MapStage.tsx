@@ -11,16 +11,13 @@ import {
   responseTooltip,
   type ResponseSceneProps,
 } from "./responseScene";
-import { buildStoryLayers, storyMarkers, type StorySceneProps } from "./storyScene";
-
-/** "story" is the guided landing; "plan" and "response" are the two Explore views. */
-export type Mode = "story" | "plan" | "response";
+/** "plan" is Crosswire, "response" is Stormline. */
+export type Mode = "plan" | "response";
 
 export interface MapStageProps {
   mode: Mode;
   plan: PlanSceneProps | null;
   response: ResponseSceneProps | null;
-  story: StorySceneProps | null;
   popup: MapPopup | null;
   view: ViewRequest | null;
   padding: MapPadding;
@@ -38,22 +35,20 @@ interface Hover {
  * The one persistent map. Each mode contributes deck.gl layers, DOM markers and
  * a hover tooltip; switching modes swaps the scene without re-creating the map.
  */
-export default function MapStage({ mode, plan, response, story, popup, view, padding }: MapStageProps) {
+export default function MapStage({ mode, plan, response, popup, view, padding }: MapStageProps) {
   const [hover, setHover] = useState<Hover | null>(null);
 
   const layers = useMemo<Layer[]>(() => {
     if (mode === "plan" && plan) return buildPlanLayers(plan);
     if (mode === "response" && response) return buildResponseLayers(response);
-    if (mode === "story" && story) return buildStoryLayers(story);
     return [];
-  }, [mode, plan, response, story]);
+  }, [mode, plan, response]);
 
   const markers = useMemo<MapMarker[]>(() => {
     if (mode === "plan" && plan) return planMarkers(plan);
     if (mode === "response" && response) return responseMarkers(response);
-    if (mode === "story" && story) return storyMarkers(story);
     return [];
-  }, [mode, plan, response, story]);
+  }, [mode, plan, response]);
 
   const onHover = useCallback(
     (info: PickingInfo) => {
@@ -69,8 +64,8 @@ export default function MapStage({ mode, plan, response, story, popup, view, pad
   );
 
   const onClick = useCallback(
-    (info: PickingInfo) => {
-      if (mode === "plan" && plan) handlePlanClick(info, plan);
+    (info: PickingInfo, event?: { srcEvent?: { shiftKey?: boolean } }) => {
+      if (mode === "plan" && plan) handlePlanClick(info, plan, event);
       else if (mode === "response" && response) handleResponseClick(info, response);
     },
     [mode, plan, response],

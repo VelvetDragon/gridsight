@@ -28,8 +28,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "MrGridy",
-  description: "Where neighboring power companies' work collides, before they build and before the storm hits.",
+  title: { default: "MrGridy", template: "%s · MrGridy" },
+  description: "Where neighbouring utilities' plans cross, and where the next storm meets both grids.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { fmtMonthYear } from "@/lib/format";
-import { UTILITY_HEX } from "@/lib/theme";
+import { UTILITY_HEX, UTILITY_NAME } from "@/lib/theme";
 import { monthIndex, windowOverlap } from "@/lib/timeline";
 import type { Project } from "@/lib/types";
 
@@ -16,8 +16,8 @@ const TOP = 18;
  */
 export function MiniGantt({ desc, gpc, cursorMonth }: { desc: Project; gpc: Project; cursorMonth: number | null }) {
   const rows = [
-    { p: desc, color: UTILITY_HEX.DESC, label: "Dominion Energy" },
-    { p: gpc, color: UTILITY_HEX.GPC, label: "Georgia Power" },
+    { p: desc, color: UTILITY_HEX.DESC, label: UTILITY_NAME.DESC },
+    { p: gpc, color: UTILITY_HEX.GPC, label: UTILITY_NAME.GPC },
   ];
   const windows = rows.map((r) => r.p.buildWindow).filter((w): w is [string, string] => !!w);
   if (!windows.length) {

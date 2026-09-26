@@ -37,15 +37,19 @@ export interface CostRange {
   lowUsd: number;
   centralUsd: number;
   highUsd: number;
-  /** Each part is either a single number or a { low, central, high } range. */
+  /** Each part is a number or a { low, central, high } range (the pipeline writes ranges). */
   components?: Partial<Record<"land" | "mobilization" | "yard" | "permits", CostPart>>;
 }
 
-type CostPart = number | { low?: number; central?: number; high?: number };
+type CostPart = number | { low?: number; central?: number; high?: number } | null;
 
-/** Central value of a cost component, 0 when missing or not a finite number. */
-function partValue(v: CostPart | undefined): number {
-  const n = typeof v === "number" ? v : v?.central;
+/** Central value of a component, 0 when missing or not a finite number. */
+function part(v: CostPart | undefined): number {
+  const n = typeof v === "number" ? v : v && typeof v === "object" ? v.central : undefined;
+  return typeof n === "number" && Number.isFinite(n) ? n : 0;
+}
+
+function finite(n: unknown): number {
   return typeof n === "number" && Number.isFinite(n) ? n : 0;
 }
 
@@ -74,24 +78,24 @@ export function matchSavings(o: Overlap, ranges: CostRanges | null): MatchSaving
     const c = r.components ?? {};
     const hasParts = c.land != null || c.permits != null || c.yard != null || c.mobilization != null;
     return {
-      low: r.lowUsd,
-      central: r.centralUsd,
-      high: r.highUsd,
-      land: hasParts ? partValue(c.land) + partValue(c.permits) : (o.cost?.landSavingsUsd ?? 0),
-      yard: hasParts ? partValue(c.yard) : (o.cost?.yardSavingsUsd ?? 0),
-      crew: hasParts ? partValue(c.mobilization) : (o.cost?.mobilizationSavingsUsd ?? 0),
+      low: finite(r.lowUsd),
+      central: finite(r.centralUsd),
+      high: finite(r.highUsd),
+      land: hasParts ? part(c.land) + part(c.permits) : finite(o.cost?.landSavingsUsd),
+      yard: hasParts ? part(c.yard) : finite(o.cost?.yardSavingsUsd),
+      crew: hasParts ? part(c.mobilization) : finite(o.cost?.mobilizationSavingsUsd),
       ranged: true,
     };
   }
   const c = o.cost;
   if (!c) return null;
   return {
-    low: c.totalUsd,
-    central: c.totalUsd,
-    high: c.totalUsd,
-    land: c.landSavingsUsd,
-    yard: c.yardSavingsUsd,
-    crew: c.mobilizationSavingsUsd,
+    low: finite(c.totalUsd),
+    central: finite(c.totalUsd),
+    high: finite(c.totalUsd),
+    land: finite(c.landSavingsUsd),
+    yard: finite(c.yardSavingsUsd),
+    crew: finite(c.mobilizationSavingsUsd),
     ranged: false,
   };
 }
@@ -132,7 +136,7 @@ export function summarizeSavings(overlaps: Overlap[], ranges: CostRanges | null 
     s.land += m.land;
     s.yard += m.yard;
     s.crew += m.crew;
-    s.acres += o.cost?.sharedAcres ?? 0;
+    s.acres += finite(o.cost?.sharedAcres);
     s.count += 1;
     if (m.ranged) s.rangedCount += 1;
   }
