@@ -12,6 +12,7 @@ import { AppShell, NAV_CLEARANCE } from "../shell/AppShell";
 import { NAV } from "../shell/nav";
 import { Rail, railInset, RAIL_GUTTER, type RailSection } from "../shell/Rail";
 import { ErrorCard } from "../ui/states";
+import { StormBriefingButton } from "../integrations/StormBriefingButton";
 import { Block, BothGridsLine, CrewsSection, ModelCheck, More, StormPicker, TimeSavedBlock } from "./StormSections";
 
 const MapStage = dynamic(() => import("../map/MapStage"), {
@@ -56,6 +57,7 @@ export function Stormline() {
             <>
               <Block>
                 <BothGridsLine data={data} />
+                {response.stormId ? <StormBriefingButton stormId={response.stormId} className="mt-4" /> : null}
               </Block>
               {data.mutualAid ? (
                 <Block>
