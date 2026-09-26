@@ -31,8 +31,14 @@ STORY_TITLES = [
 ]
 
 ELEVENLABS_URL = "https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+DIALOGUE_URL = "https://api.elevenlabs.io/v1/text-to-dialogue"
+SFX_URL = "https://api.elevenlabs.io/v1/sound-generation"
+DIALOGUE_MODEL_ID = "eleven_v3"
 # A stock narrator voice from the ElevenLabs premade library ("George": warm, calm).
 DEFAULT_VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"
+# Two distinct stock voices for the coordination call (override with ELEVENLABS_VOICE_DESC / _GPC).
+CALL_VOICE_DESC = "XrExE9yKIg1WjnnlVkGX"  # "Matilda": professional, American
+CALL_VOICE_GPC = "iP95p4xoKVk53GoZ742B"  # "Chris": down-to-earth, American
 DEFAULT_MODEL_ID = "eleven_multilingual_v2"
 OUTPUT_FORMAT = "mp3_44100_128"
 BITRATE_KBPS = 128
@@ -48,6 +54,9 @@ class Clip:
     file: str | None = None
     durationMs: int = 0
     hash: str = ""
+    lang: str = "en"
+    # For translations: hash of the source text they were made from.
+    sourceHash: str | None = None
 
     def finalize(self) -> "Clip":
         self.text = re.sub(r"\s+", " ", self.text).strip()
@@ -159,6 +168,8 @@ class Data:
     vulnerable: list[dict[str, Any]]
     mutual_aid: Any
     origins: dict[str, str | None]
+    track: dict[str, Any] | None = None  # storm.json of the storm
+    response_meta: dict[str, Any] | None = None
 
 
 def load_data(root: Path | None, storm_id: str | None = None) -> Data:
@@ -187,8 +198,12 @@ def load_data(root: Path | None, storm_id: str | None = None) -> Data:
     yards: list = []
     vulnerable: list = []
     mutual_aid = None
+    track = None
+    response_meta = None
     if storm:
         sid = storm["id"]
+        track = get(f"response/{sid}/storm.json")
+        response_meta = get(f"response/{sid}/meta.json")
         counties = get(f"response/{sid}/counties.json") or []
         zones = get(f"response/{sid}/zones.json") or []
         yards = get(f"response/{sid}/yards.json") or []
@@ -198,22 +213,79 @@ def load_data(root: Path | None, storm_id: str | None = None) -> Data:
             if mutual_aid is not None:
                 origins[rel] = "pipeline"
                 break
-    return Data(meta, projects, overlaps, cost_ranges, storm, counties, zones, yards, vulnerable, mutual_aid, origins)
+    return Data(meta, projects, overlaps, cost_ranges, storm, counties, zones, yards, vulnerable, mutual_aid, origins,
+                track, response_meta)
 
 
-def mutual_aid_sentence(mutual_aid: Any) -> str | None:
-    """Use a one-line summary from mutual-aid.json when the file provides one."""
-    if mutual_aid is None:
+def hours_saved(mutual_aid: Any) -> dict[str, float] | None:
+    """savedHours from mutual-aid.json (or the difference of the two scenarios)."""
+    if not isinstance(mutual_aid, dict):
         return None
+    saved = mutual_aid.get("savedHours")
+    if isinstance(saved, dict) and saved.get("to90pct") is not None:
+        return {k: float(v) for k, v in saved.items() if isinstance(v, (int, float))}
+    sc = mutual_aid.get("scenarios") or {}
+    a, b = sc.get("separate"), sc.get("coordinated")
+    if isinstance(a, dict) and isinstance(b, dict) and a.get("hoursTo90pct") is not None:
+        return {"to90pct": float(a["hoursTo90pct"]) - float(b["hoursTo90pct"]),
+                "vulnerableTo90pct": float(a.get("vulnerableHoursTo90pct", 0)) - float(b.get("vulnerableHoursTo90pct", 0))}
+    return None
+
+
+def say_hours(h: float) -> str:
+    """Matches the app's fmtHoursNumber: one decimal under 10, whole hours above."""
+    return f"{h:.1f}" if abs(h) < 10 else f"{round(h)}"
+
+
+def mutual_aid_sentence(mutual_aid: Any, short: bool = False) -> str | None:
+    """One line about restoring power together, from mutual-aid.json."""
+    saved = hours_saved(mutual_aid)
+    if saved and saved.get("to90pct", 0) > 0:
+        line = f"Working together, power comes back about {say_hours(saved['to90pct'])} hours sooner"
+        vul = saved.get("vulnerableTo90pct", 0)
+        if vul > 0 and not short:
+            line += f", and {say_hours(vul)} hours sooner for people who rely on powered medical equipment"
+        return line + "."
     candidates: list[Any] = []
     if isinstance(mutual_aid, dict):
         candidates = [mutual_aid.get(k) for k in ("narration", "headline", "summary")]
-    elif isinstance(mutual_aid, list) and mutual_aid and isinstance(mutual_aid[0], dict):
-        candidates = [mutual_aid[0].get(k) for k in ("narration", "headline", "summary")]
     for c in candidates:
         if isinstance(c, str) and 10 < len(c) < 300:
             return c.strip().rstrip(".") + "."
     return None
+
+
+def hours_of_warning(d: "Data") -> int | None:
+    """Hours between replayStart and the storm's closest pass to the top repair zone (as the app computes)."""
+    from datetime import datetime
+
+    track = (d.track or {}).get("track") or []
+    start = (d.track or {}).get("replayStart")
+    zones = sorted(d.zones, key=lambda z: z.get("priority", 1e9))
+    if len(track) < 2 or not start or not zones:
+        return None
+
+    def ts(s: str) -> float:
+        return datetime.fromisoformat(s.replace("Z", "+00:00")).timestamp()
+
+    times = [ts(p["time"]) for p in track]
+    target = zones[0]["centroid"]
+    best, when = float("inf"), times[0]
+    t = times[0]
+    step = 15 * 60
+    i = 1
+    while t <= times[-1]:
+        while i < len(times) - 1 and t > times[i]:
+            i += 1
+        k = (t - times[i - 1]) / ((times[i] - times[i - 1]) or 1)
+        a, b = track[i - 1]["position"], track[i]["position"]
+        pos = [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]
+        dist = _km(pos, target)
+        if dist < best:
+            best, when = dist, t
+        t += step
+    h = round((when - ts(start)) / 3600)
+    return h if h > 0 else None
 
 
 def nearest_county(point: list[float], counties: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -237,98 +309,85 @@ def county_label(c: dict[str, Any]) -> str:
 
 
 def story_clips(d: Data) -> list[Clip]:
+    """One or two calm sentences per chapter, echoing the on-screen captions (src/components/story/chapters.ts)."""
+    n_desc = sum(1 for p in d.projects.values() if p.get("utility") == "DESC")
+    n_gpc = sum(1 for p in d.projects.values() if p.get("utility") == "GPC")
     meta = d.meta or {}
-    counts = meta.get("projectCount") or {}
-    n_desc = int(counts.get("DESC", sum(1 for p in d.projects.values() if p.get("utility") == "DESC")))
-    n_gpc = int(counts.get("GPC", sum(1 for p in d.projects.values() if p.get("utility") == "GPC")))
-    years = sorted(int(p["inService"][:4]) for p in d.projects.values() if p.get("inService"))
-    upcoming = [y for y in years if y >= 2026] or years
     pairs = int(meta.get("pairsCompared") or n_desc * n_gpc)
-    found = int(meta.get("overlapsFound") or len(d.overlaps))
-    tiers = {t: sum(1 for o in d.overlaps if o.get("tier") == t) for t in ("crossing", "row", "logistics", "crew")}
+    found = len(d.overlaps)
+    touching = sum(1 for o in d.overlaps if o.get("tier") == "crossing")
     top = d.overlaps[0] if d.overlaps else None
 
     texts: list[str] = []
     texts.append(
-        "Dominion Energy South Carolina and Georgia Power face each other across the Savannah River. "
-        "Each one plans its own grid, mostly on its own."
-    )
-    span = f" due in service between {upcoming[0]} and {upcoming[-1]}" if upcoming else ""
-    texts.append(
-        f"Between them they have {n_desc + n_gpc} planned transmission projects{span}: "
-        f"{n_desc} in South Carolina and {n_gpc} in Georgia. {PRODUCT} put every one of them on one map."
-    )
-    close = tiers["crossing"] + tiers["row"]
-    close_line = (
-        f"{say_count(tiers['crossing'], 'pair').capitalize()} touch or cross."
-        if tiers["crossing"]
-        else f"{say_count(close, 'pair').capitalize()} run within a mile of each other."
+        "Two power companies share a river, but plan their work without seeing each other. "
+        "The Savannah River is the border: Georgia Power builds on the Georgia side, "
+        "Dominion Energy on the South Carolina side."
     )
     texts.append(
-        f"{PRODUCT} compared all {pairs:,} pairs and found {found} places where the two plans come "
-        f"within 40 kilometers of each other. {close_line}"
+        f"Dominion plans {n_desc} jobs. Georgia Power plans {n_gpc}. Nobody lines them up. "
+        f"{PRODUCT} put every one of them on one map, from their public filings."
+    )
+    touch = f" {say_count(touching, 'of them touches', 'of them touch').capitalize()} outright." if touching else ""
+    texts.append(
+        f"Of {pairs:,} possible pairs, only {found} are within a crew's morning drive, forty kilometers.{touch}"
     )
     if top:
         desc = d.projects.get(top["descId"], {})
         gpc = d.projects.get(top["gpcId"], {})
-        place = overlap_place(top.get("summary", ""))
-        where = f" near {place}" if place else ""
+        km = float(top.get("distanceKm") or 0)
+        km_s = f"{km:.1f}" if km < 10 else f"{round(km)}"
+        lead = {
+            "crossing": "These two jobs touch. One crew, one yard, one permit instead of two.",
+            "row": f"These two jobs run {km_s} kilometers apart. They could share land and permits.",
+            "logistics": f"These two jobs are {km_s} kilometers apart. They could share a yard and deliveries.",
+        }.get(top.get("tier"), f"These two jobs are {km_s} kilometers apart. They could share crews and equipment.")
         months = round(float(top.get("timelineOverlapMonths") or 0))
-        timing = (
-            f" Their build windows overlap by about {months} months."
-            if months > 0
-            else " Their build windows sit close together."
-        )
+        both = f" Both are under construction at the same time for about {months} months." if months > 0 else ""
         texts.append(
-            f"The strongest match is{where}: DESC's {spoken_name(desc.get('name', 'project'))} "
-            f"and Georgia Power's {spoken_name(gpc.get('name', 'project'))}.{timing}"
+            f"{lead} Dominion's {spoken_name(desc.get('name', 'project'))}, "
+            f"and Georgia Power's {spoken_name(gpc.get('name', 'project'))}.{both}"
         )
     else:
-        texts.append("The strongest match is where both utilities plan work in the same place at the same time.")
+        texts.append("The best match is where both companies plan work in the same place at the same time.")
 
-    top10 = d.overlaps[:10]
     central = sum((d.cost_ranges.get(o["id"], {}).get("centralUsd") or (o.get("cost") or {}).get("totalUsd") or 0)
-                  for o in top10)
-    low = sum(d.cost_ranges.get(o["id"], {}).get("lowUsd", 0) for o in top10)
-    high = sum(d.cost_ranges.get(o["id"], {}).get("highUsd", 0) for o in top10)
+                  for o in d.overlaps)
+    low = sum(d.cost_ranges.get(o["id"], {}).get("lowUsd", 0) for o in d.overlaps)
+    high = sum(d.cost_ranges.get(o["id"], {}).get("highUsd", 0) for o in d.overlaps)
     if central > 0:
-        rng = f", somewhere between {say_usd(low)} and {say_usd(high)}" if low and high and d.cost_ranges else ""
+        rng = f", somewhere between {say_usd(low)} and {say_usd(high)}" if d.cost_ranges and low and high else ""
         texts.append(
-            f"Sharing crews, yards and right-of-way across the top {say_count(len(top10), 'match', 'matches')} could save "
-            f"roughly {say_usd(central)}{rng}. That comes from avoided trips and shared land, not from any budget."
+            f"What working together could save: roughly {say_usd(central)} across all {found} matches{rng}. "
+            "It is an estimate. Georgia Power does not publish its project costs, so real savings could be higher."
         )
     else:
-        texts.append("Sharing crews, yards and right-of-way means fewer trips, less new land and fewer outages.")
+        texts.append("What working together could save: fewer trips, less new land, and fewer outages.")
 
     storm = d.storm or {}
     name = storm.get("name", "the storm")
-    year = storm.get("year")
-    predicted = sum(c.get("predictedPeakOut", 0) for c in d.counties)
-    actual = sum((c.get("actualPeakOut") or 0) for c in d.counties)
-    when = f" in {year}" if year else ""
-    storm_line = f"When Hurricane {name} came through{when}, both utilities were hit at once."
-    if predicted:
-        storm_line += f" {PRODUCT} replays it and expects about {say_int(predicted)} customers out at the peak"
-        storm_line += f"; about {say_int(actual)} actually lost power." if actual else "."
-    texts.append(storm_line)
+    lead_h = hours_of_warning(d)
+    rm = d.response_meta or {}
+    sims = rm.get("simulations")
+    before = f"About {lead_h} hours before" if lead_h else "Before"
+    line6 = (f"{before} Hurricane {name} arrived, {PRODUCT} predicted where lines would break for both companies, "
+             "and compared it with what happened.")
+    if sims:
+        line6 += f" It simulated the storm {int(sims):,} times, with physics."
+    texts.append(line6)
 
-    joint_zones = [z for z in d.zones if len(z.get("utilities", [])) > 1]
-    people = sum(int(z.get("vulnerablePeople", 0)) for z in d.zones)
     fix = []
-    if d.yards:
-        labels = say_list([say_place(y.get("label", "")) for y in d.yards[:2]])
-        fix.append(f"{say_count(len(d.yards), 'shared staging yard').capitalize()}, at {labels}, can serve crews from both sides.")
-    else:
-        fix.append("Shared staging yards let crews from both sides start closer to the damage.")
-    if d.zones:
-        fix.append(
-            f"{PRODUCT} orders {len(d.zones)} repair zones"
-            + (f", {say_count(len(joint_zones), 'shared by both utilities', 'shared by both utilities')}" if joint_zones else "")
-            + f", putting about {say_int(people)} electricity-dependent residents first."
-        )
     aid = mutual_aid_sentence(d.mutual_aid)
     if aid:
         fix.append(aid)
+        fix.append("Shared staging yards and crews go to the nearest repair zone first, whichever company owns it.")
+    elif d.yards:
+        labels = say_list([say_place(y.get("label", "")) for y in d.yards[:2]])
+        fix.append(f"{say_count(len(d.yards), 'shared staging yard').capitalize()}, at {labels}, "
+                   "can serve crews from both companies.")
+        fix.append("Numbered repair zones show where crews should go first.")
+    else:
+        fix.append("Shared staging yards let crews from both companies start closer to the damage.")
     fix.append("Two neighbors, one plan.")
     texts.append(" ".join(fix))
 
@@ -387,7 +446,7 @@ def briefing_clip(d: Data) -> Clip | None:
             if u in seg:
                 seg[u] += float(z.get("expectedDamagedSegments", 0)) / max(len(utils), 1)
 
-    parts = [f"Storm crew briefing for Hurricane {name}. Here is where to expect damage, and where to start."]
+    parts = [f"Storm crew briefing for Hurricane {name}."]
     if ga:
         parts.append(
             f"On the Georgia side, the heaviest outages are expected in {say_list([county_label(c) for c in ga])}, "
@@ -430,10 +489,10 @@ def briefing_clip(d: Data) -> Clip | None:
             f"Vulnerable areas first. Start near {named[0]}, where about "
             f"{say_about(ordered[0].get('vulnerablePeople', 0))} residents rely on powered medical equipment{rest}."
         )
-    aid = mutual_aid_sentence(d.mutual_aid)
+    aid = mutual_aid_sentence(d.mutual_aid, short=True)
     if aid:
         parts.append(aid)
-    parts.append(f"Check the {PRODUCT} map for live zone order. Stay safe out there.")
+    parts.append(f"Zone order is live on the {PRODUCT} map. Stay safe.")
     return Clip(id=f"briefing-{storm['id']}", kind="briefing", title=f"Storm crew briefing: {name}",
                 text=" ".join(parts)).finalize()
 
@@ -444,7 +503,57 @@ def build_clips(root: Path | None, storm_id: str | None = None) -> tuple[list[Cl
     for extra in (flight_clip(d), briefing_clip(d)):
         if extra:
             clips.append(extra)
+    clips.extend(sfx_clips())
     return clips, d
+
+
+# Sound effects (ElevenLabs Sound Effects API). Short, quiet UI accents.
+SFX = [
+    ("sfx-spark", "Spark", "a single subtle electric spark crackle, short and clean, close up, no music", 1.2),
+    ("sfx-hum", "Grid hum", "a soft low electrical substation hum, steady and calm, seamless loop, no music", 6.0),
+]
+
+
+def sfx_clips() -> list[Clip]:
+    return [Clip(id=i, kind="sfx", title=t, text=prompt, durationMs=int(sec * 1000)).finalize() for i, t, prompt, sec in SFX]
+
+
+def sfx_seconds(clip: Clip) -> float:
+    return next((sec for i, _, _, sec in SFX if i == clip.id), clip.durationMs / 1000)
+
+
+TRANSLATE_SYSTEM = (
+    "You translate storm briefings for Spanish-speaking utility line crews in Georgia and South Carolina. "
+    "Write natural, calm, spoken Latin American Spanish. Keep every number, county name, place name, company "
+    "name and the product name MrGridy exactly as given. Do not add or drop any fact."
+)
+
+
+def spanish_clip(english: Clip, previous: dict[str, Any] | None) -> Clip | None:
+    """Spanish version of a briefing. Reuses the previous translation while the English text is unchanged."""
+    cid = f"{english.id}-es"
+    if previous and previous.get("sourceHash") == english.hash and previous.get("text"):
+        clip = Clip(id=cid, kind="briefing", title=f"{english.title} (español)", text=previous["text"], lang="es")
+        clip.sourceHash = english.hash
+        return clip.finalize()
+    from gridsight.integrations.gemini import generate_json
+
+    try:
+        out, _ = generate_json(
+            f"Translate this storm crew briefing into Spanish:\n\n{english.text}",
+            {"type": "OBJECT", "properties": {"text": {"type": "STRING"}}, "required": ["text"]},
+            system=TRANSLATE_SYSTEM,
+            temperature=0.2,
+        )
+    except Exception as exc:
+        print(f"note: Spanish briefing skipped ({exc})")
+        return None
+    text = str(out.get("text", "")).strip()
+    if not text:
+        return None
+    clip = Clip(id=cid, kind="briefing", title=f"{english.title} (español)", text=text, lang="es")
+    clip.sourceHash = english.hash
+    return clip.finalize()
 
 
 # ---------------------------------------------------------------- ElevenLabs
@@ -464,12 +573,14 @@ class ElevenLabs:
             return None
         return cls(key, env("ELEVENLABS_VOICE_ID"), env("ELEVENLABS_MODEL_ID"))
 
-    def synthesize(self, text: str, previous_text: str | None = None, next_text: str | None = None) -> bytes:
+    def synthesize(self, text: str, previous_text: str | None = None, next_text: str | None = None,
+                   speed: float = 1.0) -> bytes:
         body: dict[str, Any] = {
             "text": text,
             "model_id": self.model_id,
             # Calm, steady narration.
-            "voice_settings": {"stability": 0.55, "similarity_boost": 0.75, "style": 0.1, "use_speaker_boost": True},
+            "voice_settings": {"stability": 0.55, "similarity_boost": 0.75, "style": 0.1, "use_speaker_boost": True,
+                               "speed": speed},
         }
         if previous_text:
             body["previous_text"] = previous_text
@@ -482,10 +593,59 @@ class ElevenLabs:
             json=body,
             timeout=120,
         )
+        return self._audio(resp)
+
+    def _audio(self, resp: requests.Response) -> bytes:
+        if resp.status_code in (401, 403):
+            detail = resp.text[:300].replace(self.api_key, "***")
+            raise ElevenLabsPermissionError(f"ElevenLabs responded {resp.status_code}: {detail}")
         if resp.status_code != 200:
             detail = resp.text[:300].replace(self.api_key, "***")
             raise RuntimeError(f"ElevenLabs responded {resp.status_code}: {detail}")
         return resp.content
+
+    def dialogue(self, lines: list[tuple[str, str]], model_id: str = DIALOGUE_MODEL_ID) -> bytes:
+        """Text to Dialogue: one MP3 with several voices. `lines` = [(text, voice_id)]."""
+        resp = self.session.post(
+            DIALOGUE_URL,
+            params={"output_format": OUTPUT_FORMAT},
+            headers={"xi-api-key": self.api_key, "Content-Type": "application/json", "Accept": "audio/mpeg"},
+            json={"inputs": [{"text": t, "voice_id": v} for t, v in lines], "model_id": model_id},
+            timeout=240,
+        )
+        return self._audio(resp)
+
+    def dialogue_or_stitch(self, lines: list[tuple[str, str]]) -> tuple[bytes, str]:
+        """Prefer Text to Dialogue; fall back to per-line TTS joined into one MP3 stream."""
+        try:
+            return self.dialogue(lines), "text-to-dialogue"
+        except ElevenLabsPermissionError:
+            raise
+        except Exception as exc:
+            print(f"note: text-to-dialogue failed ({exc}); stitching per-line speech")
+        chunks = []
+        for text, voice in lines:
+            saved = self.voice_id
+            self.voice_id = voice
+            try:
+                chunks.append(self.synthesize(text))
+            finally:
+                self.voice_id = saved
+        return b"".join(chunks), "text-to-speech"
+
+    def sound_effect(self, text: str, seconds: float, influence: float = 0.5) -> bytes:
+        resp = self.session.post(
+            SFX_URL,
+            params={"output_format": OUTPUT_FORMAT},
+            headers={"xi-api-key": self.api_key, "Content-Type": "application/json", "Accept": "audio/mpeg"},
+            json={"text": text, "duration_seconds": seconds, "prompt_influence": influence},
+            timeout=120,
+        )
+        return self._audio(resp)
+
+
+class ElevenLabsPermissionError(RuntimeError):
+    """The key is valid but lacks a permission (e.g. sound_generation)."""
 
 
 def mp3_duration_ms(data: bytes) -> int:
