@@ -1,6 +1,6 @@
 "use client";
 
-import { fmtHours, timeSaved, type MutualAid, type RestorationScenario } from "@/lib/savings";
+import { fmtHours, fmtHoursNumber, timeSaved, type MutualAid, type RestorationScenario } from "@/lib/savings";
 import { useCountUp } from "@/lib/useCountUp";
 import { HowCalculated } from "../plan/Savings";
 
@@ -105,7 +105,7 @@ export function TimeSavedCard({ aid }: { aid: MutualAid }) {
     <div className="flex flex-col gap-3">
       <div>
         <p className="display text-[26px] leading-8 font-medium text-ink">
-          Power back <span className="tabular-nums">{Math.round(hours)}</span> hours sooner
+          Power back <span className="tabular-nums">{fmtHoursNumber(hours)}</span> hours sooner
         </p>
         <p className="mt-0.5 text-[13px] text-ink-2">
           when 90% of homes are restored, if both companies share crews and yards.

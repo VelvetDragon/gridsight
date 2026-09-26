@@ -6,9 +6,10 @@ import type { PlanData, ResponseData } from "@/lib/data";
 import { boundsOf, circleBounds, geometryPoints, midpoint, type Bounds } from "@/lib/geo";
 import type { RankedOverlap } from "@/lib/ranking";
 import { closestApproachTimes, trackTimes } from "@/lib/response";
-import { timeSaved } from "@/lib/savings";
+import { fmtHoursNumber, timeSaved } from "@/lib/savings";
 import type { Position } from "@/lib/types";
 import { shortName } from "../map/mapLabels";
+import { topZones } from "../map/storyScene";
 
 export const CHAPTER_COUNT = 7;
 
@@ -92,13 +93,13 @@ export function chapterText(
       const lead = hoursOfWarning(response);
       const device = response.meta.device === "cuda" ? "on a GPU" : "on a regular computer";
       return {
-        headline: `${lead != null ? `About ${lead} hours before` : "Before"} Hurricane ${s.name} arrived, MrGridy predicted where lines would break, for both companies.`,
+        headline: `${lead != null ? `About ${lead} hours before` : "Before"} Hurricane ${s.name} arrived, MrGridy predicted where lines would break for both companies, and compared it with what happened.`,
         support: `Simulated ${response.meta.simulations.toLocaleString("en-US")} times with physics (runs ${device}).`,
       };
     }
     default: {
       if (response?.mutualAid) {
-        const h = Math.round(timeSaved(response.mutualAid).to90);
+        const h = fmtHoursNumber(timeSaved(response.mutualAid).to90);
         return {
           headline: `Working together, power comes back about ${h} hours sooner.`,
           support: "Shared staging yards and crews go to the nearest repair zone first, whichever company owns it.",
@@ -161,7 +162,7 @@ export function topMatchBounds(ranked: RankedOverlap[], plan: PlanData): Bounds 
 }
 
 export function stormBounds(response: ResponseData): Bounds | null {
-  const zones = response.zones.map((z) => z.centroid);
+  const zones = topZones(response.zones).map((z) => z.centroid);
   const b = boundsOf(zones);
   if (!b) return boundsOf(response.storm.track.map((p) => p.position));
   // Frame the damage area with room around it, so the storm is seen crossing it.
@@ -171,7 +172,10 @@ export function stormBounds(response: ResponseData): Bounds | null {
 }
 
 export function repairBounds(response: ResponseData): Bounds | null {
-  const pts = [...response.zones.map((z) => z.centroid), ...response.yards.map((y) => y.position)];
+  const zones = topZones(response.zones);
+  const ids = new Set(zones.map((z) => z.id));
+  const yards = response.yards.filter((y) => y.serves.some((id) => ids.has(id)));
+  const pts = [...zones.map((z) => z.centroid), ...yards.map((y) => y.position)];
   const b = boundsOf(pts);
   if (!b) return null;
   const c: Position = [(b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2];

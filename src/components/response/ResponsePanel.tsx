@@ -156,7 +156,7 @@ function ResponseDetails({
       <Section
         title="How close the model came"
         aside={
-          <Tooltip content="Average miss, per county, in the share of homes that lost power. The simple guess uses the same share for every county.">
+          <Tooltip content="Average miss, per county, in the share of homes that lost power. The comparison is a wind-only model (peak gust at the county centre).">
             <span className="text-[12px] text-ink-3 underline decoration-dotted underline-offset-2">
               what this means
             </span>
@@ -173,7 +173,7 @@ function ResponseDetails({
         <div className="mt-1 grid grid-cols-2 gap-3">
           <div>
             <div className="text-[12px] text-ink-3">Dominion poles reported down</div>
-            <div className="display text-[20px] font-medium">{fmtInt(v.reportedDescTransmissionPoles)}</div>
+            <div className="display text-[20px] font-medium">{v.reportedDescTransmissionPoles != null ? fmtInt(v.reportedDescTransmissionPoles) : "not published"}</div>
           </div>
           <div>
             <div className="text-[12px] text-ink-3">Model predicted</div>
@@ -193,7 +193,7 @@ function ResponseDetails({
                 <tr className="text-left text-[11px] text-ink-3">
                   <th className="pb-1 font-medium">Storm</th>
                   <th className="pb-1 text-right font-medium">Our error</th>
-                  <th className="pb-1 text-right font-medium">Simple guess</th>
+                  <th className="pb-1 text-right font-medium">Wind-only</th>
                 </tr>
               </thead>
               <tbody>
@@ -317,7 +317,7 @@ function MaeCompare({ model, baseline }: { model: number; baseline: number }) {
   const max = Math.max(model, baseline) || 1;
   const rows: [string, number, boolean][] = [
     ["Our model", model, true],
-    ["Simple guess", baseline, false],
+    ["Wind-only model", baseline, false],
   ];
   return (
     <div className="flex flex-col gap-2">
@@ -336,7 +336,7 @@ function MaeCompare({ model, baseline }: { model: number; baseline: number }) {
       {model < baseline ? (
         <p className="text-[12px] text-ink-3">
           County error is <span className="num text-ink-2">{Math.round((1 - model / baseline) * 100)}%</span> lower than
-          a simple guess.
+          the wind-only model.
         </p>
       ) : null}
     </div>

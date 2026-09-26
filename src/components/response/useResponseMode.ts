@@ -16,7 +16,7 @@ const DEFAULT_VISIBLE: Record<ResponseLayerId, boolean> = {
   counties: true,
   zones: true,
   yards: true,
-  vulnerable: true,
+  vulnerable: false,
 };
 
 /** Replay speed: one 15-minute step every 90 ms (a 36 h storm plays in about 13 s). */

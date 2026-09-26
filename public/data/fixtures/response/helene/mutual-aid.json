@@ -314,10 +314,10 @@
   }
  },
  "savedHours": {
-  "hoursTo50pct": 10,
-  "hoursTo90pct": 21,
-  "hoursTo100pct": 35,
-  "vulnerableHoursTo90pct": 52
+  "to50pct": 10,
+  "to90pct": 21,
+  "to100pct": 35,
+  "vulnerableTo90pct": 52
  },
  "assumptions": [
   "Sample scenario for layout only; the pipeline replaces it with its crew-dispatch simulation.",

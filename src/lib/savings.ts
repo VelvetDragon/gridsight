@@ -195,7 +195,8 @@ export interface RestorationScenario {
 /** Shape of /data/response/<id>/mutual-aid.json (optional file, not part of types.ts). */
 export interface MutualAid {
   scenarios: { separate: RestorationScenario; coordinated: RestorationScenario };
-  savedHours?: Partial<Record<"hoursTo50pct" | "hoursTo90pct" | "hoursTo100pct" | "vulnerableHoursTo90pct", number>>;
+  /** Pipeline keys are to50pct / to90pct / to100pct / vulnerableTo90pct. */
+  savedHours?: Partial<Record<"to50pct" | "to90pct" | "to100pct" | "vulnerableTo90pct", number>>;
   assumptions: string[];
 }
 
@@ -215,15 +216,21 @@ export function timeSaved(m: MutualAid): TimeSaved {
   const { separate: a, coordinated: b } = m.scenarios;
   const given = m.savedHours ?? {};
   return {
-    to50: given.hoursTo50pct ?? a.hoursTo50pct - b.hoursTo50pct,
-    to90: given.hoursTo90pct ?? a.hoursTo90pct - b.hoursTo90pct,
-    to100: given.hoursTo100pct ?? a.hoursTo100pct - b.hoursTo100pct,
-    vulnerableTo90: given.vulnerableHoursTo90pct ?? a.vulnerableHoursTo90pct - b.vulnerableHoursTo90pct,
+    to50: given.to50pct ?? a.hoursTo50pct - b.hoursTo50pct,
+    to90: given.to90pct ?? a.hoursTo90pct - b.hoursTo90pct,
+    to100: given.to100pct ?? a.hoursTo100pct - b.hoursTo100pct,
+    vulnerableTo90: given.vulnerableTo90pct ?? a.vulnerableHoursTo90pct - b.vulnerableHoursTo90pct,
   };
 }
 
-/** "22 hours" or "1 day 6 hours". */
+/** Hours with one decimal under 10 ("9.7"), whole hours above ("22"). */
+export function fmtHoursNumber(h: number): string {
+  return Math.abs(h) < 10 ? h.toFixed(1) : String(Math.round(h));
+}
+
+/** "9.7 hours", "22 hours" or "2 days 6 h". */
 export function fmtHours(h: number): string {
+  if (Math.abs(h) < 10) return `${h.toFixed(1)} hours`;
   const r = Math.round(h);
   if (Math.abs(r) < 48) return `${r} hour${Math.abs(r) === 1 ? "" : "s"}`;
   const d = Math.floor(r / 24);
