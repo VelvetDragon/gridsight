@@ -22,6 +22,8 @@ import { LayersPanel } from "./response/LayersPanel";
 import { ResponsePanel } from "./response/ResponsePanel";
 import { StormScrubber } from "./response/StormScrubber";
 import { useResponseMode } from "./response/useResponseMode";
+import { HowToCard, useHowTo } from "./HowToCard";
+import { MapKey, PLAN_KEY } from "./MapKey";
 import { TopBar } from "./TopBar";
 import { ErrorCard } from "./ui/states";
 
@@ -31,13 +33,14 @@ const MapStage = dynamic(() => import("./map/MapStage"), {
 });
 
 const GUTTER = 16;
-const TOP_BAR = 48;
-const LEFT_W = 360;
+const TOP_BAR = 56;
+const LEFT_W = 380;
 const DRAWER_W = 408;
-const BOTTOM_BAR = 76;
+const BOTTOM_BAR = 72;
 /** Space kept clear under bottom-anchored panels so map attribution stays visible. */
 const ATTRIBUTION_CLEARANCE = 36;
-const LAYERS_W = 300;
+const LAYERS_W = 320;
+const KEY_W = 320;
 const RESPONSE_W = 372;
 
 function readParam(name: string): string | null {
@@ -62,7 +65,11 @@ function overlapBounds(o: Overlap, projectsById: Map<string, Project>): Bounds |
 
 export default function App() {
   // ?mode=response opens Response mode. Read hydration-safely (server renders Plan).
-  const urlMode = useSyncExternalStore(noSubscribe, () => readParam("mode"), () => null);
+  const urlMode = useSyncExternalStore(
+    noSubscribe,
+    () => readParam("mode"),
+    () => null,
+  );
   const [modeChoice, setMode] = useState<Mode | null>(null);
   const mode: Mode = modeChoice ?? (urlMode === "response" ? "response" : "plan");
   const [planState, retryPlan] = useDataset(loadPlan);
@@ -74,6 +81,9 @@ export default function App() {
   // ?match=<overlap id> opens a match directly (handy for demos and shared links).
   const [selectedId, setSelectedId] = useState<string | null>(() => readParam("match"));
   const [leftOpen, setLeftOpen] = useState(true);
+  // Open by default; folded when a pair is open, since the pair drawer then takes the right side.
+  const [keyOpen, setKeyOpen] = useState(() => !readParam("match"));
+  const howTo = useHowTo();
   const [popup, setPopup] = useState<{ project: Project; at: Position } | null>(null);
   const [view, setView] = useState<ViewRequest | null>(null);
   const [radarOn, setRadarOn] = useState(false);
@@ -89,6 +99,8 @@ export default function App() {
       if (!o) return;
       setSelectedId(id);
       setPopup(null);
+      // The pair drawer takes the right side; fold the key so it stays out of the way.
+      setKeyOpen(false);
       // Tier filters should never hide what the user just picked.
       setTiers((prev) => (prev.has(o.tier) ? prev : new Set([...prev, o.tier])));
       const b = overlapBounds(o, projectsById);
@@ -99,10 +111,15 @@ export default function App() {
 
   // A match opened from the URL gets the same camera move once its data arrives.
   const effectiveView = useMemo<ViewRequest | null>(() => {
-    if (view || !selected) return view;
-    const b = overlapBounds(selected.overlap, projectsById);
-    return b ? { key: `init-${selected.overlap.id}`, kind: "bounds", bounds: b, maxZoom: 11.5 } : null;
-  }, [view, selected, projectsById]);
+    if (view) return view;
+    if (selected) {
+      const b = overlapBounds(selected.overlap, projectsById);
+      return b ? { key: `init-${selected.overlap.id}`, kind: "bounds", bounds: b, maxZoom: 11.5 } : null;
+    }
+    // First view: every planned project, so the work fills the space between the panels.
+    const all = boundsOf((plan?.projects ?? []).flatMap((p) => geometryPoints(p.geometry)));
+    return all ? { key: "plan-all", kind: "bounds", bounds: all, maxZoom: 9 } : null;
+  }, [view, selected, projectsById, plan]);
 
   const clearSelection = useCallback(() => {
     setSelectedId(null);
@@ -180,9 +197,9 @@ export default function App() {
     return {
       ...base,
       left: leftOpen ? GUTTER + LEFT_W + 32 : 48,
-      right: drawerOpen ? GUTTER + DRAWER_W + 32 : 48,
+      right: drawerOpen ? GUTTER + DRAWER_W + 32 : keyOpen ? GUTTER + KEY_W + 32 : 48,
     };
-  }, [mode, leftOpen, drawerOpen, layersOpen, respPanelOpen]);
+  }, [mode, leftOpen, drawerOpen, keyOpen, layersOpen, respPanelOpen]);
 
   const status =
     mode === "plan"
@@ -199,9 +216,9 @@ export default function App() {
 
   const subtitle =
     mode === "plan"
-      ? "Where DESC and Georgia Power construction plans meet"
+      ? "Where Dominion Energy and Georgia Power plan to build near each other"
       : response.data
-        ? `Hurricane ${response.data.storm.name} (${response.data.storm.year}), replayed`
+        ? `Hurricane ${response.data.storm.name} (${response.data.storm.year}) crossing both service areas`
         : "Storm replay";
 
   return (
@@ -217,28 +234,39 @@ export default function App() {
 
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute" style={{ top: GUTTER, left: GUTTER, right: GUTTER }}>
-          <TopBar mode={mode} onMode={setMode} status={status} subtitle={subtitle} />
+          <TopBar mode={mode} onMode={setMode} status={status} subtitle={subtitle} onHelp={howTo.open} />
         </div>
+
+        {howTo.visible ? (
+          <div
+            className="pointer-events-auto absolute left-1/2 z-40 -translate-x-1/2"
+            style={{ top: GUTTER * 2 + TOP_BAR + 24 }}
+          >
+            <HowToCard mode={mode} onDismiss={howTo.dismiss} />
+          </div>
+        ) : null}
 
         {mode === "plan" ? (
           <>
             {leftOpen ? (
               <div
-                className="gs-in-left pointer-events-auto absolute"
-                style={{ top: GUTTER * 2 + TOP_BAR, left: GUTTER, bottom: GUTTER }}
+                className="gs-in-left pointer-events-auto absolute flex flex-col"
+                style={{ top: GUTTER * 2 + TOP_BAR, left: GUTTER, bottom: GUTTER, width: LEFT_W }}
               >
-                <OpportunityList
-                  data={plan}
-                  ranked={ranked}
-                  projectsById={projectsById}
-                  tiers={tiers}
-                  onToggleTier={toggleTier}
-                  weights={weights}
-                  onWeights={setWeights}
-                  selectedId={selectedId}
-                  onSelect={selectOverlap}
-                  onCollapse={() => setLeftOpen(false)}
-                />
+                <div className="min-h-0 flex-1">
+                  <OpportunityList
+                    data={plan}
+                    ranked={ranked}
+                    projectsById={projectsById}
+                    tiers={tiers}
+                    onToggleTier={toggleTier}
+                    weights={weights}
+                    onWeights={setWeights}
+                    selectedId={selectedId}
+                    onSelect={selectOverlap}
+                    onCollapse={() => setLeftOpen(false)}
+                  />
+                </div>
               </div>
             ) : (
               <button
@@ -248,10 +276,30 @@ export default function App() {
                 style={{ top: GUTTER * 2 + TOP_BAR, left: GUTTER }}
               >
                 <PanelLeftOpen size={16} aria-hidden className="text-ink-2" />
-                Opportunities
+                Where their work collides
                 <span className="num text-ink-3">{ranked.length}</span>
               </button>
             )}
+
+            <div
+              className="pointer-events-none absolute flex flex-col"
+              style={{
+                top: GUTTER * 2 + TOP_BAR,
+                right: drawerOpen ? GUTTER * 2 + DRAWER_W : GUTTER,
+                bottom: ATTRIBUTION_CLEARANCE + BOTTOM_BAR + 12,
+                width: KEY_W,
+              }}
+            >
+              {/* Mounted with the data so its URL-dependent open state never differs from the server render. */}
+              {plan ? (
+                <MapKey
+                  open={keyOpen}
+                  onToggle={() => setKeyOpen((v) => !v)}
+                  rows={PLAN_KEY}
+                  subtitle="Every colour and line style on the map, in plain words."
+                />
+              ) : null}
+            </div>
 
             {selected ? (
               <div
@@ -303,7 +351,10 @@ export default function App() {
         ) : (
           <>
             {layersOpen ? (
-              <div className="gs-in-left pointer-events-auto absolute" style={{ top: GUTTER * 2 + TOP_BAR, left: GUTTER }}>
+              <div
+                className="gs-in-left pointer-events-auto absolute flex flex-col"
+                style={{ top: GUTTER * 2 + TOP_BAR, left: GUTTER, bottom: GUTTER + 140 }}
+              >
                 <LayersPanel
                   visible={response.visible}
                   onToggle={response.toggleLayer}
@@ -319,7 +370,7 @@ export default function App() {
                 style={{ top: GUTTER * 2 + TOP_BAR, left: GUTTER }}
               >
                 <PanelLeftOpen size={16} aria-hidden className="text-ink-2" />
-                Layers
+                What you&apos;re seeing
               </button>
             )}
 
