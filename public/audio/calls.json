@@ -1,0 +1,64 @@
+[
+  {
+    "overlapId": "ov-desc-41-okatie-mcintosh-115kv-tie-add-series-rea--gpc-gen-mcintosh-expansion",
+    "lines": [
+      {
+        "speaker": "DESC",
+        "label": "Dominion Energy SC planner",
+        "text": "Hi, I am calling about your Plant McIntosh expansion near Rincon, Georgia. Our one hundred fifteen kilovolt tie project touches right there."
+      },
+      {
+        "speaker": "GPC",
+        "label": "Georgia Power planner",
+        "text": "Hey. Yeah, we saw those projects are right next to each other. How does the timing look on your end?"
+      },
+      {
+        "speaker": "DESC",
+        "label": "Dominion Energy SC planner",
+        "text": "We are looking at March through December of twenty twenty-eight. What about you?"
+      },
+      {
+        "speaker": "GPC",
+        "label": "Georgia Power planner",
+        "text": "Our build window starts June twenty-eight, so we have about a seven month overlap there."
+      },
+      {
+        "speaker": "DESC",
+        "label": "Dominion Energy SC planner",
+        "text": "That is what we figured. We could probably share outage coordination, right-of-way, access roads, permits, and a staging yard."
+      },
+      {
+        "speaker": "GPC",
+        "label": "Georgia Power planner",
+        "text": "Definitely. And maybe share material deliveries, crews, and equipment too."
+      },
+      {
+        "speaker": "DESC",
+        "label": "Dominion Energy SC planner",
+        "text": "Our rough planning estimate is about two hundred fifty thousand dollars in savings, ranging from one hundred thousand to over four hundred thousand."
+      },
+      {
+        "speaker": "GPC",
+        "label": "Georgia Power planner",
+        "text": "That is a solid chunk of change. Let us set up a follow-up meeting to share our route and outage details."
+      },
+      {
+        "speaker": "DESC",
+        "label": "Dominion Energy SC planner",
+        "text": "Sounds good. I will send over a calendar invite today. Thanks for chatting."
+      },
+      {
+        "speaker": "GPC",
+        "label": "Georgia Power planner",
+        "text": "Thanks, talk to you soon."
+      }
+    ],
+    "audioUrl": "/audio/call-1.mp3",
+    "durationMs": 59510,
+    "script": "gemini",
+    "audio": "text-to-dialogue",
+    "model": "gemini-3.5-flash-lite",
+    "generatedAt": "2026-09-26T10:00:25.546Z",
+    "cached": true
+  }
+]

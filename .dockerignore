@@ -1,0 +1,6 @@
+# Hidden files and folders (.git, .next, .env*, local tool folders) never enter the image.
+.*
+node_modules
+pipeline
+*.md
+Dockerfile

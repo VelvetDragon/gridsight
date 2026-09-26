@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       { source: "/ledger", destination: "/data", permanent: false },
     ];
   },
+  // Docker builds set NEXT_OUTPUT=standalone; `next start` (App Platform) uses the default output.
+  ...(process.env.NEXT_OUTPUT === "standalone" ? { output: "standalone" as const } : {}),
 };
 
 export default nextConfig;

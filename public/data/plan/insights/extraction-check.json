@@ -1,0 +1,711 @@
+{
+  "generatedAt": "2026-09-26T09:49:24Z",
+  "model": "gemini-3-flash-preview",
+  "dataOrigin": "pipeline",
+  "sampleSize": 20,
+  "checked": 20,
+  "agreementRate": 0.963,
+  "fullyAgreeing": 17,
+  "fieldAgreement": {
+    "kind": 1.0,
+    "action": 0.9,
+    "endpoints": 0.95,
+    "inService": 1.0
+  },
+  "skipped": [],
+  "items": [
+    {
+      "projectId": "desc-21-burton-st-helena-115kv-rebuild-frogmore-",
+      "name": "Burton-St Helena 115kV: Rebuild Frogmore Distribution – St. Helena Section",
+      "utility": "DESC",
+      "source": {
+        "document": "DESC Planned Transmission Projects $2M and above, 2026-2030 (SCRTP)",
+        "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+        "page": 21
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Burton",
+          "St Helena",
+          "Frogmore Distribution",
+          "St. Helena"
+        ],
+        "inService": "2027-12-31"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Frogmore Distribution",
+          "St. Helena"
+        ],
+        "inService": "2027-12-31",
+        "evidence": "Replace wooden structures with Self Supporting Steel Structures and restring with 1272 ACSR conductor for the Frogmore Transmission – St. Helena section."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "desc-10-coit-gills-creek-115kv-construct",
+      "name": "Coit – Gills Creek 115kV: Construct",
+      "utility": "DESC",
+      "source": {
+        "document": "DESC Planned Transmission Projects $2M and above, 2026-2030 (SCRTP)",
+        "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+        "page": 10
+      },
+      "ours": {
+        "kind": "line",
+        "action": "new",
+        "endpoints": [
+          "Coit",
+          "Gills Creek"
+        ],
+        "inService": "2026-12-31"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Coit",
+          "Gills Creek"
+        ],
+        "inService": "2026-12-31",
+        "evidence": "Convert the existing Coit - Gills Creek 33 kV Line to 115 kV."
+      },
+      "agree": {
+        "kind": true,
+        "action": false,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "desc-26-urquhart-aiken-psa-46-kv-rebuild",
+      "name": "Urquhart – Aiken PSA 46 kV: Rebuild",
+      "utility": "DESC",
+      "source": {
+        "document": "DESC Planned Transmission Projects $2M and above, 2026-2030 (SCRTP)",
+        "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+        "page": 26
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Urquhart",
+          "Aiken PSA"
+        ],
+        "inService": "2027-12-31"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Urquhart",
+          "Aiken PSA"
+        ],
+        "inService": "2027-12-31",
+        "evidence": "Rebuilding the section of 46 kV line from Urquhart to the Aiken PSA tap point. Planned In-Service Date 12/31/2027"
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "desc-42-cae-industrial-park-springdale-sub-115kv",
+      "name": "CAE Industrial Park - Springdale Sub 115kV: Replace Laminated Wood Polls.",
+      "utility": "DESC",
+      "source": {
+        "document": "DESC Planned Transmission Projects $2M and above, 2026-2030 (SCRTP)",
+        "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+        "page": 42
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "CAE Industrial Park",
+          "Springdale"
+        ],
+        "inService": "2028-12-31"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "CAE Industrial Park",
+          "Springdale Sub"
+        ],
+        "inService": "2028-12-31",
+        "evidence": "Replace all 28 laminated wood poles on the CAE Industrial Park - Springdale Sub 115kV line."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "desc-04-eastover-sumter-115kv-dep-tie-rebuild-wi",
+      "name": "Eastover – Sumter 115kV DEP Tie: Rebuild with 1272 ACSR",
+      "utility": "DESC",
+      "source": {
+        "document": "DESC Planned Transmission Projects $2M and above, 2026-2030 (SCRTP)",
+        "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+        "page": 4
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Eastover",
+          "Sumter"
+        ],
+        "inService": "2026-05-31"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Eastover",
+          "Sumter"
+        ],
+        "inService": "2026-05-31",
+        "evidence": "Eastover – Sumter 115kV DEP Tie: Rebuild with 1272 ACSR"
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "desc-05-batesburg-saluda-county-115kv-rebuild",
+      "name": "Batesburg - Saluda County 115kV: Rebuild",
+      "utility": "DESC",
+      "source": {
+        "document": "DESC Planned Transmission Projects $2M and above, 2026-2030 (SCRTP)",
+        "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+        "page": 5
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Batesburg",
+          "Saluda County"
+        ],
+        "inService": "2026-06-30"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Batesburg",
+          "Saluda County"
+        ],
+        "inService": "2026-06-31",
+        "evidence": "Batesburg - Saluda County 115kV: Rebuild... Rebuild 13.5 miles of conductor."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "desc-35-orangeburg-1-cameron-jct-46kv-line-rebui",
+      "name": "Orangeburg #1 - Cameron Jct 46kV Line Rebuild",
+      "utility": "DESC",
+      "source": {
+        "document": "DESC Planned Transmission Projects $2M and above, 2026-2030 (SCRTP)",
+        "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+        "page": 35
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Orangeburg #1",
+          "Cameron Jct"
+        ],
+        "inService": "2028-12-31"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Orangeburg #1",
+          "Cameron Jct"
+        ],
+        "inService": "2028-12-31",
+        "evidence": "Rebuilding the 7.5 mile Orangeburg #1 – Cameron Jct. 46 kV Line."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "desc-07-urquhart-toolebeck-115kv-line-rebuild",
+      "name": "Urquhart – Toolebeck 115kV line: Rebuild",
+      "utility": "DESC",
+      "source": {
+        "document": "DESC Planned Transmission Projects $2M and above, 2026-2030 (SCRTP)",
+        "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+        "page": 7
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Urquhart",
+          "Toolebeck"
+        ],
+        "inService": "2026-08-12"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Urquhart",
+          "Toolebeck"
+        ],
+        "inService": "2026-08-12",
+        "evidence": "Urquhart – Toolebeck 115kV line: Rebuild... Replace existing structures with Single Pole Double Circuit Structures."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "desc-24-atomic-road-115-12kv-sub-construct",
+      "name": "Atomic Road 115/12kV Sub: Construct",
+      "utility": "DESC",
+      "source": {
+        "document": "DESC Planned Transmission Projects $2M and above, 2026-2030 (SCRTP)",
+        "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+        "page": 24
+      },
+      "ours": {
+        "kind": "substation",
+        "action": "new",
+        "endpoints": [
+          "Atomic Road"
+        ],
+        "inService": "2028-12-31"
+      },
+      "gemini": {
+        "kind": "substation",
+        "action": "new",
+        "endpoints": [
+          "Atomic Road"
+        ],
+        "inService": "2028-12-31",
+        "evidence": "New 115-12kV Sub Construction."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "desc-38-millrace-115-kv-tap-construct",
+      "name": "Millrace 115 kV Tap: Construct",
+      "utility": "DESC",
+      "source": {
+        "document": "DESC Planned Transmission Projects $2M and above, 2026-2030 (SCRTP)",
+        "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+        "page": 38
+      },
+      "ours": {
+        "kind": "line",
+        "action": "new",
+        "endpoints": [
+          "Millrace"
+        ],
+        "inService": "2028-12-31"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Millrace",
+          "Dunbar Road",
+          "Lyles"
+        ],
+        "inService": "2028-12-31",
+        "evidence": "Construct Millrace 115kV tap from the existing Dunbar Road – Lyles 115kV line. Due to added load on the Dunbar Road – Lyles 115kV line, rebuild with 1272 ACSR."
+      },
+      "agree": {
+        "kind": true,
+        "action": false,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "gpc-gen-mcintosh-expansion",
+      "name": "Plant McIntosh expansion (McIntosh 12 combined cycle + McIntosh BESS)",
+      "utility": "GPC",
+      "source": {
+        "document": "SERTP 2026 Q2: Southern Company Generation Assumptions (slides 67 and 70)",
+        "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+        "page": 67
+      },
+      "ours": {
+        "kind": "substation",
+        "action": "new",
+        "endpoints": [
+          "McIntosh"
+        ],
+        "inService": "2031-06-01"
+      },
+      "gemini": {
+        "kind": "substation",
+        "action": "new",
+        "endpoints": [
+          "McIntosh 12"
+        ],
+        "inService": "2031",
+        "evidence": "McIntosh 12 Natural Gas -- -- -- -- 744"
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "gpc-sertp25-p77-wansley-line-protective-relayi",
+      "name": "Wansley Line, Protective Relaying Replacement",
+      "utility": "GPC",
+      "source": {
+        "document": "SERTP 2025 Regional Transmission Plan & Input Assumptions Overview",
+        "url": "https://www.southeasternrtp.com/docs/general/2025/2025%20Regional%20Transmission%20Plan%20and%20Input%20Assumptions.pdf",
+        "page": 77
+      },
+      "ours": {
+        "kind": "substation",
+        "action": "upgrade",
+        "endpoints": [
+          "WANSLEY"
+        ],
+        "inService": "2026-06-01"
+      },
+      "gemini": {
+        "kind": "substation",
+        "action": "upgrade",
+        "endpoints": [
+          "Wansley"
+        ],
+        "inService": "2026",
+        "evidence": "At Wansley, on the Ohara – Wansley 500 kV transmission line, replace protective relaying equipment."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "gpc-sertp26r-p70-sav-little-ogeechee-230-115-kv",
+      "name": "SAV: Little Ogeechee 230 115 kV Bank Replacement",
+      "utility": "GPC",
+      "source": {
+        "document": "SERTP 2026 Preliminary Expansion Plan Report (Non-CEII), June 12, 2026",
+        "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf",
+        "page": 70
+      },
+      "ours": {
+        "kind": "substation",
+        "action": "upgrade",
+        "endpoints": [
+          "LITTLE OGEECHEE"
+        ],
+        "inService": "2029-06-01"
+      },
+      "gemini": {
+        "kind": "substation",
+        "action": "upgrade",
+        "endpoints": [
+          "Little Ogeechee"
+        ],
+        "inService": "2029",
+        "evidence": "SOCO: SAV: LITTLE OGEECHEE 230/115 KV BANK REPLACEMENT Description: Replace SATX 230/115 kV auto transformer."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "gpc-sertp26r-p37-morrow-yates-common-115-kv-lin",
+      "name": "Morrow - Yates Common 115 kV Line Rebuild",
+      "utility": "GPC",
+      "source": {
+        "document": "SERTP 2026 Preliminary Expansion Plan Report (Non-CEII), June 12, 2026",
+        "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf",
+        "page": 37
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "MORROW",
+          "YATES COMMON"
+        ],
+        "inService": "2027-06-01"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Morrow",
+          "Yates Common"
+        ],
+        "inService": "2027",
+        "evidence": "Rebuild a section (approximately 5.1 mies) of the Morrow - Yates Common 115 kV line with 200°C 1351.0 ACSS Martin."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "gpc-web-thomson-vogtle",
+      "name": "Thomson – Vogtle 500 kV Transmission Line",
+      "utility": "GPC",
+      "source": {
+        "document": "Georgia Power: Thomson-Vogtle Reliability Project",
+        "url": "https://www.georgiapower.com/about/grid-reliability/grid-improvements/grid-projects/thomson-vogtle.html",
+        "page": null
+      },
+      "ours": {
+        "kind": "line",
+        "action": "new",
+        "endpoints": [
+          "Thomson Primary",
+          "Vogtle"
+        ],
+        "inService": "2018-06-01"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "new",
+        "endpoints": [
+          "Plant Vogtle",
+          "Thomson Primary substation"
+        ],
+        "inService": "2018",
+        "evidence": "The Thomson-Vogtle 500 kV transmission line is being built to add the necessary transmission infrastructure to support the two new nuclear units. The line route is 55 miles long and begins at Plant Vogtle in Waynesboro, Ga. (Burke County) and ends at the Thomson Primary substation, southeast of Thomson, Ga. (McDuffie County). The transmission line will be in service by 2018."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "gpc-sertp26r-p32-athena-east-watkinsville-115-k",
+      "name": "Athena - East Watkinsville 115 kV Rebuild",
+      "utility": "GPC",
+      "source": {
+        "document": "SERTP 2026 Preliminary Expansion Plan Report (Non-CEII), June 12, 2026",
+        "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf",
+        "page": 32
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "ATHENA",
+          "EAST WATKINSVILLE"
+        ],
+        "inService": "2027-06-01"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Athena",
+          "East Watkinsville"
+        ],
+        "inService": "2027",
+        "evidence": "Rebuild approximately 8.47 miles of the Athena - East Watkinsville 115 kV line with 100°C ACSR 1033 conductor."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "gpc-sertp26r-p65-grid-offerman-thalmann-black-2",
+      "name": "Grid: Offerman-Thalmann (Black) 230 kV",
+      "utility": "GPC",
+      "source": {
+        "document": "SERTP 2026 Preliminary Expansion Plan Report (Non-CEII), June 12, 2026",
+        "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf",
+        "page": 65
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "OFFERMAN",
+          "THALMANN"
+        ],
+        "inService": "2029-06-01"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Offerman",
+          "Thalmann"
+        ],
+        "inService": "2029",
+        "evidence": "Rebuild the Offerman - Thalmann (Black) 230 kV line using 200°C 1351 ACSS conductor."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "gpc-sertp26r-p64-grady-morrow-white-115-kv-rebu",
+      "name": "Grady - Morrow (White) 115 kV Rebuild",
+      "utility": "GPC",
+      "source": {
+        "document": "SERTP 2026 Preliminary Expansion Plan Report (Non-CEII), June 12, 2026",
+        "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf",
+        "page": 64
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "GRADY",
+          "MORROW"
+        ],
+        "inService": "2029-06-01"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Grady",
+          "Morrow"
+        ],
+        "inService": "2029",
+        "evidence": "Rebuild line sections with 200°C 1351 ACSS Martin and replace other limiting elements."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "gpc-sertp26r-p28-gtc-east-walton-500-230-kv-pro",
+      "name": "GTC: East Walton 500 230 kV Project (GPC portion)",
+      "utility": "GPC",
+      "source": {
+        "document": "SERTP 2026 Preliminary Expansion Plan Report (Non-CEII), June 12, 2026",
+        "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf",
+        "page": 28
+      },
+      "ours": {
+        "kind": "substation",
+        "action": "new",
+        "endpoints": [
+          "East Walton"
+        ],
+        "inService": "2027-06-01"
+      },
+      "gemini": {
+        "kind": "substation",
+        "action": "new",
+        "endpoints": [
+          "Rockville",
+          "Jack's Creek"
+        ],
+        "inService": "2027",
+        "evidence": "GPC: - Construct the Rockville 500 kV switching station. - Loop the Scherer - Warthen 500 kV line into Rockville. - Loop the Doyle - LG&E Monroe 230 kV line into Jack's Creek."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": false,
+        "inService": true
+      }
+    },
+    {
+      "projectId": "gpc-sertp26r-p39-sav-goshen-sav-kraft-115-kv-li",
+      "name": "SAV: Goshen (SAV) - Kraft 115 kV Line Partial Rebuild - Phase 1",
+      "utility": "GPC",
+      "source": {
+        "document": "SERTP 2026 Preliminary Expansion Plan Report (Non-CEII), June 12, 2026",
+        "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf",
+        "page": 39
+      },
+      "ours": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "GOSHEN",
+          "KRAFT"
+        ],
+        "inService": "2027-06-01"
+      },
+      "gemini": {
+        "kind": "line",
+        "action": "rebuild",
+        "endpoints": [
+          "Goshen",
+          "Kraft"
+        ],
+        "inService": "2027",
+        "evidence": "Rebuild a portion (approximately 3.48 miles) of Goshen - Kraft 115 kV line from 100°C 795 ACSR Drake to 200°C 1351 ACSS Martin."
+      },
+      "agree": {
+        "kind": true,
+        "action": true,
+        "endpoints": true,
+        "inService": true
+      }
+    }
+  ]
+}
