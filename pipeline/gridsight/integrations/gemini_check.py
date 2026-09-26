@@ -19,11 +19,9 @@ import argparse
 import hashlib
 import html
 import importlib.util
-import json
 import random
 import re
 import sys
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -32,9 +30,8 @@ import requests
 
 from gridsight.config import CACHE_DIR, RAW_DIR, REPO_ROOT
 from gridsight.integrations.common import data_dir, env, integrations_cache, load_dotenv_local, read_json, write_json
+from gridsight.integrations.gemini import GeminiAuthError, generate_json
 
-GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-DEFAULT_MODELS = ["gemini-3.8-flash", "gemini-3.5-flash-lite"]
 MAX_CHARS = 7000
 
 SCHEMA = {
@@ -158,34 +155,11 @@ def source_text(project: dict[str, Any], sources: dict[str, str]) -> str | None:
 # ---------------------------------------------------------------- Gemini
 
 
-def ask_gemini(api_key: str, models: list[str], prompt: str) -> tuple[dict[str, Any], str]:
-    last: Exception | None = None
-    for model in models:
-        try:
-            resp = requests.post(
-                GEMINI_ENDPOINT.format(model=model),
-                headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
-                json={
-                    "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-                    "generationConfig": {"temperature": 0, "responseMimeType": "application/json",
-                                         "responseSchema": SCHEMA},
-                },
-                timeout=90,
-            )
-            if resp.status_code in (401, 403):
-                raise PermissionError(f"Gemini rejected the key ({resp.status_code})")
-            if resp.status_code == 429:
-                time.sleep(8)
-                raise RuntimeError("rate limited")
-            resp.raise_for_status()
-            parts = resp.json()["candidates"][0]["content"]["parts"]
-            text = "".join(p.get("text", "") for p in parts if not p.get("thought"))
-            return json.loads(text), model
-        except PermissionError:
-            raise
-        except Exception as exc:  # try the next model
-            last = exc
-    raise RuntimeError(f"all Gemini models failed: {last}")
+def ask_gemini(api_key: str, prompt: str) -> tuple[dict[str, Any], str]:
+    try:
+        return generate_json(prompt, SCHEMA, temperature=0, api_key=api_key)
+    except GeminiAuthError as exc:
+        raise PermissionError(str(exc)) from exc
 
 
 # ---------------------------------------------------------------- compare
@@ -254,7 +228,6 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     sources = _fetch_sources()
-    models = list(dict.fromkeys([m for m in [env("GEMINI_MODEL"), *DEFAULT_MODELS] if m]))
     items: list[dict[str, Any]] = []
     skipped: list[dict[str, str]] = []
     used_model = None
@@ -268,7 +241,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{p['id']}: {len(text)} chars from {p['source'].get('document')}")
             continue
         try:
-            got, used_model = ask_gemini(api_key, models, PROMPT.format(name=p["name"], text=text))  # type: ignore[arg-type]
+            got, used_model = ask_gemini(api_key, PROMPT.format(name=p["name"], text=text))  # type: ignore[arg-type]
         except PermissionError as exc:
             print(exc)
             return 1

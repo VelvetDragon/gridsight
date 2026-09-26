@@ -17,7 +17,7 @@ const PRODUCT = "MrGridy";
 const SIGN_OFF = `Prepared with ${PRODUCT} from public filings.`;
 const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 /** Current Flash models (ai.google.dev/gemini-api/docs/models); override with GEMINI_MODEL. */
-const DEFAULT_MODELS = ["gemini-3.8-flash", "gemini-3.5-flash-lite"];
+const DEFAULT_MODELS = ["gemini-3.8-flash", "gemini-3-flash-preview", "gemini-3.5-flash-lite"];
 const TIMEOUT_MS = 25_000;
 
 const TIER_TEXT: Record<Overlap["tier"], string> = {
