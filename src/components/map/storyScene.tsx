@@ -18,7 +18,7 @@ import {
   riverLayers,
   type PlanSceneProps,
 } from "./planScene";
-import { buildResponseLayers, responseMarkers, type ResponseSceneProps } from "./responseScene";
+import { buildResponseLayers, responseMarkers, TOP_ZONES, type ResponseSceneProps } from "./responseScene";
 
 export interface StorySceneProps {
   /** 0-based chapter index. */
@@ -88,6 +88,19 @@ function projectLayers(projects: Project[], alphaOf: (p: Project) => number, tri
   ];
 }
 
+/** The last chapter shows only the top-priority repair zones and the yards that serve them. */
+function focusResponse(response: ResponseSceneProps, chapter: number): ResponseSceneProps {
+  if (chapter < 6) return response;
+  const zones = topZones(response.data.zones);
+  const ids = new Set(zones.map((z) => z.id));
+  const yards = response.data.yards.filter((y) => y.serves.some((id) => ids.has(id)));
+  return { ...response, data: { ...response.data, zones, yards } };
+}
+
+export function topZones<T extends { priority: number }>(zones: T[]): T[] {
+  return [...zones].sort((a, b) => a.priority - b.priority).slice(0, TOP_ZONES);
+}
+
 export function buildStoryLayers(props: StorySceneProps): Layer[] {
   const { chapter, progress, plan, ranked, planScene, response } = props;
 
@@ -96,8 +109,8 @@ export function buildStoryLayers(props: StorySceneProps): Layer[] {
     const visible =
       chapter === 5
         ? { track: true, segments: true, counties: false, zones: false, yards: false, vulnerable: false }
-        : { track: false, segments: false, counties: false, zones: true, yards: true, vulnerable: true };
-    return buildResponseLayers({ ...response, visible, selectedZoneId: null });
+        : { track: false, segments: false, counties: false, zones: true, yards: true, vulnerable: false };
+    return buildResponseLayers({ ...focusResponse(response, chapter), visible, selectedZoneId: null });
   }
   if (!plan) return [];
   if (chapter === 3 && planScene) {
@@ -181,8 +194,8 @@ export function storyMarkers(props: StorySceneProps): MapMarker[] {
     const visible =
       chapter === 5
         ? { track: true, segments: true, counties: false, zones: false, yards: false, vulnerable: false }
-        : { track: false, segments: false, counties: false, zones: true, yards: true, vulnerable: true };
-    return responseMarkers({ ...response, visible });
+        : { track: false, segments: false, counties: false, zones: true, yards: true, vulnerable: false };
+    return responseMarkers({ ...focusResponse(response, chapter), visible });
   }
   if (chapter === 3 && planScene) {
     return planMarkers({ ...planScene, selectedId: ranked[0]?.overlap.id ?? null, radarMonth: null });

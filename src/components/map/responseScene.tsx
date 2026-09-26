@@ -27,6 +27,8 @@ export interface ResponseSceneProps {
 }
 
 const dashes = new PathStyleExtension({ dash: true });
+/** Only the first few priorities get a label; the rest are listed in the panel. */
+export const TOP_ZONES = 10;
 /** Zone footprint radius drawn on the map, metres. */
 const ZONE_RADIUS_M = 11000;
 
@@ -73,8 +75,9 @@ export function buildResponseLayers(props: ResponseSceneProps): Layer[] {
         getRadius: ZONE_RADIUS_M,
         radiusUnits: "meters",
         stroked: true,
-        getFillColor: (z) => [...SLATE, z.id === selectedZoneId ? 40 : 14],
-        getLineColor: (z) => [...SLATE, z.id === selectedZoneId ? 255 : 150],
+        // Top priorities read strongest; the long tail stays faint.
+        getFillColor: (z) => [...SLATE, z.id === selectedZoneId ? 40 : z.priority <= TOP_ZONES ? 16 : 6],
+        getLineColor: (z) => [...SLATE, z.id === selectedZoneId ? 255 : z.priority <= TOP_ZONES ? 150 : 60],
         getLineWidth: (z) => (z.id === selectedZoneId ? 2 : 1.2),
         lineWidthUnits: "pixels",
         pickable: true,
@@ -107,7 +110,7 @@ export function buildResponseLayers(props: ResponseSceneProps): Layer[] {
       }),
       new TextLayer<RepairZone>({
         id: "r-zone-labels",
-        data: data.zones,
+        data: data.zones.filter((z) => z.priority <= TOP_ZONES || z.id === selectedZoneId),
         getPosition: (z) => z.centroid,
         getText: (z) => `P${z.priority}`,
         getSize: 12,
