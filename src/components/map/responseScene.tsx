@@ -11,7 +11,7 @@ import { ALERT, failureColor, INK, SLATE, UTILITY_RGB, VULNERABLE_RGB } from "@/
 import { moveKey, type TeamUpMove } from "@/lib/teamup";
 import type { CountyOutage, LineSegmentRisk, Position, RepairZone, VulnerableArea } from "@/lib/types";
 import type { MapMarker } from "./MapCanvas";
-import { stateLabelMarkers, yardMarker } from "./mapLabels";
+import { neighbourStateMarkers, stateLabelMarkers, yardMarker } from "./mapLabels";
 import { riverLayers } from "./planScene";
 import { cx } from "../ui/primitives";
 
@@ -350,7 +350,7 @@ type StormFrameRow = { position: Position; r: number };
 
 export function responseMarkers(props: ResponseSceneProps): MapMarker[] {
   const { data, visible, times, timeMs } = props;
-  const markers: MapMarker[] = [...stateLabelMarkers()];
+  const markers: MapMarker[] = [...stateLabelMarkers(), ...neighbourStateMarkers()];
   if (visible.yards) {
     for (const y of data.yards) {
       markers.push(

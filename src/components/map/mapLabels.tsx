@@ -31,6 +31,26 @@ export function stateLabelMarkers(): MapMarker[] {
   }));
 }
 
+/** Neighbouring states Stormline also covers (counties inside the line network). */
+const NEIGHBOUR_LABELS: { id: string; state: string; position: Position }[] = [
+  { id: "nc", state: "North Carolina", position: [-80.6, 35.55] },
+  { id: "tn", state: "Tennessee", position: [-85.3, 35.45] },
+  { id: "al", state: "Alabama", position: [-86.2, 32.7] },
+  { id: "fl", state: "Florida", position: [-82.6, 29.9] },
+];
+
+export function neighbourStateMarkers(): MapMarker[] {
+  return NEIGHBOUR_LABELS.map((s) => ({
+    id: `state-${s.id}`,
+    position: s.position,
+    node: (
+      <div className="gs-passive display text-[18px] font-medium tracking-[0.14em] whitespace-nowrap text-ink uppercase opacity-30 select-none">
+        {s.state}
+      </div>
+    ),
+  }));
+}
+
 /** The name before the colon: "Jasper – Okatie 230 kV #2: Construct" → "Jasper – Okatie 230 kV #2". */
 export function shortName(name: string): string {
   return name.split(":")[0].trim();
