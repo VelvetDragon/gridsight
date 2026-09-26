@@ -30,6 +30,12 @@ SOURCES = {
     "DomesticNames_GA_Text.zip": "https://prd-tnm.s3.amazonaws.com/StagedProducts/GeographicNames/DomesticNames/DomesticNames_GA_Text.zip",
     # USDA NASS Land Values 2025 Summary (farm real estate $/acre by state, p. 9).
     "nass-land-values-2025.pdf": "https://www.nass.usda.gov/Publications/Todays_Reports/reports/land0825.pdf",
+    # Older DESC editions and SERTP reports for the plan change radar (gridsight/plan/insights).
+    "desc-2023-2027-projects.pdf": "https://www.scrtp.com/assets/pdfs/home/2023-2027-2million-and-above-project-descriptions.pdf",
+    "desc-2024-2028-projects.pdf": "https://www.scrtp.com/assets/pdfs/home/2024-2028-2million-and-above-project-descriptions.pdf",
+    "desc-2025-2029-projects.pdf": "https://www.scrtp.com/assets/pdfs/home/2025-2029-2million-and-above-project-descriptions.pdf",
+    "sertp-2024-preliminary-expansion-plan-noncei.pdf": "https://www.southeasternrtp.com/docs/general/2024/2024_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf",
+    "sertp-2025-preliminary-expansion-plan-noncei.pdf": "https://www.southeasternrtp.com/docs/general/2025/2025%20SERTP%20Preliminary%20Expansion%20Plan%20Report%20(Non-CEII).pdf",
     # MISO public cost estimation guides (unit costs for land, permitting and mobilization).
     "miso-cost-guide-mtep24.pdf": "https://cdn.misoenergy.org/20240501%20PSC%20Item%2004%20MISO%20Transmission%20Cost%20Estimation%20Guide%20for%20MTEP24632680.pdf",
     "miso-cost-guide-mtep2018.pdf": "https://cdn.misoenergy.org/Transmission-and-Substation-Project-Cost-Estimation-Guide-for-MTEP-2018144804.pdf",
