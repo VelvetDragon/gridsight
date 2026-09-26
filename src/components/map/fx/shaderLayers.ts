@@ -2,6 +2,7 @@
  * PathLayer variants with small shader injections, so every animated effect
  * runs on the GPU from uniforms: no per-frame attribute rebuilds.
  *
+ * - DamagePathLayer: failure colouring that follows the storm's passage.
  * - FlowPathLayer: water with drifting flow streaks, marching dashes, or
  *   comet streaks, driven by a per-vertex distance attribute and a time uniform.
  */
@@ -210,6 +211,129 @@ if (!bool(picking.isActive)) {
         dashLength: flowDashLength,
         accent: flowAccent.map((c) => c / 255),
       },
+    });
+    super.draw(params);
+  }
+}
+
+/* ---------------- Damage ---------------- */
+
+const damageBlock = /* glsl */ `\
+layout(std140) uniform damageUniforms {
+  float nowHours;
+  float wallTime;
+  float leadHours;
+  float flickerHours;
+} damage;
+`;
+
+const damageModule: ShaderModule = {
+  name: "damage",
+  vs: damageBlock,
+  fs: damageBlock,
+  uniformTypes: { nowHours: "f32", wallTime: "f32", leadHours: "f32", flickerHours: "f32" },
+};
+
+export type DamagePathLayerProps<D> = PathLayerProps<D> & {
+  /** Hours (relative to the replay start) when the storm passed closest. */
+  getRevealHours: Accessor<D, number>;
+  getProbability: Accessor<D, number>;
+  nowHours: number;
+  wallTime: number;
+  /** Hours before closest approach when colour starts to build. */
+  leadHours: number;
+  /** Hours of flicker for likely failures, after closest approach. */
+  flickerHours: number;
+};
+
+const damageDefaults: DefaultProps<DamagePathLayerProps<unknown>> = {
+  getRevealHours: { type: "accessor", value: 0 },
+  getProbability: { type: "accessor", value: 0 },
+  nowHours: 0,
+  wallTime: 0,
+  leadHours: 3,
+  flickerHours: 1.5,
+};
+
+/**
+ * Mirrors FAILURE_STOPS in lib/theme.ts: sand, ochre, brick, oxblood.
+ * Kept in GLSL so colour can follow the storm without attribute updates.
+ */
+const FAILURE_RAMP_GLSL = /* glsl */ `
+vec3 fx_failure(float p) {
+  vec3 c0 = vec3(226.0, 220.0, 204.0) / 255.0;
+  vec3 c1 = vec3(232.0, 196.0, 120.0) / 255.0;
+  vec3 c2 = vec3(214.0, 140.0, 52.0) / 255.0;
+  vec3 c3 = vec3(178.0, 64.0, 30.0) / 255.0;
+  vec3 c4 = vec3(96.0, 18.0, 18.0) / 255.0;
+  float x = clamp(p, 0.0, 1.0);
+  if (x <= 0.1) return mix(c0, c1, x / 0.1);
+  if (x <= 0.25) return mix(c1, c2, (x - 0.1) / 0.15);
+  if (x <= 0.5) return mix(c2, c3, (x - 0.25) / 0.25);
+  return mix(c3, c4, (x - 0.5) / 0.5);
+}
+`;
+
+export class DamagePathLayer<D = unknown> extends PathLayer<D, DamagePathLayerProps<D>> {
+  static layerName = "DamagePathLayer";
+  static defaultProps = damageDefaults;
+
+  getShaders() {
+    const shaders = super.getShaders() as Shaders;
+    shaders.modules = [...shaders.modules, damageModule];
+    shaders.inject = {
+      "vs:#decl": /* glsl */ `
+in float instanceReveal;
+in float instanceProb;
+${HASH_GLSL}
+${FAILURE_RAMP_GLSL}
+float fx_damageK() {
+  return smoothstep(-damage.leadHours, 0.0, damage.nowHours - instanceReveal);
+}
+`,
+      "vs:DECKGL_FILTER_SIZE": /* glsl */ `
+float dk = fx_damageK();
+float full = 1.6 + 4.0 * min(1.0, instanceProb * 2.0);
+float now = mix(1.2, 1.6 + 4.0 * min(1.0, instanceProb * 2.0 * dk), smoothstep(0.0, 0.35, dk));
+size *= now / full;
+`,
+      "vs:#main-end": /* glsl */ `
+{
+  float rel = damage.nowHours - instanceReveal;
+  float k = fx_damageK();
+  float p = instanceProb;
+  float shown = smoothstep(0.0, 0.35, k);
+  vec3 c = mix(vec3(120.0, 126.0, 138.0) / 255.0, fx_failure(p * k), shown);
+  float a = mix(70.0 / 255.0, 1.0, shown);
+  float likely = step(0.5, p);
+  float flickering = likely * step(0.0, rel) * (1.0 - step(damage.flickerHours, rel));
+  if (flickering > 0.5) {
+    float n = fx_hash(floor(damage.wallTime * 12.0) + rowIndexes * 7.31);
+    float lit = step(0.42, n);
+    c = mix(vec3(0.16, 0.12, 0.12), mix(c, vec3(1.0, 0.84, 0.42), 0.6), lit);
+  }
+  // Lights out: failed lines settle dark.
+  float out_ = likely * step(damage.flickerHours, rel);
+  c = mix(c, c * 0.62, out_);
+  vColor = vec4(c, a * layer.opacity);
+}
+`,
+    };
+    return shaders;
+  }
+
+  initializeState() {
+    super.initializeState();
+    this.getAttributeManager()!.addInstanced({
+      instanceReveal: { size: 1, accessor: "getRevealHours", defaultValue: 0 },
+      instanceProb: { size: 1, accessor: "getProbability", defaultValue: 0 },
+    });
+  }
+
+  draw(params: Parameters<PathLayer<D, DamagePathLayerProps<D>>["draw"]>[0]) {
+    const { nowHours, wallTime, leadHours, flickerHours } = this.props;
+    (this.state.model as ModelLike | undefined)?.shaderInputs.setProps({
+      damage: { nowHours, wallTime, leadHours, flickerHours },
     });
     super.draw(params);
   }

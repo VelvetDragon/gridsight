@@ -2,6 +2,7 @@
 
 import type { Layer, PickingInfo } from "@deck.gl/core";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { FlightOverlay } from "./fx/FlightOverlay";
 import { FxControls } from "./fx/FxControls";
 import { useFx } from "./fx/useFx";
 import MapCanvas, { type MapMarker, type MapPadding, type MapPopup, type ViewRequest } from "./MapCanvas";
@@ -40,6 +41,11 @@ interface Hover {
 export default function MapStage({ mode, plan, response, popup, view, padding }: MapStageProps) {
   const [hover, setHover] = useState<Hover | null>(null);
   const fx = useFx(mode, plan, response);
+  const fxControlsStyle = {
+    top: padding.top - 16,
+    // Top right, just left of any right-hand panel.
+    right: padding.right > 48 ? padding.right - 20 : 16,
+  };
 
   const layers = useMemo<Layer[]>(() => {
     if (mode === "plan" && plan) return buildPlanLayers(plan);
@@ -86,15 +92,10 @@ export default function MapStage({ mode, plan, response, popup, view, padding }:
         onClick={onClick}
         fx={fx.controller}
       />
-      <FxControls
-        fx={fx}
-        className="absolute z-20"
-        style={{
-          top: padding.top - 16,
-          // Just left of the right-hand column (plan keeps its savings column beside the pair drawer).
-          right: mode === "plan" ? (plan?.selectedId ? 440 : 16) + 332 : padding.right > 48 ? padding.right - 20 : 16,
-        }}
-      />
+      <FxControls fx={fx} className="absolute z-20" style={fxControlsStyle} />
+      {mode === "plan" ? (
+        <FlightOverlay fx={fx} plan={plan} buttonStyle={{ top: fxControlsStyle.top, right: fxControlsStyle.right + 70 }} />
+      ) : null}
       {hover ? (
         <div
           className="glass-strong pointer-events-none absolute z-30 max-w-[300px] rounded-[10px] px-3 py-2"
