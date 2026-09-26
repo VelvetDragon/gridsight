@@ -6,7 +6,9 @@ import { Button, Panel } from "./ui/primitives";
 
 const STORAGE_KEY = "gridsight.howto.dismissed.v1";
 
-const STEPS: Record<Mode, { title: string; body: string }[]> = {
+type ExploreMode = Exclude<Mode, "story">;
+
+const STEPS: Record<ExploreMode, { title: string; body: string }[]> = {
   plan: [
     {
       title: "Two companies, one river",
@@ -80,7 +82,7 @@ export function useHowTo() {
   return { visible: !dismissed, open, dismiss };
 }
 
-export function HowToCard({ mode, onDismiss }: { mode: Mode; onDismiss: () => void }) {
+export function HowToCard({ mode, onDismiss }: { mode: ExploreMode; onDismiss: () => void }) {
   const steps = STEPS[mode];
   return (
     <Panel className="glass-strong gs-fade w-[440px] p-6" role="dialog" aria-label="How to read this map">

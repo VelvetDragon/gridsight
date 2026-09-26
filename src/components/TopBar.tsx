@@ -4,19 +4,7 @@ import type { FileStatus } from "@/lib/data";
 import { fmtDate } from "@/lib/format";
 import { cx, SegmentedControl, Tooltip } from "./ui/primitives";
 import type { Mode } from "./map/MapStage";
-
-function Wordmark() {
-  return (
-    <div className="flex items-center gap-2 pr-1 select-none">
-      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden>
-        <path d="M4 13.5 L14 4.5" stroke="#16181D" strokeWidth="1.4" strokeLinecap="round" />
-        <circle cx="4" cy="13.5" r="3" fill="#0E7C7B" stroke="#fff" strokeWidth="1.2" />
-        <circle cx="14" cy="4.5" r="3" fill="#C2410C" stroke="#fff" strokeWidth="1.2" />
-      </svg>
-      <span className="display text-[21px] leading-none font-semibold text-ink">GridSight</span>
-    </div>
-  );
-}
+import { Wordmark } from "./Wordmark";
 
 export interface DataStatusProps {
   loading: boolean;
@@ -87,7 +75,9 @@ export function TopBar({
   status,
   subtitle,
   onHelp,
+  onStory,
 }: {
+  onStory: () => void;
   mode: Mode;
   onMode: (m: Mode) => void;
   status: DataStatusProps;
@@ -110,6 +100,13 @@ export function TopBar({
       <span className="hidden text-[14px] text-ink-2 xl:inline">{subtitle}</span>
       <div className="ml-auto flex items-center gap-3">
         <DataStatus {...status} />
+        <button
+          type="button"
+          onClick={onStory}
+          className="h-8 rounded-full px-3 text-[13px] font-medium text-ink-2 transition-colors hover:bg-white/70 hover:text-ink"
+        >
+          Replay the story
+        </button>
         <button
           type="button"
           onClick={onHelp}
