@@ -1,0 +1,326 @@
+[
+  {
+    "fips": "13245",
+    "name": "Richmond",
+    "state": "GA",
+    "customers": 95000,
+    "predictedPeakOut": 85027,
+    "actualPeakOut": 72273,
+    "centroid": [
+      -82.07,
+      33.36
+    ]
+  },
+  {
+    "fips": "13073",
+    "name": "Columbia",
+    "state": "GA",
+    "customers": 62000,
+    "predictedPeakOut": 54577,
+    "actualPeakOut": 53785,
+    "centroid": [
+      -82.26,
+      33.54
+    ]
+  },
+  {
+    "fips": "13033",
+    "name": "Burke",
+    "state": "GA",
+    "customers": 11000,
+    "predictedPeakOut": 10021,
+    "actualPeakOut": 11000,
+    "centroid": [
+      -82,
+      33.06
+    ]
+  },
+  {
+    "fips": "13189",
+    "name": "McDuffie",
+    "state": "GA",
+    "customers": 10500,
+    "predictedPeakOut": 9344,
+    "actualPeakOut": 8937,
+    "centroid": [
+      -82.48,
+      33.48
+    ]
+  },
+  {
+    "fips": "13163",
+    "name": "Jefferson",
+    "state": "GA",
+    "customers": 7800,
+    "predictedPeakOut": 7182,
+    "actualPeakOut": 7800,
+    "centroid": [
+      -82.42,
+      33.05
+    ]
+  },
+  {
+    "fips": "13165",
+    "name": "Jenkins",
+    "state": "GA",
+    "customers": 4100,
+    "predictedPeakOut": 3776,
+    "actualPeakOut": 3502,
+    "centroid": [
+      -81.96,
+      32.79
+    ]
+  },
+  {
+    "fips": "13251",
+    "name": "Screven",
+    "state": "GA",
+    "customers": 6800,
+    "predictedPeakOut": 5941,
+    "actualPeakOut": 6315,
+    "centroid": [
+      -81.61,
+      32.75
+    ]
+  },
+  {
+    "fips": "13107",
+    "name": "Emanuel",
+    "state": "GA",
+    "customers": 11000,
+    "predictedPeakOut": 10222,
+    "actualPeakOut": 9183,
+    "centroid": [
+      -82.3,
+      32.59
+    ]
+  },
+  {
+    "fips": "13031",
+    "name": "Bulloch",
+    "state": "GA",
+    "customers": 36000,
+    "predictedPeakOut": 31848,
+    "actualPeakOut": 32927,
+    "centroid": [
+      -81.74,
+      32.39
+    ]
+  },
+  {
+    "fips": "13103",
+    "name": "Effingham",
+    "state": "GA",
+    "customers": 30000,
+    "predictedPeakOut": 18673,
+    "actualPeakOut": 16233,
+    "centroid": [
+      -81.34,
+      32.37
+    ]
+  },
+  {
+    "fips": "13051",
+    "name": "Chatham",
+    "state": "GA",
+    "customers": 150000,
+    "predictedPeakOut": 49474,
+    "actualPeakOut": 49713,
+    "centroid": [
+      -81.13,
+      32
+    ]
+  },
+  {
+    "fips": "13029",
+    "name": "Bryan",
+    "state": "GA",
+    "customers": 17000,
+    "predictedPeakOut": 10584,
+    "actualPeakOut": 12069,
+    "centroid": [
+      -81.44,
+      32.02
+    ]
+  },
+  {
+    "fips": "13181",
+    "name": "Lincoln",
+    "state": "GA",
+    "customers": 5200,
+    "predictedPeakOut": 4487,
+    "actualPeakOut": 4378,
+    "centroid": [
+      -82.45,
+      33.79
+    ]
+  },
+  {
+    "fips": "13301",
+    "name": "Warren",
+    "state": "GA",
+    "customers": 3000,
+    "predictedPeakOut": 2729,
+    "actualPeakOut": null,
+    "centroid": [
+      -82.68,
+      33.41
+    ]
+  },
+  {
+    "fips": "45003",
+    "name": "Aiken",
+    "state": "SC",
+    "customers": 85000,
+    "predictedPeakOut": 71879,
+    "actualPeakOut": 68053,
+    "centroid": [
+      -81.63,
+      33.54
+    ]
+  },
+  {
+    "fips": "45037",
+    "name": "Edgefield",
+    "state": "SC",
+    "customers": 12500,
+    "predictedPeakOut": 10782,
+    "actualPeakOut": 11669,
+    "centroid": [
+      -81.97,
+      33.77
+    ]
+  },
+  {
+    "fips": "45011",
+    "name": "Barnwell",
+    "state": "SC",
+    "customers": 10000,
+    "predictedPeakOut": 8339,
+    "actualPeakOut": 7653,
+    "centroid": [
+      -81.43,
+      33.27
+    ]
+  },
+  {
+    "fips": "45005",
+    "name": "Allendale",
+    "state": "SC",
+    "customers": 4000,
+    "predictedPeakOut": 3099,
+    "actualPeakOut": 3264,
+    "centroid": [
+      -81.36,
+      32.99
+    ]
+  },
+  {
+    "fips": "45009",
+    "name": "Bamberg",
+    "state": "SC",
+    "customers": 7000,
+    "predictedPeakOut": 3880,
+    "actualPeakOut": 3448,
+    "centroid": [
+      -81.05,
+      33.22
+    ]
+  },
+  {
+    "fips": "45049",
+    "name": "Hampton",
+    "state": "SC",
+    "customers": 8800,
+    "predictedPeakOut": 4719,
+    "actualPeakOut": 4833,
+    "centroid": [
+      -81.14,
+      32.78
+    ]
+  },
+  {
+    "fips": "45053",
+    "name": "Jasper",
+    "state": "SC",
+    "customers": 14000,
+    "predictedPeakOut": 4753,
+    "actualPeakOut": 4086,
+    "centroid": [
+      -81.02,
+      32.43
+    ]
+  },
+  {
+    "fips": "45013",
+    "name": "Beaufort",
+    "state": "SC",
+    "customers": 95000,
+    "predictedPeakOut": 15249,
+    "actualPeakOut": 15175,
+    "centroid": [
+      -80.75,
+      32.36
+    ]
+  },
+  {
+    "fips": "45029",
+    "name": "Colleton",
+    "state": "SC",
+    "customers": 22000,
+    "predictedPeakOut": 3884,
+    "actualPeakOut": 4391,
+    "centroid": [
+      -80.66,
+      32.84
+    ]
+  },
+  {
+    "fips": "45075",
+    "name": "Orangeburg",
+    "state": "SC",
+    "customers": 42000,
+    "predictedPeakOut": 15289,
+    "actualPeakOut": 14771,
+    "centroid": [
+      -80.8,
+      33.44
+    ]
+  },
+  {
+    "fips": "45081",
+    "name": "Saluda",
+    "state": "SC",
+    "customers": 9500,
+    "predictedPeakOut": 7703,
+    "actualPeakOut": 8486,
+    "centroid": [
+      -81.73,
+      34.01
+    ]
+  },
+  {
+    "fips": "45063",
+    "name": "Lexington",
+    "state": "SC",
+    "customers": 140000,
+    "predictedPeakOut": 105465,
+    "actualPeakOut": 98831,
+    "centroid": [
+      -81.27,
+      33.9
+    ]
+  },
+  {
+    "fips": "45065",
+    "name": "McCormick",
+    "state": "SC",
+    "customers": 5500,
+    "predictedPeakOut": 4641,
+    "actualPeakOut": null,
+    "centroid": [
+      -82.29,
+      33.9
+    ]
+  }
+]

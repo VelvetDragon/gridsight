@@ -1,0 +1,736 @@
+[
+  {
+    "id": "desc-okatie-mcintosh-reactor",
+    "utility": "DESC",
+    "owner": "DESC",
+    "name": "Okatie – McIntosh 115kV Tie: Add Series Reactor",
+    "kind": "line",
+    "action": "upgrade",
+    "description": "Install a series reactor on the Okatie – McIntosh 115 kV tie line to manage flows between the DESC and Georgia Power systems.",
+    "voltageKv": [
+      115
+    ],
+    "miles": null,
+    "places": [
+      "Okatie",
+      "McIntosh"
+    ],
+    "inService": "2028-12-31",
+    "buildWindow": [
+      "2027-07-01",
+      "2028-12-31"
+    ],
+    "costUsd": 4800000,
+    "status": "Planned",
+    "state": "SC",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          -80.93,
+          32.3
+        ],
+        [
+          -81.02,
+          32.295
+        ],
+        [
+          -81.1,
+          32.315
+        ],
+        [
+          -81.18,
+          32.36
+        ]
+      ]
+    },
+    "geometryQuality": "straight",
+    "locationConfidence": 0.6,
+    "source": {
+      "document": "DESC Planned Transmission Projects $2M and Above, 2026–2030",
+      "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+      "page": 14
+    }
+  },
+  {
+    "id": "desc-jasper-okatie-230-2",
+    "utility": "DESC",
+    "owner": "DESC",
+    "name": "Jasper – Okatie 230 kV #2: Construct",
+    "kind": "line",
+    "action": "new",
+    "description": "Construct a second 230 kV line between Jasper and Okatie to serve load growth in southern Jasper and Beaufort counties.",
+    "voltageKv": [
+      230
+    ],
+    "miles": 6.5,
+    "places": [
+      "Jasper",
+      "Okatie"
+    ],
+    "inService": "2026-12-01",
+    "buildWindow": [
+      "2025-06-01",
+      "2026-12-01"
+    ],
+    "costUsd": 21600000,
+    "status": "Under construction",
+    "state": "SC",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          -81,
+          32.38
+        ],
+        [
+          -80.972,
+          32.343
+        ],
+        [
+          -80.93,
+          32.3
+        ]
+      ]
+    },
+    "geometryQuality": "traced",
+    "locationConfidence": 0.85,
+    "source": {
+      "document": "DESC Planned Transmission Projects $2M and Above, 2026–2030",
+      "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+      "page": 9
+    }
+  },
+  {
+    "id": "desc-okatie-substation",
+    "utility": "DESC",
+    "owner": "DESC",
+    "name": "Okatie 230-115kV Substation",
+    "kind": "substation",
+    "action": "new",
+    "description": "New 230-115 kV substation at Okatie with two 230 kV line terminals and a 115 kV ring bus.",
+    "voltageKv": [
+      230,
+      115
+    ],
+    "miles": null,
+    "places": [
+      "Okatie"
+    ],
+    "inService": "2026-12-31",
+    "buildWindow": [
+      "2025-07-01",
+      "2026-12-31"
+    ],
+    "costUsd": 28400000,
+    "status": "Under construction",
+    "state": "SC",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -80.93,
+        32.3
+      ]
+    },
+    "geometryQuality": "point",
+    "locationConfidence": 0.9,
+    "source": {
+      "document": "DESC Planned Transmission Projects $2M and Above, 2026–2030",
+      "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+      "page": 10
+    }
+  },
+  {
+    "id": "desc-urquhart-toolebeck",
+    "utility": "DESC",
+    "owner": "DESC",
+    "name": "Urquhart – Toolebeck 115kV line: Rebuild",
+    "kind": "line",
+    "action": "rebuild",
+    "description": "Rebuild 12.5 miles of the Urquhart – Toolebeck 115 kV line with higher-capacity conductor on new steel poles.",
+    "voltageKv": [
+      115
+    ],
+    "miles": 12.5,
+    "places": [
+      "Urquhart",
+      "Toolebeck"
+    ],
+    "inService": "2026-08-12",
+    "buildWindow": [
+      "2025-05-01",
+      "2026-08-12"
+    ],
+    "costUsd": 15900000,
+    "status": "Under construction",
+    "state": "SC",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          -81.93,
+          33.43
+        ],
+        [
+          -81.875,
+          33.468
+        ],
+        [
+          -81.83,
+          33.5
+        ],
+        [
+          -81.78,
+          33.53
+        ]
+      ]
+    },
+    "geometryQuality": "traced",
+    "locationConfidence": 0.85,
+    "source": {
+      "document": "DESC Planned Transmission Projects $2M and Above, 2026–2030",
+      "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+      "page": 21
+    }
+  },
+  {
+    "id": "desc-urquhart-aiken-psa",
+    "utility": "DESC",
+    "owner": "DESC",
+    "name": "Urquhart – Aiken PSA 46 kV: Rebuild",
+    "kind": "line",
+    "action": "rebuild",
+    "description": "Rebuild 4.5 miles of 46 kV line from Urquhart toward the Aiken PSA delivery point.",
+    "voltageKv": [
+      46
+    ],
+    "miles": 4.5,
+    "places": [
+      "Urquhart",
+      "Aiken PSA"
+    ],
+    "inService": "2027-12-31",
+    "buildWindow": [
+      "2027-01-01",
+      "2027-12-31"
+    ],
+    "costUsd": 4200000,
+    "status": "Planned",
+    "state": "SC",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          -81.93,
+          33.43
+        ],
+        [
+          -81.9,
+          33.448
+        ],
+        [
+          -81.86,
+          33.47
+        ]
+      ]
+    },
+    "geometryQuality": "traced",
+    "locationConfidence": 0.8,
+    "source": {
+      "document": "DESC Planned Transmission Projects $2M and Above, 2026–2030",
+      "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+      "page": 22
+    }
+  },
+  {
+    "id": "gpc-mcintosh-substation",
+    "utility": "GPC",
+    "owner": "SOCO",
+    "name": "Plant McIntosh 230/115 kV Substation: Expand",
+    "kind": "substation",
+    "action": "upgrade",
+    "description": "Add a 230/115 kV autotransformer and 115 kV breakers at the Plant McIntosh switchyard.",
+    "voltageKv": [
+      230,
+      115
+    ],
+    "miles": null,
+    "places": [
+      "McIntosh"
+    ],
+    "inService": "2028-06-01",
+    "buildWindow": [
+      "2027-03-01",
+      "2028-06-01"
+    ],
+    "costUsd": 12000000,
+    "status": "Planned",
+    "state": "GA",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.18,
+        32.36
+      ]
+    },
+    "geometryQuality": "point",
+    "locationConfidence": 0.9,
+    "source": {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": 38
+    }
+  },
+  {
+    "id": "gpc-mcintosh-effingham",
+    "utility": "GPC",
+    "owner": "SOCO",
+    "name": "McIntosh – Effingham 230 kV: Rebuild",
+    "kind": "line",
+    "action": "rebuild",
+    "description": "Rebuild the McIntosh – Effingham 230 kV line with larger conductor.",
+    "voltageKv": [
+      230
+    ],
+    "miles": 9.8,
+    "places": [
+      "McIntosh",
+      "Effingham"
+    ],
+    "inService": "2029-05-31",
+    "buildWindow": [
+      "2027-12-01",
+      "2029-05-31"
+    ],
+    "costUsd": 26000000,
+    "status": "Planned",
+    "state": "GA",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          -81.18,
+          32.36
+        ],
+        [
+          -81.25,
+          32.372
+        ],
+        [
+          -81.33,
+          32.38
+        ]
+      ]
+    },
+    "geometryQuality": "traced",
+    "locationConfidence": 0.8,
+    "source": {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": 39
+    }
+  },
+  {
+    "id": "gpc-dean-forest-savannah",
+    "utility": "GPC",
+    "owner": "SOCO",
+    "name": "Dean Forest – Savannah 115 kV: Reconductor",
+    "kind": "line",
+    "action": "upgrade",
+    "description": "Reconductor the Dean Forest – Savannah 115 kV line.",
+    "voltageKv": [
+      115
+    ],
+    "miles": 7.4,
+    "places": [
+      "Dean Forest",
+      "Savannah"
+    ],
+    "inService": "2027-06-01",
+    "buildWindow": [
+      "2026-06-01",
+      "2027-06-01"
+    ],
+    "costUsd": 9300000,
+    "status": "Planned",
+    "state": "GA",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          -81.19,
+          32.1
+        ],
+        [
+          -81.14,
+          32.092
+        ],
+        [
+          -81.09,
+          32.08
+        ]
+      ]
+    },
+    "geometryQuality": "straight",
+    "locationConfidence": 0.6,
+    "source": {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": 41
+    }
+  },
+  {
+    "id": "gpc-vogtle-thomson-500",
+    "utility": "GPC",
+    "owner": "SOCO",
+    "name": "Vogtle – Thomson 500 kV: Construct",
+    "kind": "line",
+    "action": "new",
+    "description": "New 500 kV line from Plant Vogtle to the Thomson area to move Vogtle output west.",
+    "voltageKv": [
+      500
+    ],
+    "miles": 52,
+    "places": [
+      "Vogtle",
+      "Thomson"
+    ],
+    "inService": "2031-06-01",
+    "buildWindow": [
+      "2028-06-01",
+      "2031-06-01"
+    ],
+    "costUsd": 312000000,
+    "status": "Planned",
+    "state": "GA",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          -81.76,
+          33.14
+        ],
+        [
+          -81.98,
+          33.24
+        ],
+        [
+          -82.25,
+          33.38
+        ],
+        [
+          -82.5,
+          33.47
+        ]
+      ]
+    },
+    "geometryQuality": "straight",
+    "locationConfidence": 0.5,
+    "source": {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": 27
+    }
+  },
+  {
+    "id": "gpc-goshen-augusta",
+    "utility": "GPC",
+    "owner": "SOCO",
+    "name": "Goshen – Augusta 230 kV: Rebuild",
+    "kind": "line",
+    "action": "rebuild",
+    "description": "Rebuild the Goshen – Augusta 230 kV line on the existing corridor.",
+    "voltageKv": [
+      230
+    ],
+    "miles": 8.1,
+    "places": [
+      "Goshen",
+      "Augusta"
+    ],
+    "inService": "2027-10-01",
+    "buildWindow": [
+      "2026-09-01",
+      "2027-10-01"
+    ],
+    "costUsd": 18700000,
+    "status": "Planned",
+    "state": "GA",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          -82.03,
+          33.36
+        ],
+        [
+          -82,
+          33.42
+        ],
+        [
+          -81.97,
+          33.47
+        ]
+      ]
+    },
+    "geometryQuality": "traced",
+    "locationConfidence": 0.8,
+    "source": {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": 29
+    }
+  },
+  {
+    "id": "gpc-augusta-beech-island-tie",
+    "utility": "GPC",
+    "owner": "SOCO",
+    "name": "Augusta – Beech Island 115 kV Tie (GA portion): Reconductor",
+    "kind": "line",
+    "action": "upgrade",
+    "description": "Reconductor the Georgia portion of the 115 kV tie toward Beech Island, up to the Savannah River.",
+    "voltageKv": [
+      115
+    ],
+    "miles": 3.1,
+    "places": [
+      "Augusta",
+      "Beech Island"
+    ],
+    "inService": "2027-05-01",
+    "buildWindow": [
+      "2026-10-01",
+      "2027-05-01"
+    ],
+    "costUsd": 5600000,
+    "status": "Planned",
+    "state": "GA",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          -81.975,
+          33.468
+        ],
+        [
+          -81.955,
+          33.455
+        ],
+        [
+          -81.938,
+          33.437
+        ]
+      ]
+    },
+    "geometryQuality": "traced",
+    "locationConfidence": 0.75,
+    "source": {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": 30
+    }
+  },
+  {
+    "id": "gpc-vogtle-switchyard",
+    "utility": "GPC",
+    "owner": "SOCO",
+    "name": "Vogtle 500/230 kV Switchyard: Add Breakers",
+    "kind": "substation",
+    "action": "upgrade",
+    "description": "Add 500 kV breakers at the Plant Vogtle switchyard for the new Thomson line.",
+    "voltageKv": [
+      500,
+      230
+    ],
+    "miles": null,
+    "places": [
+      "Vogtle"
+    ],
+    "inService": "2029-12-01",
+    "buildWindow": [
+      "2028-09-01",
+      "2029-12-01"
+    ],
+    "costUsd": 14200000,
+    "status": "Planned",
+    "state": "GA",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.76,
+        33.14
+      ]
+    },
+    "geometryQuality": "point",
+    "locationConfidence": 0.95,
+    "source": {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": 27
+    }
+  },
+  {
+    "id": "gpc-thomson-substation",
+    "utility": "GPC",
+    "owner": "SOCO",
+    "name": "Thomson 230/115 kV Substation: Rebuild",
+    "kind": "substation",
+    "action": "rebuild",
+    "description": "Rebuild the Thomson 230/115 kV substation to terminate the new 500 kV line.",
+    "voltageKv": [
+      230,
+      115
+    ],
+    "miles": null,
+    "places": [
+      "Thomson"
+    ],
+    "inService": "2032-06-01",
+    "buildWindow": [
+      "2030-10-01",
+      "2032-06-01"
+    ],
+    "costUsd": 22000000,
+    "status": "Planned",
+    "state": "GA",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -82.5,
+        33.47
+      ]
+    },
+    "geometryQuality": "point",
+    "locationConfidence": 0.85,
+    "source": {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": 28
+    }
+  },
+  {
+    "id": "gpc-rincon-substation",
+    "utility": "GPC",
+    "owner": "SOCO",
+    "name": "Rincon 115 kV Substation: New",
+    "kind": "substation",
+    "action": "new",
+    "description": "New 115 kV distribution substation serving growth around Rincon.",
+    "voltageKv": [
+      115
+    ],
+    "miles": null,
+    "places": [
+      "Rincon"
+    ],
+    "inService": "2030-03-01",
+    "buildWindow": [
+      "2028-10-01",
+      "2030-03-01"
+    ],
+    "costUsd": 11500000,
+    "status": "Planned",
+    "state": "GA",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.23,
+        32.3
+      ]
+    },
+    "geometryQuality": "point",
+    "locationConfidence": 0.7,
+    "source": {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": 40
+    }
+  },
+  {
+    "id": "gpc-port-wentworth-substation",
+    "utility": "GPC",
+    "owner": "SOCO",
+    "name": "Port Wentworth 230 kV Substation: Expand",
+    "kind": "substation",
+    "action": "upgrade",
+    "description": "Expand the Port Wentworth 230 kV substation for port and industrial load.",
+    "voltageKv": [
+      230
+    ],
+    "miles": null,
+    "places": [
+      "Port Wentworth"
+    ],
+    "inService": "2033-05-01",
+    "buildWindow": [
+      "2032-01-01",
+      "2033-05-01"
+    ],
+    "costUsd": 16000000,
+    "status": "Planned",
+    "state": "GA",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.16,
+        32.15
+      ]
+    },
+    "geometryQuality": "point",
+    "locationConfidence": 0.8,
+    "source": {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": 42
+    }
+  },
+  {
+    "id": "gpc-richmond-hill-bryan",
+    "utility": "GPC",
+    "owner": "SOCO",
+    "name": "Richmond Hill – Bryan County 230 kV: Construct",
+    "kind": "line",
+    "action": "new",
+    "description": "New 230 kV line to serve industrial load in Bryan County.",
+    "voltageKv": [
+      230
+    ],
+    "miles": 11.2,
+    "places": [
+      "Richmond Hill",
+      "Bryan County"
+    ],
+    "inService": "2034-06-01",
+    "buildWindow": [
+      "2032-01-01",
+      "2034-06-01"
+    ],
+    "costUsd": 88000000,
+    "status": "Planned",
+    "state": "GA",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          -81.3,
+          31.94
+        ],
+        [
+          -81.37,
+          31.99
+        ],
+        [
+          -81.45,
+          32.02
+        ]
+      ]
+    },
+    "geometryQuality": "straight",
+    "locationConfidence": 0.5,
+    "source": {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": 43
+    }
+  }
+]

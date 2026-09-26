@@ -1,0 +1,146 @@
+[
+  {
+    "fips": "13251",
+    "name": "Screven",
+    "state": "GA",
+    "customers": 6800,
+    "predictedPeakOut": 300,
+    "actualPeakOut": null,
+    "centroid": [
+      -81.61,
+      32.75
+    ]
+  },
+  {
+    "fips": "13031",
+    "name": "Bulloch",
+    "state": "GA",
+    "customers": 36000,
+    "predictedPeakOut": 2064,
+    "actualPeakOut": null,
+    "centroid": [
+      -81.74,
+      32.39
+    ]
+  },
+  {
+    "fips": "13103",
+    "name": "Effingham",
+    "state": "GA",
+    "customers": 30000,
+    "predictedPeakOut": 12892,
+    "actualPeakOut": null,
+    "centroid": [
+      -81.34,
+      32.37
+    ]
+  },
+  {
+    "fips": "13051",
+    "name": "Chatham",
+    "state": "GA",
+    "customers": 150000,
+    "predictedPeakOut": 137227,
+    "actualPeakOut": null,
+    "centroid": [
+      -81.13,
+      32
+    ]
+  },
+  {
+    "fips": "13029",
+    "name": "Bryan",
+    "state": "GA",
+    "customers": 17000,
+    "predictedPeakOut": 9128,
+    "actualPeakOut": null,
+    "centroid": [
+      -81.44,
+      32.02
+    ]
+  },
+  {
+    "fips": "45005",
+    "name": "Allendale",
+    "state": "SC",
+    "customers": 4000,
+    "predictedPeakOut": 217,
+    "actualPeakOut": null,
+    "centroid": [
+      -81.36,
+      32.99
+    ]
+  },
+  {
+    "fips": "45009",
+    "name": "Bamberg",
+    "state": "SC",
+    "customers": 7000,
+    "predictedPeakOut": 601,
+    "actualPeakOut": null,
+    "centroid": [
+      -81.05,
+      33.22
+    ]
+  },
+  {
+    "fips": "45049",
+    "name": "Hampton",
+    "state": "SC",
+    "customers": 8800,
+    "predictedPeakOut": 2724,
+    "actualPeakOut": null,
+    "centroid": [
+      -81.14,
+      32.78
+    ]
+  },
+  {
+    "fips": "45053",
+    "name": "Jasper",
+    "state": "SC",
+    "customers": 14000,
+    "predictedPeakOut": 12078,
+    "actualPeakOut": null,
+    "centroid": [
+      -81.02,
+      32.43
+    ]
+  },
+  {
+    "fips": "45013",
+    "name": "Beaufort",
+    "state": "SC",
+    "customers": 95000,
+    "predictedPeakOut": 89941,
+    "actualPeakOut": null,
+    "centroid": [
+      -80.75,
+      32.36
+    ]
+  },
+  {
+    "fips": "45029",
+    "name": "Colleton",
+    "state": "SC",
+    "customers": 22000,
+    "predictedPeakOut": 19156,
+    "actualPeakOut": null,
+    "centroid": [
+      -80.66,
+      32.84
+    ]
+  },
+  {
+    "fips": "45075",
+    "name": "Orangeburg",
+    "state": "SC",
+    "customers": 42000,
+    "predictedPeakOut": 4642,
+    "actualPeakOut": null,
+    "centroid": [
+      -80.8,
+      33.44
+    ]
+  }
+]

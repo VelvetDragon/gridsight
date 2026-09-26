@@ -7,7 +7,7 @@ Built at ShellHacks 2026 for the Sperry Tech GridLock Challenge, using Dominion 
 ## Modes
 
 - **Plan mode** reads both utilities' public construction plans, places every project on an interactive map, flags pairs within 40 km by closest-point distance (crossing / 1.6 km / 8 km / 40 km tiers), adds build-window overlap, and ranks the top coordination opportunities with a rough cost estimate.
-- **Response mode** replays Hurricane Helene (2024), which hit both utilities, simulates transmission damage with engineering fragility curves (GPU Monte Carlo), and proposes shared staging yards so both utilities can restore power faster, most vulnerable residents first.
+- **Response mode** replays real hurricanes that hit both utilities (Helene 2024 featured; Matthew 2016, Irma 2017, Idalia 2023, Debby 2024 selectable), simulates transmission damage with engineering fragility curves (GPU Monte Carlo), and proposes shared staging yards so both utilities can restore power faster, most vulnerable residents first.
 
 ## Repository layout
 
