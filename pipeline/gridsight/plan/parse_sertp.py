@@ -6,6 +6,9 @@
 2. SERTP 2025 Regional Transmission Plan & Input Assumptions (Nov 2025). The
    Southern BAA appendix lists "In-Service Year / Project Name / Description".
 
+3. SERTP 2026 Preliminary Expansion Plan Report (Non-CEII), the full project
+   list behind the Q2 deck, same entry layout as (2).
+
 Owner tags: SOCO = Southern Company, which covers Georgia Power *and* Alabama /
 Mississippi Power, so a SOCO project only becomes a Georgia Power (GPC) project
 once geocoding places it in Georgia (see geocode.py). GTC, MEAG, DU and PS are
@@ -41,6 +44,10 @@ from gridsight.plan.records import (
 Q2_PDF = "sertp-2026-q2-preliminary-plan.pdf"
 Q2_URL = "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf"
 Q2_DOC = "SERTP 2026 2nd Quarter Meeting: Preliminary 10-Year Transmission Expansion Plan"
+
+R26_PDF = "sertp-2026-preliminary-expansion-plan-noncei.pdf"
+R26_URL = "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf"
+R26_DOC = "SERTP 2026 Preliminary Expansion Plan Report (Non-CEII), June 12, 2026"
 
 RP_PDF = "sertp-2025-regional-plan.pdf"
 RP_URL = (
@@ -145,7 +152,7 @@ def parse_q2(path: Path | None = None) -> tuple[list[RawProject], dict]:
                 rec = _record(
                     pid=f"gpc-sertp26-s{n}-{k}",
                     owner=bm.group(1),
-                    title=f"{title} ({bm.group(1)} portion)",
+                    title=f"{display_name(title)} ({bm.group(1)} portion)",
                     desc=bullet,
                     year=year,
                     doc=Q2_DOC,
@@ -165,18 +172,26 @@ def parse_q2(path: Path | None = None) -> tuple[list[RawProject], dict]:
 
 ENTRY_RE = re.compile(
     r"In-Service / Year: / (?P<year>20\d\d) / Project Name: / (?P<name>.+?) / Description: / (?P<desc>.+?)"
-    r" / Supporting / Statements: / (?P<supp>.+?)(?= / In-Service / Year:|<<PAGE|$)",
+    r" / Supporting / Statements?: / (?P<supp>.+?)(?= / In-Service / Year:|<<PAGE|$)",
     re.S,
 )
+# Page header. The PDFs also carry "(CEII)" in white, invisible template text; the
+# visible header reads "SERTP TRANSMISSION PROJECTS" and both documents are the
+# public, non-CEII versions (see module notes in build.py).
 BOILER_RE = re.compile(
-    r"SERTP TRANSMISSION PROJECTS \(CEII\) / \d+ / Balancing Authority / SERTP TRANSMISSION PROJECTS \(CEII\) / "
-    r"[^/]*Balancing Authority Area / SERTP TRANSMISSION PROJECTS / "
+    r"SERTP TRANSMISSION PROJECTS \(CEII\) / (?:[\d/]+ / Page \d+ of \d+ / |\d+ / )Balancing Authority / "
+    r"SERTP TRANSMISSION PROJECTS \(CEII\) / [^/]*Balancing Authority Area / SERTP TRANSMISSION PROJECTS / "
 )
 
 
-def parse_regional_2025(path: Path | None = None) -> tuple[list[RawProject], dict]:
-    """Southern-BAA entries of the 2025 regional plan (candidates; Georgia check happens in geocoding)."""
-    pages = _pages(path or RAW_DIR / RP_PDF)
+def parse_project_report(path: Path, doc: str, url: str, prefix: str) -> tuple[list[RawProject], dict]:
+    """Southern-BAA entries of a SERTP project report (In-Service Year / Project Name / Description).
+
+    Owner tags: "SOCO:" (optionally followed by "SAV:" = Georgia Power's Savannah area), or
+    GTC / MEAG / DU / PS. Entries without a tag (2025 plan) are Southern Company's.
+    Georgia vs. Alabama / Mississippi is decided later from the geocoded sites.
+    """
+    pages = _pages(path)
     joined = []
     for i, text in enumerate(pages):
         if "SOUTHERN Balancing Authority Area" not in text or "Project Name" not in text:
@@ -191,8 +206,10 @@ def parse_regional_2025(path: Path | None = None) -> tuple[list[RawProject], dic
         name = re.sub(r"\s*/\s*", " ", m["name"]).strip()
         desc = re.sub(r"<<PAGE \d+>>", " ", re.sub(r"\s*/\s*", " ", m["desc"])).strip()
         supp = re.sub(r"<<PAGE \d+>>", " ", re.sub(r"\s*/\s*", " ", m["supp"])).strip()
+        name = re.sub(r"^SOCO\s*:\s*", "", name)
         pm = re.match(r"^(SAV|GTC|MEAG|DU|PS|GRID)\s*:\s*", name)
-        owner = pm.group(1) if pm else "SOCO"
+        tag = pm.group(1) if pm else None
+        owner = tag if tag in NON_GPC_OWNERS else "SOCO"
         if owner in NON_GPC_OWNERS:
             excluded[owner] = excluded.get(owner, 0) + 1
             gpc = re.search(r"\bGPC\s*:\s*(.+?)(?=\b(?:GTC|MEAG|DU)\s*:|$)", desc)
@@ -200,19 +217,34 @@ def parse_regional_2025(path: Path | None = None) -> tuple[list[RawProject], dic
                 continue
             desc = gpc.group(1).strip()
             owner = "GPC"
-            name = f"{name} (GPC portion)"
+            name = f"{display_name(name)} (GPC portion)"
         rec = _record(
-            pid=f"gpc-sertp25-p{page}-{slug(name)[:30]}",
+            pid=f"gpc-{prefix}-p{page}-{slug(name)[:30]}",
             owner=owner,
             title=name,
             desc=f"{desc} Supporting statement: {supp}",
             year=int(m["year"]),
-            doc=RP_DOC,
-            url=RP_URL,
+            doc=doc,
+            url=url,
             page=page,
         )
+        if tag == "SAV":
+            rec.zone = "SAV"
+        if owner == "GPC":
+            # GPC bullets name their sites in the description, not the title.
+            places = dedupe([p for pair in from_to_pairs(desc) for p in pair] + name_places(re.sub(r"\(GPC portion\)", "", name)))
+            if places:
+                rec.places, rec.route = places, places[:2]
         out.append(rec)
     return out, {"excludedOwners": excluded, "entries": len(out) + sum(excluded.values())}
+
+
+def parse_regional_2025(path: Path | None = None) -> tuple[list[RawProject], dict]:
+    return parse_project_report(path or RAW_DIR / RP_PDF, RP_DOC, RP_URL, "sertp25")
+
+
+def parse_report_2026(path: Path | None = None) -> tuple[list[RawProject], dict]:
+    return parse_project_report(path or RAW_DIR / R26_PDF, R26_DOC, R26_URL, "sertp26r")
 
 
 if __name__ == "__main__":
@@ -220,7 +252,7 @@ if __name__ == "__main__":
     print("Q2", len(q2), info)
     for p in q2:
         print(p.source_page, p.owner, p.kind, p.action, p.in_service, p.miles, "|", p.name, "|", p.places, p.route)
-    rp, info = parse_regional_2025()
-    print("RP", len(rp), info)
+    rp, info = parse_report_2026()
+    print("R26", len(rp), info)
     for p in rp[:400]:
         print(p.source_page, p.owner, p.kind, p.action, p.in_service, p.miles, "|", p.name, "|", p.places, p.route)

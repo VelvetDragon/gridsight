@@ -48,15 +48,14 @@ def test_desc_has_54_projects_one_per_page():
 
 
 @needs_raw
-def test_gpc_irp_keeps_only_georgia_power_sponsors():
-    from gridsight.plan import parse_gpc_irp
+def test_sertp_2026_report_has_savannah_projects():
+    from gridsight.plan import parse_sertp
 
-    ps, info = parse_gpc_irp.parse()
-    assert ps and {p.owner for p in ps} <= {"GPC", "SAV"}
-    assert info["excludedSponsors"].get("GTC", 0) > 0
+    ps, info = parse_sertp.parse_report_2026()
     names = {p.name.upper() for p in ps}
-    assert any("MCINTOSH - PURRYSBURG" in n for n in names)
-    assert any("FENWICK STREET" in n for n in names)
+    assert any("GOSHEN (SAV) - MCINTOSH" in n for n in names)
+    assert {p.zone for p in ps if "SAV:" in p.name.upper()} == {"SAV"}
+    assert info["excludedOwners"].get("GTC", 0) > 0
 
 
 @needs_raw

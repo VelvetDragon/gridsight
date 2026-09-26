@@ -14,9 +14,9 @@ Method
    are preferred; a neighbouring state costs STATE_PENALTY points, which still
    lets cross-border ties (Okatie - McIntosh, McIntosh - Purrysburg) resolve.
 4. Ambiguous names are resolved jointly per project: line endpoints must be a
-   plausible distance apart given the stated miles, and Georgia ITS projects
-   prefer candidates near their planning zone (median of that zone's
-   unambiguous matches).
+   plausible distance apart given the stated miles, and projects tagged "SAV"
+   in the SERTP reports (Georgia Power's Savannah area) prefer candidates near
+   Savannah (two Georgia substations are named Goshen).
 5. If no power site matches, an exactly named USGS GNIS "Populated Place" in the
    home state is used as a place-level location with low confidence
    (substations are usually named after the community they serve).
@@ -286,7 +286,7 @@ def locate(
         if zone_center is None:
             return 0.0
         d = km(site, zone_center)
-        return -max(0.0, d - 60.0) * 0.15  # soft pull towards the planning zone
+        return -max(0.0, d - 60.0) * 0.15  # soft pull towards the tagged region
 
     chosen: list[tuple[float, Site] | None] = [None] * len(places)
     located_idx = [i for i, c in enumerate(cands) if c]
@@ -331,7 +331,7 @@ def locate(
         if st and anchor_site and km(st, anchor_site) > ((miles or 60) * 1.609 * 1.6 + 15):
             st = None  # a same-named community far away from the other end
         elif st and not anchor_site and zone_center and km(st, zone_center) > 120:
-            st = None  # far outside the project's planning zone
+            st = None  # far outside the tagged region
         if st:
             res.matches.append(Match(p, st, 70.0, "settlement"))
         else:
@@ -339,14 +339,11 @@ def locate(
     return res
 
 
-def zone_centers(gaz: Gazetteer, projects) -> dict[str, tuple[float, float]]:
-    """Median position of each GA ITS zone's unambiguous (single exact) matches."""
-    pts: dict[str, list[tuple[float, float]]] = {}
-    for p in projects:
-        if not p.zone:
-            continue
-        for place in p.route or p.places:
-            c = [s for sc, s in gaz.candidates(place, "GA", ("GA",)) if sc >= 100]
-            if len(c) == 1:
-                pts.setdefault(p.zone, []).append((c[0].lon, c[0].lat))
-    return {z: (median(x for x, _ in v), median(y for _, y in v)) for z, v in pts.items() if len(v) >= 3}
+def region_centers(gaz: Gazetteer) -> dict[str, tuple[float, float]]:
+    """Centre points for region tags printed in the filings: SAV = Savannah, GA (USGS GNIS)."""
+    out = {}
+    for tag, name in (("SAV", "savannah"),):
+        hits = [p for p in gaz.gnis if p.state == "GA" and name in p.norms]
+        if hits:
+            out[tag] = (hits[0].lon, hits[0].lat)
+    return out

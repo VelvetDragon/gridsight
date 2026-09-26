@@ -20,9 +20,8 @@ SOURCES = {
     "sertp-2026-q2-preliminary-plan.pdf": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
     # SERTP 2025 Regional Transmission Plan & Input Assumptions (public, no CEII): Southern BAA project list.
     "sertp-2025-regional-plan.pdf": "https://www.southeasternrtp.com/docs/general/2025/2025%20Regional%20Transmission%20Plan%20and%20Input%20Assumptions.pdf",
-    # Georgia Power 2025 IRP, public-disclosure filing (GA PSC Docket 56002, document 221233, zip).
-    # Technical Appendix Vol. 3 holds the 2024 GA ITS Ten-Year Transmission Plan (costs redacted).
-    "gpc-2025-irp-pd.bin": "https://services.psc.ga.gov/api/v1/External/Public/Get/Document/DownloadFile/221233/102406",
+    # SERTP 2026 Preliminary Expansion Plan Report (Non-CEII): full project list behind the Q2 deck.
+    "sertp-2026-preliminary-expansion-plan-noncei.pdf": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf",
     # US Census 2023 cartographic state boundaries and county gazetteer (state tagging, county points).
     "cb_2023_us_state_500k.zip": "https://www2.census.gov/geo/tiger/GENZ2023/shp/cb_2023_us_state_500k.zip",
     "2023_Gaz_counties_national.zip": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2023_Gazetteer/2023_Gaz_counties_national.zip",
@@ -31,6 +30,9 @@ SOURCES = {
     "DomesticNames_GA_Text.zip": "https://prd-tnm.s3.amazonaws.com/StagedProducts/GeographicNames/DomesticNames/DomesticNames_GA_Text.zip",
     # USDA NASS Land Values 2025 Summary (farm real estate $/acre by state, p. 9).
     "nass-land-values-2025.pdf": "https://www.nass.usda.gov/Publications/Todays_Reports/reports/land0825.pdf",
+    # MISO public cost estimation guides (unit costs for land, permitting and mobilization).
+    "miso-cost-guide-mtep24.pdf": "https://cdn.misoenergy.org/20240501%20PSC%20Item%2004%20MISO%20Transmission%20Cost%20Estimation%20Guide%20for%20MTEP24632680.pdf",
+    "miso-cost-guide-mtep2018.pdf": "https://cdn.misoenergy.org/Transmission-and-Substation-Project-Cost-Estimation-Guide-for-MTEP-2018144804.pdf",
     # Georgia Power project pages used by gridsight/plan/gpc_web.py (kept for traceability).
     "gpc-thomson-vogtle.html": "https://www.georgiapower.com/about/grid-reliability/grid-improvements/grid-projects/thomson-vogtle.html",
     "gpc-callaway-thomson.html": "https://www.georgiapower.com/about/grid-reliability/grid-improvements/grid-projects/transmission-projects/callaway-thomson.html",

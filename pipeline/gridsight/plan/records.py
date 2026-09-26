@@ -40,7 +40,8 @@ class RawProject:
     build_window: tuple[str, str | None] | None = None
     # County-level location hint ("Effingham County, GA") when no site is named.
     county: str | None = None
-    # Planning zone from the source (GA ITS zone number) used to disambiguate names.
+    # Region tag printed in the filing ("SAV" = Georgia Power's Savannah area), used to
+    # disambiguate names that exist in several places.
     zone: str | None = None
 
 

@@ -18,8 +18,8 @@ from datetime import date, datetime, timezone
 
 from gridsight import osm
 from gridsight.config import PLAN_OUT, UTILITIES
-from gridsight.plan import context, cost, gpc_web, parse_desc, parse_gpc_irp, parse_sertp, roads
-from gridsight.plan.geocode import Gazetteer, Located, county_point, km, locate, normalize, zone_centers
+from gridsight.plan import context, cost, gpc_web, parse_desc, parse_sertp, roads
+from gridsight.plan.geocode import Gazetteer, Located, county_point, km, locate, normalize, region_centers
 from gridsight.plan.geometry import LineNetwork, build as build_geometry, to_metric
 from gridsight.plan.overlap import MIN_CONFIDENCE, build_window, find_overlaps, window_str
 from gridsight.plan.records import RawProject
@@ -34,10 +34,16 @@ OTHER_SOURCES = [
      "url": "https://www.openstreetmap.org/copyright", "page": None},
     {"document": "US Census Bureau 2023 cartographic state boundaries (cb_2023_us_state_500k)",
      "url": "https://www2.census.gov/geo/tiger/GENZ2023/shp/cb_2023_us_state_500k.zip", "page": None},
+    {"document": "USGS GNIS Domestic Names, South Carolina and Georgia (populated places, crossings)",
+     "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/GeographicNames/DomesticNames/", "page": None},
     {"document": "US Census Bureau 2023 Gazetteer, counties (internal points, land area)",
      "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2023_Gazetteer/2023_Gaz_counties_national.zip",
      "page": None},
     {"document": "USDA NASS Land Values 2025 Summary (farm real estate value per acre)", "url": cost.NASS_URL, "page": 9},
+    {"document": "MISO Transmission Cost Estimation Guide for MTEP24 (land, acquisition and permitting per acre)",
+     "url": cost.MISO24_URL, "page": 8},
+    {"document": "MISO Transmission and Substation Project Cost Estimation Guide for MTEP 2018 (mobilization/demobilization)",
+     "url": cost.MISO18_URL, "page": 16},
     {"document": "Georgia Transmission Corp.: Transmission Line Heights and Easement Widths", "url": cost.GTC_URL,
      "page": 1},
     {"document": "Georgia Power: certification request for ~9,900 MW of new resources (July 31, 2025)",
@@ -67,7 +73,9 @@ def geocode_all(gaz: Gazetteer, projects: list[RawProject], zones: dict) -> dict
             continue
         if p.utility == "DESC":
             home, allowed = "SC", ("SC", "GA")
-        elif p.owner in ("SOCO", "GRID") and p.id.startswith("gpc-sertp"):
+        elif p.zone == "SAV":
+            home, allowed = "GA", ("GA", "SC")  # tagged Savannah area: Georgia Power in Georgia
+        elif p.owner == "SOCO" and p.id.startswith("gpc-sertp"):
             home, allowed = "", ALL_STATES  # decide Georgia vs Alabama/Mississippi from the match
         else:
             home, allowed = "GA", ("GA", "SC", "AL", "FL")
@@ -184,7 +192,7 @@ def summary(o: dict, a: dict, b: dict, where: str | None) -> str:
         s += " The exact routes are not public, so the tier could change once they are."
     c = o.get("cost")
     if c and c["totalUsd"] > 0:
-        s += f" Rough savings: about ${c['totalUsd']:,.0f} (see assumptions)."
+        s += f" Rough savings: about ${c['totalUsd']:,.0f} central estimate ({c['assumptions'][0].split(' (')[0].replace('Range: ', 'range ')})."
     if any("1920-A" in x for x in o["shareable"]):
         s += (" Because at least one project rebuilds an existing line, it is also a candidate for a "
               "right-sizing review under FERC Order 1920-A (upsizing a line that is being replaced anyway).")
@@ -225,34 +233,38 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--no-roads", action="store_true", help="skip OSRM road checks")
     args = ap.parse_args(argv)
 
-    # 1. Parse filings
+    # 1. Parse filings (all public, none carries a visible CEII marking)
     desc = parse_desc.parse()
     assert len(desc) == 54, f"expected 54 DESC projects, got {len(desc)}"
-    irp, irp_info = parse_gpc_irp.parse()
+    web = gpc_web.records()
+    r26, r26_info = parse_sertp.parse_report_2026()
     q2, q2_info = parse_sertp.parse_q2()
     rp, rp_info = parse_sertp.parse_regional_2025()
-    web = gpc_web.records()
-    print(f"parsed DESC {len(desc)}, GA ITS (GPC+SAV) {len(irp)}, SERTP Q2 {len(q2)}, SERTP 2025 {len(rp)}, web {len(web)}")
+    print(f"parsed DESC {len(desc)}, web {len(web)}, SERTP 2026 report {len(r26)}, SERTP 2026 Q2 {len(q2)}, "
+          f"SERTP 2025 plan {len(rp)}")
 
     # 2. Geocode
     gaz = Gazetteer()
-    zones = zone_centers(gaz, irp)
-    candidates = desc + irp + web + q2 + rp
+    zones = region_centers(gaz)
+    candidates = desc + web + r26 + q2 + rp
     located = geocode_all(gaz, candidates, zones)
 
-    # 3. Keep SOCO projects only when they are in Georgia; drop duplicates of the GA ITS plan
+    # 3. Keep SOCO projects only when they are in Georgia; newest edition wins on duplicates
     excluded = {"socoOutsideGeorgia": 0, "socoUnlocated": 0, "socoAmbiguousState": 0, "duplicates": 0}
     keys = {}
-    for p in irp + web:
+    for p in web:
         keys.setdefault((_key(p), p.kind), p)
     gpc_extra = []
-    for p in q2 + rp:
-        if p.owner in ("SOCO", "GRID"):
+    for p in r26 + q2 + rp:
+        if p.owner == "SOCO" and p.zone != "SAV":
             verdict = soco_in_georgia(p, located[p.id], gaz)
             if verdict != "GA":
                 excluded[{"outside Georgia": "socoOutsideGeorgia", "unlocated": "socoUnlocated",
                           "ambiguous state": "socoAmbiguousState"}[verdict]] += 1
                 continue
+        elif p.zone == "SAV" and not any(m.method == "site" for m in located[p.id].matches):
+            excluded["socoUnlocated"] += 1
+            continue
         k = (_key(p), p.kind)
         if k in keys and k[0]:
             excluded["duplicates"] += 1
@@ -261,7 +273,7 @@ def main(argv: list[str] | None = None) -> None:
             continue
         keys[k] = p
         gpc_extra.append(p)
-    raw_projects = desc + irp + web + gpc_extra
+    raw_projects = desc + web + gpc_extra
 
     # 4. Geometry
     net = LineNetwork(osm.power_sites())
@@ -288,6 +300,7 @@ def main(argv: list[str] | None = None) -> None:
     overlaps, pairs = find_overlaps(scored)
     overlaps.sort(key=lambda o: -o["score"])
     bridges = [] if args.no_roads else roads.savannah_bridges()
+    ranges: list[dict] = []
     for rank, o in enumerate(overlaps, start=1):
         a, b = by_id[o["descId"]], by_id[o["gpcId"]]
         o["id"] = f"ov-{a['id']}--{b['id']}"
@@ -297,7 +310,8 @@ def main(argv: list[str] | None = None) -> None:
             o["roadKm"], o["roadVerified"], o["stagingYard"] = None, None, None
         else:
             o["roadKm"], o["roadVerified"], o["stagingYard"] = roads.road_check(pa, pb, bridges)
-        o["cost"] = cost.estimate(a, b, o["tier"], o["timelineOverlapMonths"])
+        o["cost"], rng = cost.estimate(a, b, o["tier"], o["timelineOverlapMonths"])
+        ranges.append({"overlapId": o["id"], **rng})
         mid = ((pa[0] + pb[0]) / 2, (pa[1] + pb[1]) / 2)
         o["summary"] = summary(o, a, b, near_place(gaz, *mid))
 
@@ -325,6 +339,8 @@ def main(argv: list[str] | None = None) -> None:
     (PLAN_OUT / "projects.json").write_text(json.dumps(proj_out, separators=(",", ":")))
     (PLAN_OUT / "overlaps.json").write_text(json.dumps(ov_out, separators=(",", ":")))
     (PLAN_OUT / "meta.json").write_text(json.dumps(meta, indent=2))
+    (PLAN_OUT / "insights").mkdir(parents=True, exist_ok=True)
+    (PLAN_OUT / "insights" / "cost-ranges.json").write_text(json.dumps(ranges, separators=(",", ":")))
     n_lines, size = context.write_transmission_lines()
     river = context.write_savannah_river()
 
@@ -337,7 +353,7 @@ def main(argv: list[str] | None = None) -> None:
         "projects": counts,
         "located": {u: f"{located_n[u]}/{counts[u]} ({100 * located_n[u] / max(1, counts[u]):.0f}%)" for u in counts},
         "geometryQuality": {q: sum(p["geometryQuality"] == q for p in proj_out) for q in ("traced", "straight", "point")},
-        "excluded": {**excluded, "irp": irp_info, "sertpQ2": q2_info, "sertp2025": rp_info},
+        "excluded": {**excluded, "sertp2026Report": r26_info, "sertpQ2": q2_info, "sertp2025": rp_info},
         "pairsCompared": pairs,
         "overlaps": len(ov_out),
         "tiers": tiers,
