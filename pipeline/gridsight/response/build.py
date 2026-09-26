@@ -256,6 +256,9 @@ def main(argv=None) -> None:
         from gridsight.response import mutual_aid
 
         mutual_aid.main(["--storm", ",".join(sorted(published))])
+    from gridsight.response import teamup
+
+    teamup.main(["--storm", ",".join(sorted(published))])
 
 
 if __name__ == "__main__":
