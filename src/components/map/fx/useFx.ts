@@ -3,7 +3,7 @@
 import { useCallback, useLayoutEffect, useEffect, useState, useSyncExternalStore } from "react";
 import type { PlanSceneProps } from "../planScene";
 import type { ResponseSceneProps } from "../responseScene";
-import { FxController } from "./FxController";
+import { FxController, type FxScene } from "./FxController";
 
 const STORAGE_KEY = "gridsight:view-style";
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
@@ -42,7 +42,7 @@ export interface FxHandle {
 }
 
 /** Owns the effects controller and the Realistic / Clean and 3D view state. */
-export function useFx(mode: "plan" | "response", plan: PlanSceneProps | null, response: ResponseSceneProps | null): FxHandle {
+export function useFx(mode: FxScene["mode"], plan: PlanSceneProps | null, response: ResponseSceneProps | null): FxHandle {
   const [controller] = useState(() => new FxController());
   const [realistic, setRealisticState] = useState(initialRealistic);
   const [tilted, setTilted] = useState(() => readParam("tilt") === "1");
@@ -69,7 +69,9 @@ export function useFx(mode: "plan" | "response", plan: PlanSceneProps | null, re
   }, []);
 
   const toggleTilt = useCallback(() => {
-    const next = !tilted;
+    // Camera moves elsewhere can level the map, so read the real pitch.
+    const map = controller.getMap();
+    const next = map ? map.getPitch() < 10 : !tilted;
     setTilted(next);
     controller.setTilt(next);
   }, [controller, tilted]);

@@ -1,0 +1,278 @@
+[
+  {
+    "overlapId": "ov-okatie-mcintosh-reactor--mcintosh-effingham",
+    "lowUsd": 291000,
+    "centralUsd": 529100,
+    "highUsd": 952000,
+    "components": {
+      "land": 59325,
+      "permits": 19775,
+      "mobilization": 300000,
+      "yard": 150000
+    }
+  },
+  {
+    "overlapId": "ov-okatie-mcintosh-reactor--mcintosh-substation",
+    "lowUsd": 248000,
+    "centralUsd": 450000,
+    "highUsd": 810000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 300000,
+      "yard": 150000
+    }
+  },
+  {
+    "overlapId": "ov-urquhart-aiken-psa--augusta-beech-island-tie",
+    "lowUsd": 203000,
+    "centralUsd": 369050,
+    "highUsd": 664000,
+    "components": {
+      "land": 18038,
+      "permits": 6012,
+      "mobilization": 195000,
+      "yard": 150000
+    }
+  },
+  {
+    "overlapId": "ov-urquhart-aiken-psa--goshen-augusta",
+    "lowUsd": 215000,
+    "centralUsd": 390000,
+    "highUsd": 702000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 240000,
+      "yard": 150000
+    }
+  },
+  {
+    "overlapId": "ov-urquhart-toolebeck--augusta-beech-island-tie",
+    "lowUsd": 137000,
+    "centralUsd": 249050,
+    "highUsd": 448000,
+    "components": {
+      "land": 18038,
+      "permits": 6012,
+      "mobilization": 75000,
+      "yard": 150000
+    }
+  },
+  {
+    "overlapId": "ov-urquhart-toolebeck--goshen-augusta",
+    "lowUsd": 116000,
+    "centralUsd": 210000,
+    "highUsd": 378000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 60000,
+      "yard": 150000
+    }
+  },
+  {
+    "overlapId": "ov-okatie-mcintosh-reactor--rincon-substation",
+    "lowUsd": 82000,
+    "centralUsd": 150000,
+    "highUsd": 270000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 90000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-jasper-okatie-230-2--mcintosh-substation",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-jasper-okatie-230-2--mcintosh-effingham",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-okatie-mcintosh-reactor--port-wentworth-substation",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-urquhart-toolebeck--vogtle-thomson-500",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-urquhart-aiken-psa--vogtle-thomson-500",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-jasper-okatie-230-2--rincon-substation",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-okatie-substation--dean-forest-savannah",
+    "lowUsd": 132000,
+    "centralUsd": 240000,
+    "highUsd": 432000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 180000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-okatie-substation--mcintosh-substation",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-okatie-substation--mcintosh-effingham",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-jasper-okatie-230-2--dean-forest-savannah",
+    "lowUsd": 132000,
+    "centralUsd": 240000,
+    "highUsd": 432000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 180000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-okatie-mcintosh-reactor--dean-forest-savannah",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-jasper-okatie-230-2--port-wentworth-substation",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-okatie-substation--port-wentworth-substation",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-okatie-substation--rincon-substation",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-urquhart-toolebeck--vogtle-switchyard",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  },
+  {
+    "overlapId": "ov-urquhart-aiken-psa--vogtle-switchyard",
+    "lowUsd": 58000,
+    "centralUsd": 105000,
+    "highUsd": 189000,
+    "components": {
+      "land": 0,
+      "permits": 0,
+      "mobilization": 45000,
+      "yard": 60000
+    }
+  }
+]

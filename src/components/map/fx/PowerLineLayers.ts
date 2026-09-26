@@ -14,7 +14,7 @@
  */
 import type { Layer } from "@deck.gl/core";
 import { IconLayer } from "@deck.gl/layers";
-import type { LineCollection, PlanData } from "@/lib/data";
+import type { PlanData } from "@/lib/data";
 import {
   catenarySag,
   cumulativeMeters,
@@ -94,26 +94,44 @@ export interface TowerSet extends GridData3D {
 interface Source {
   path: Position[];
   style: number;
+  /** Lower-voltage lines stand on wood poles, not lattice towers. */
+  pole: boolean;
   project: LineProject | null;
+  bbox: Bbox;
 }
 
 const sourceCache = new WeakMap<object, Source[]>();
 
-function contextPaths(fc: LineCollection): Position[][] {
-  const out: Position[][] = [];
-  for (const f of fc.features) {
-    const g = f?.geometry;
-    if (!g) continue;
-    if (g.type === "LineString") out.push(g.coordinates);
-    else if (g.type === "MultiLineString") out.push(...g.coordinates);
+function styleFor(utility: unknown): number {
+  return utility === "DESC" ? 1 : utility === "GPC" ? 2 : 0;
+}
+
+function kvOf(raw: unknown): number {
+  return typeof raw === "number" ? raw : Number.parseFloat(String(raw ?? "")) || 0;
+}
+
+function bboxOf(path: Position[]): Bbox {
+  let w = Infinity;
+  let s = Infinity;
+  let e = -Infinity;
+  let n = -Infinity;
+  for (const [x, y] of path) {
+    if (x < w) w = x;
+    if (x > e) e = x;
+    if (y < s) s = y;
+    if (y > n) n = y;
   }
-  return out;
+  return [w, s, e, n];
 }
 
 /** True when a context line runs along a project line (it would get a second row of towers). */
-function followsProject(path: Position[], projects: LineProject[]): boolean {
+function followsProject(path: Position[], projects: { p: LineProject; bbox: Bbox }[]): boolean {
   const probes = [path[0], path[Math.floor(path.length / 2)], path[path.length - 1]];
-  return projects.some((p) => {
+  const pad = 0.003;
+  return projects.some(({ p, bbox }) => {
+    if (!probes.every((q) => q[0] >= bbox[0] - pad && q[0] <= bbox[2] + pad && q[1] >= bbox[1] - pad && q[1] <= bbox[3] + pad)) {
+      return false;
+    }
     const c = p.geometry.coordinates;
     return probes.every((q) => {
       for (let i = 1; i < c.length; i++) if (pointSegmentKm(q, c[i - 1], c[i]) < 0.15) return true;
@@ -130,14 +148,27 @@ function sources(plan: PlanData, withContext: boolean): Source[] {
   const traced = plan.projects.filter(
     (p): p is LineProject => p.geometry.type === "LineString" && p.geometryQuality !== "straight",
   );
+  const tracedBoxes = traced.map((p) => ({ p, bbox: bboxOf(p.geometry.coordinates) }));
   const out: Source[] = [];
   if (withContext) {
-    for (const path of contextPaths(plan.lines)) {
-      const clean = dedupe(path);
-      if (clean.length > 1 && !followsProject(clean, traced)) out.push({ path: clean, style: 0, project: null });
+    for (const f of plan.lines.features) {
+      const g = f?.geometry;
+      if (!g) continue;
+      const parts = g.type === "LineString" ? [g.coordinates] : g.type === "MultiLineString" ? g.coordinates : [];
+      const style = styleFor(f.properties?.utility);
+      const pole = kvOf(f.properties?.voltage) < 100;
+      for (const part of parts) {
+        const clean = dedupe(part);
+        if (clean.length > 1 && !followsProject(clean, tracedBoxes)) {
+          out.push({ path: clean, style, pole, project: null, bbox: bboxOf(clean) });
+        }
+      }
     }
   }
-  for (const p of traced) out.push({ path: dedupe(p.geometry.coordinates), style: p.utility === "DESC" ? 1 : 2, project: p });
+  for (const { p, bbox } of tracedBoxes) {
+    const kv = Math.max(0, ...p.voltageKv);
+    out.push({ path: dedupe(p.geometry.coordinates), style: styleFor(p.utility), pole: kv > 0 && kv < 100, project: p, bbox });
+  }
   sourceCache.set(cacheKey, out);
   return out;
 }
@@ -265,10 +296,11 @@ export class TowerField {
       for (const src of sources(input.plan, !input.structures)) {
         const alpha = src.project ? projectOpacity(src.project, input.radarMonth, input.focus) : 0.9;
         const building = !!src.project && phaseAt(src.project, month) === "building";
+        if (src.bbox[0] > bbox[2] || src.bbox[2] < bbox[0] || src.bbox[1] > bbox[3] || src.bbox[3] < bbox[1]) continue;
         const placed = placeTowers(src.path, spacing, src.style, bbox);
         const rows = new Map<Tower, TowerRow>();
         for (const t of placed.towers) {
-          const row: TowerRow = { ...t, pole: false, alpha };
+          const row: TowerRow = { ...t, pole: src.pole, alpha };
           rows.set(t, row);
           towers.push(row);
         }

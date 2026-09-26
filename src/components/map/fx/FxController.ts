@@ -32,7 +32,7 @@ import { ThreeFxLayer } from "./three/ThreeFxLayer";
 import { loadTowerAtlas } from "./towerIcon";
 
 export interface FxScene {
-  mode: "plan" | "response";
+  mode: "plan" | "response" | "story";
   plan: PlanSceneProps | null;
   response: ResponseSceneProps | null;
 }
