@@ -37,7 +37,7 @@ export function Switchboard() {
 
   return (
     <AppShell>
-      <main className="min-h-dvh bg-paper px-6 pt-[120px] pb-16">
+      <main className="h-dvh overflow-y-auto bg-paper px-6 pt-[120px] pb-16">
         <div className="mx-auto max-w-[1120px]">
           <p className="text-[15px] text-ink-3" suppressHydrationWarning>
             {first ? `${greeting()}, ${first}.` : " "}
