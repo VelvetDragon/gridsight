@@ -1,0 +1,1280 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.97,
+            33.47
+          ],
+          [
+            -82.0066,
+            33.4186
+          ],
+          [
+            -82.03,
+            33.36
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 500,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.03,
+            33.36
+          ],
+          [
+            -81.8976,
+            33.2468
+          ],
+          [
+            -81.76,
+            33.14
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 500,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.76,
+            33.14
+          ],
+          [
+            -82.1419,
+            33.2784
+          ],
+          [
+            -82.5,
+            33.47
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.76,
+            33.14
+          ],
+          [
+            -81.8924,
+            33.1275
+          ],
+          [
+            -82.02,
+            33.09
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.02,
+            33.09
+          ],
+          [
+            -82.215,
+            33.045
+          ],
+          [
+            -82.41,
+            33
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.41,
+            33
+          ],
+          [
+            -82.4101,
+            33.106
+          ],
+          [
+            -82.39,
+            33.21
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.39,
+            33.21
+          ],
+          [
+            -82.4356,
+            33.344
+          ],
+          [
+            -82.5,
+            33.47
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.5,
+            33.47
+          ],
+          [
+            -82.3498,
+            33.4636
+          ],
+          [
+            -82.2,
+            33.45
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.2,
+            33.45
+          ],
+          [
+            -82.1542,
+            33.491
+          ],
+          [
+            -82.1,
+            33.52
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.1,
+            33.52
+          ],
+          [
+            -82.0362,
+            33.4919
+          ],
+          [
+            -81.97,
+            33.47
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.1,
+            33.52
+          ],
+          [
+            -82.1157,
+            33.5343
+          ],
+          [
+            -82.13,
+            33.55
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.13,
+            33.55
+          ],
+          [
+            -82.2756,
+            33.6892
+          ],
+          [
+            -82.45,
+            33.79
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.03,
+            33.36
+          ],
+          [
+            -82.1139,
+            33.407
+          ],
+          [
+            -82.2,
+            33.45
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.02,
+            33.09
+          ],
+          [
+            -81.9746,
+            32.9475
+          ],
+          [
+            -81.95,
+            32.8
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.95,
+            32.8
+          ],
+          [
+            -81.7974,
+            32.7601
+          ],
+          [
+            -81.64,
+            32.75
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.64,
+            32.75
+          ],
+          [
+            -81.71,
+            32.6
+          ],
+          [
+            -81.78,
+            32.45
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.78,
+            32.45
+          ],
+          [
+            -82.0622,
+            32.4986
+          ],
+          [
+            -82.33,
+            32.6
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -82.33,
+            32.6
+          ],
+          [
+            -82.3556,
+            32.8029
+          ],
+          [
+            -82.41,
+            33
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.78,
+            32.45
+          ],
+          [
+            -81.5542,
+            32.4204
+          ],
+          [
+            -81.33,
+            32.38
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.33,
+            32.38
+          ],
+          [
+            -81.2538,
+            32.379
+          ],
+          [
+            -81.18,
+            32.36
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.18,
+            32.36
+          ],
+          [
+            -81.1912,
+            32.2302
+          ],
+          [
+            -81.19,
+            32.1
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.19,
+            32.1
+          ],
+          [
+            -81.1395,
+            32.0924
+          ],
+          [
+            -81.09,
+            32.08
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.09,
+            32.08
+          ],
+          [
+            -81.2034,
+            32.0226
+          ],
+          [
+            -81.3,
+            31.94
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.76,
+            33.14
+          ],
+          [
+            -81.8591,
+            32.9723
+          ],
+          [
+            -81.95,
+            32.8
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.18,
+            32.36
+          ],
+          [
+            -81.1624,
+            32.2557
+          ],
+          [
+            -81.16,
+            32.15
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Georgia Power",
+        "utility": "GPC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.16,
+            32.15
+          ],
+          [
+            -81.1284,
+            32.1116
+          ],
+          [
+            -81.09,
+            32.08
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.93,
+            33.43
+          ],
+          [
+            -81.94,
+            33.475
+          ],
+          [
+            -81.95,
+            33.52
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.95,
+            33.52
+          ],
+          [
+            -81.953,
+            33.656
+          ],
+          [
+            -81.93,
+            33.79
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.93,
+            33.43
+          ],
+          [
+            -81.8514,
+            33.4746
+          ],
+          [
+            -81.78,
+            33.53
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.78,
+            33.53
+          ],
+          [
+            -81.7504,
+            33.5457
+          ],
+          [
+            -81.72,
+            33.56
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.72,
+            33.56
+          ],
+          [
+            -81.7714,
+            33.777
+          ],
+          [
+            -81.77,
+            34
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.72,
+            33.56
+          ],
+          [
+            -81.5378,
+            33.5964
+          ],
+          [
+            -81.36,
+            33.65
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.36,
+            33.65
+          ],
+          [
+            -81.1062,
+            33.582
+          ],
+          [
+            -80.86,
+            33.49
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.36,
+            33.24
+          ],
+          [
+            -81.1914,
+            33.2502
+          ],
+          [
+            -81.03,
+            33.3
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.03,
+            33.3
+          ],
+          [
+            -80.9427,
+            33.393
+          ],
+          [
+            -80.86,
+            33.49
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.36,
+            33.24
+          ],
+          [
+            -81.3267,
+            33.1268
+          ],
+          [
+            -81.31,
+            33.01
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.31,
+            33.01
+          ],
+          [
+            -81.2167,
+            32.9304
+          ],
+          [
+            -81.11,
+            32.87
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.11,
+            32.87
+          ],
+          [
+            -80.98,
+            32.78
+          ],
+          [
+            -80.85,
+            32.69
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -80.85,
+            32.69
+          ],
+          [
+            -80.7701,
+            32.8036
+          ],
+          [
+            -80.67,
+            32.9
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -80.85,
+            32.69
+          ],
+          [
+            -80.9226,
+            32.5897
+          ],
+          [
+            -80.98,
+            32.48
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -80.98,
+            32.48
+          ],
+          [
+            -80.9888,
+            32.4298
+          ],
+          [
+            -81,
+            32.38
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81,
+            32.38
+          ],
+          [
+            -80.9602,
+            32.3442
+          ],
+          [
+            -80.93,
+            32.3
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -80.93,
+            32.3
+          ],
+          [
+            -80.8964,
+            32.2683
+          ],
+          [
+            -80.86,
+            32.24
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.11,
+            32.87
+          ],
+          [
+            -81.0432,
+            32.6276
+          ],
+          [
+            -81,
+            32.38
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -80.67,
+            32.9
+          ],
+          [
+            -80.7296,
+            33.2064
+          ],
+          [
+            -80.86,
+            33.49
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.93,
+            33.43
+          ],
+          [
+            -81.8234,
+            33.4925
+          ],
+          [
+            -81.72,
+            33.56
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.93,
+            33.43
+          ],
+          [
+            -81.9514,
+            33.4486
+          ],
+          [
+            -81.97,
+            33.47
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 115,
+        "operator": "Dominion Energy South Carolina",
+        "utility": "DESC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -80.93,
+            32.3
+          ],
+          [
+            -81.0521,
+            32.342
+          ],
+          [
+            -81.18,
+            32.36
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Other",
+        "utility": "OTHER"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.76,
+            33.14
+          ],
+          [
+            -81.71,
+            33.21
+          ],
+          [
+            -81.66,
+            33.28
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Other",
+        "utility": "OTHER"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.66,
+            33.28
+          ],
+          [
+            -81.5081,
+            33.2744
+          ],
+          [
+            -81.36,
+            33.24
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "voltage": 230,
+        "operator": "Other",
+        "utility": "OTHER"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -81.93,
+            33.43
+          ],
+          [
+            -81.8004,
+            33.3453
+          ],
+          [
+            -81.66,
+            33.28
+          ]
+        ]
+      }
+    }
+  ]
+}

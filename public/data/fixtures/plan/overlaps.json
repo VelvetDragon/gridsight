@@ -1,0 +1,1260 @@
+[
+  {
+    "id": "ov-okatie-mcintosh-reactor--mcintosh-effingham",
+    "descId": "desc-okatie-mcintosh-reactor",
+    "gpcId": "gpc-mcintosh-effingham",
+    "distanceKm": 0,
+    "tier": "crossing",
+    "closestPoints": [
+      [
+        -81.18,
+        32.36
+      ],
+      [
+        -81.18,
+        32.36
+      ]
+    ],
+    "roadKm": 0,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.24,
+        32.285
+      ],
+      "label": "Rincon industrial park",
+      "driveMinutesDesc": 22,
+      "driveMinutesGpc": 22
+    },
+    "timelineOverlapMonths": 13,
+    "robustness": "uncertain",
+    "shareable": [
+      "crossing design",
+      "joint outage scheduling",
+      "right-of-way",
+      "land acquisition",
+      "permits",
+      "laydown yard",
+      "material deliveries",
+      "crews",
+      "equipment",
+      "right-sizing review (FERC Order 1920-A)"
+    ],
+    "score": 0.862,
+    "rank": 1,
+    "cost": {
+      "sharedCorridorKm": 1.5,
+      "sharedAcres": 11.3,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 79100,
+      "mobilizationSavingsUsd": 300000,
+      "yardSavingsUsd": 150000,
+      "totalUsd": 529100,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Okatie – McIntosh 115kV Tie and Georgia Power's McIntosh – Effingham 230 kV touch or cross, so the two utilities must coordinate crossing design and outages. Their build windows overlap by about 13 months."
+  },
+  {
+    "id": "ov-okatie-mcintosh-reactor--mcintosh-substation",
+    "descId": "desc-okatie-mcintosh-reactor",
+    "gpcId": "gpc-mcintosh-substation",
+    "distanceKm": 0,
+    "tier": "crossing",
+    "closestPoints": [
+      [
+        -81.18,
+        32.36
+      ],
+      [
+        -81.18,
+        32.36
+      ]
+    ],
+    "roadKm": 0,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.24,
+        32.285
+      ],
+      "label": "Rincon industrial park",
+      "driveMinutesDesc": 22,
+      "driveMinutesGpc": 22
+    },
+    "timelineOverlapMonths": 11,
+    "robustness": "uncertain",
+    "shareable": [
+      "crossing design",
+      "joint outage scheduling",
+      "right-of-way",
+      "land acquisition",
+      "permits",
+      "laydown yard",
+      "material deliveries",
+      "crews",
+      "equipment"
+    ],
+    "score": 0.837,
+    "rank": 2,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 300000,
+      "yardSavingsUsd": 150000,
+      "totalUsd": 450000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Okatie – McIntosh 115kV Tie and Georgia Power's Plant McIntosh 230/115 kV Substation touch or cross, so the two utilities must coordinate crossing design and outages. Their build windows overlap by about 11 months."
+  },
+  {
+    "id": "ov-urquhart-aiken-psa--augusta-beech-island-tie",
+    "descId": "desc-urquhart-aiken-psa",
+    "gpcId": "gpc-augusta-beech-island-tie",
+    "distanceKm": 1.08,
+    "tier": "row",
+    "closestPoints": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -81.938,
+        33.437
+      ]
+    ],
+    "roadKm": 1.4,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.9,
+        33.425
+      ],
+      "label": "Beech Island industrial site",
+      "driveMinutesDesc": 12,
+      "driveMinutesGpc": 13
+    },
+    "timelineOverlapMonths": 3.9,
+    "robustness": "robust",
+    "shareable": [
+      "right-of-way",
+      "land acquisition",
+      "permits",
+      "laydown yard",
+      "material deliveries",
+      "crews",
+      "equipment",
+      "right-sizing review (FERC Order 1920-A)"
+    ],
+    "score": 0.73,
+    "rank": 3,
+    "cost": {
+      "sharedCorridorKm": 0.98,
+      "sharedAcres": 7.4,
+      "landValuePerAcreUsd": 6500,
+      "landSavingsUsd": 24050,
+      "mobilizationSavingsUsd": 195000,
+      "yardSavingsUsd": 150000,
+      "totalUsd": 369050,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $6,500 per acre (inland county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Urquhart – Aiken PSA 46 kV and Georgia Power's Augusta – Beech Island 115 kV Tie (GA portion) run within 1.1 km of each other, close enough to share right-of-way, land and permits. Their build windows overlap by about 4 months."
+  },
+  {
+    "id": "ov-urquhart-aiken-psa--goshen-augusta",
+    "descId": "desc-urquhart-aiken-psa",
+    "gpcId": "gpc-goshen-augusta",
+    "distanceKm": 5.33,
+    "tier": "logistics",
+    "closestPoints": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -81.9809,
+        33.4518
+      ]
+    ],
+    "roadKm": 12.1,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.95,
+        33.51
+      ],
+      "label": "North Augusta laydown (I-20)",
+      "driveMinutesDesc": 21,
+      "driveMinutesGpc": 17
+    },
+    "timelineOverlapMonths": 9,
+    "robustness": "robust",
+    "shareable": [
+      "laydown yard",
+      "material deliveries",
+      "crews",
+      "equipment",
+      "right-sizing review (FERC Order 1920-A)"
+    ],
+    "score": 0.719,
+    "rank": 4,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 6500,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 240000,
+      "yardSavingsUsd": 150000,
+      "totalUsd": 390000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $6,500 per acre (inland county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Urquhart – Aiken PSA 46 kV and Georgia Power's Goshen – Augusta 230 kV come within 5.3 km, close enough to share a laydown yard and material deliveries. Their build windows overlap by about 9 months. The Savannah River sits between them: the drive is about 12 km."
+  },
+  {
+    "id": "ov-urquhart-toolebeck--augusta-beech-island-tie",
+    "descId": "desc-urquhart-toolebeck",
+    "gpcId": "gpc-augusta-beech-island-tie",
+    "distanceKm": 1.08,
+    "tier": "row",
+    "closestPoints": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -81.938,
+        33.437
+      ]
+    ],
+    "roadKm": 1.4,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.9,
+        33.425
+      ],
+      "label": "Beech Island industrial site",
+      "driveMinutesDesc": 12,
+      "driveMinutesGpc": 13
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "right-of-way",
+      "land acquisition",
+      "permits",
+      "laydown yard",
+      "material deliveries",
+      "crews",
+      "equipment",
+      "right-sizing review (FERC Order 1920-A)"
+    ],
+    "score": 0.681,
+    "rank": 5,
+    "cost": {
+      "sharedCorridorKm": 0.98,
+      "sharedAcres": 7.4,
+      "landValuePerAcreUsd": 6500,
+      "landSavingsUsd": 24050,
+      "mobilizationSavingsUsd": 75000,
+      "yardSavingsUsd": 150000,
+      "totalUsd": 249050,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $6,500 per acre (inland county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Urquhart – Toolebeck 115kV line and Georgia Power's Augusta – Beech Island 115 kV Tie (GA portion) run within 1.1 km of each other, close enough to share right-of-way, land and permits. Their build windows do not overlap, so sharing would mean sequencing the work."
+  },
+  {
+    "id": "ov-urquhart-toolebeck--goshen-augusta",
+    "descId": "desc-urquhart-toolebeck",
+    "gpcId": "gpc-goshen-augusta",
+    "distanceKm": 5.33,
+    "tier": "logistics",
+    "closestPoints": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -81.9809,
+        33.4518
+      ]
+    ],
+    "roadKm": 12.1,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.95,
+        33.51
+      ],
+      "label": "North Augusta laydown (I-20)",
+      "driveMinutesDesc": 21,
+      "driveMinutesGpc": 17
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "laydown yard",
+      "material deliveries",
+      "crews",
+      "equipment",
+      "right-sizing review (FERC Order 1920-A)"
+    ],
+    "score": 0.607,
+    "rank": 6,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 6500,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 60000,
+      "yardSavingsUsd": 150000,
+      "totalUsd": 210000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $6,500 per acre (inland county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Urquhart – Toolebeck 115kV line and Georgia Power's Goshen – Augusta 230 kV come within 5.3 km, close enough to share a laydown yard and material deliveries. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 12 km."
+  },
+  {
+    "id": "ov-okatie-mcintosh-reactor--rincon-substation",
+    "descId": "desc-okatie-mcintosh-reactor",
+    "gpcId": "gpc-rincon-substation",
+    "distanceKm": 8.11,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -81.18,
+        32.36
+      ],
+      [
+        -81.23,
+        32.3
+      ]
+    ],
+    "roadKm": 10.5,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.24,
+        32.285
+      ],
+      "label": "Rincon industrial park",
+      "driveMinutesDesc": 22,
+      "driveMinutesGpc": 11
+    },
+    "timelineOverlapMonths": 3,
+    "robustness": "uncertain",
+    "shareable": [
+      "crews",
+      "equipment"
+    ],
+    "score": 0.596,
+    "rank": 7,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 90000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 150000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Okatie – McIntosh 115kV Tie and Georgia Power's Rincon 115 kV Substation are 8 km apart, close enough to share line crews and heavy equipment. Their build windows overlap by about 3 months."
+  },
+  {
+    "id": "ov-jasper-okatie-230-2--mcintosh-substation",
+    "descId": "desc-jasper-okatie-230-2",
+    "gpcId": "gpc-mcintosh-substation",
+    "distanceKm": 16.95,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -81,
+        32.38
+      ],
+      [
+        -81.18,
+        32.36
+      ]
+    ],
+    "roadKm": 43.9,
+    "roadVerified": false,
+    "stagingYard": {
+      "position": [
+        -81.08,
+        32.3
+      ],
+      "label": "Hardeeville laydown (I-95 exit 8)",
+      "driveMinutesDesc": 24,
+      "driveMinutesGpc": 40
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "crews",
+      "equipment"
+    ],
+    "score": 0.403,
+    "rank": 8,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Jasper – Okatie 230 kV #2 and Georgia Power's Plant McIntosh 230/115 kV Substation are 17 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
+  },
+  {
+    "id": "ov-jasper-okatie-230-2--mcintosh-effingham",
+    "descId": "desc-jasper-okatie-230-2",
+    "gpcId": "gpc-mcintosh-effingham",
+    "distanceKm": 16.95,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -81,
+        32.38
+      ],
+      [
+        -81.18,
+        32.36
+      ]
+    ],
+    "roadKm": 43.9,
+    "roadVerified": false,
+    "stagingYard": {
+      "position": [
+        -81.08,
+        32.3
+      ],
+      "label": "Hardeeville laydown (I-95 exit 8)",
+      "driveMinutesDesc": 24,
+      "driveMinutesGpc": 40
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "crews",
+      "equipment",
+      "right-sizing review (FERC Order 1920-A)"
+    ],
+    "score": 0.403,
+    "rank": 9,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Jasper – Okatie 230 kV #2 and Georgia Power's McIntosh – Effingham 230 kV are 17 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
+  },
+  {
+    "id": "ov-okatie-mcintosh-reactor--port-wentworth-substation",
+    "descId": "desc-okatie-mcintosh-reactor",
+    "gpcId": "gpc-port-wentworth-substation",
+    "distanceKm": 19.08,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -81.1,
+        32.315
+      ],
+      [
+        -81.16,
+        32.15
+      ]
+    ],
+    "roadKm": 23.4,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.08,
+        32.3
+      ],
+      "label": "Hardeeville laydown (I-95 exit 8)",
+      "driveMinutesDesc": 12,
+      "driveMinutesGpc": 33
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "uncertain",
+    "shareable": [
+      "crews",
+      "equipment"
+    ],
+    "score": 0.366,
+    "rank": 10,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Okatie – McIntosh 115kV Tie and Georgia Power's Port Wentworth 230 kV Substation are 19 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 23 km."
+  },
+  {
+    "id": "ov-urquhart-toolebeck--vogtle-thomson-500",
+    "descId": "desc-urquhart-toolebeck",
+    "gpcId": "gpc-vogtle-thomson-500",
+    "distanceKm": 20.34,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -82.044,
+        33.2732
+      ]
+    ],
+    "roadKm": 37.3,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -82.02,
+        33.4
+      ],
+      "label": "Augusta Corporate Park",
+      "driveMinutesDesc": 30,
+      "driveMinutesGpc": 28
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "uncertain",
+    "shareable": [
+      "crews",
+      "equipment",
+      "right-sizing review (FERC Order 1920-A)"
+    ],
+    "score": 0.344,
+    "rank": 11,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 6500,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $6,500 per acre (inland county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Urquhart – Toolebeck 115kV line and Georgia Power's Vogtle – Thomson 500 kV are 20 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 37 km."
+  },
+  {
+    "id": "ov-urquhart-aiken-psa--vogtle-thomson-500",
+    "descId": "desc-urquhart-aiken-psa",
+    "gpcId": "gpc-vogtle-thomson-500",
+    "distanceKm": 20.34,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -82.044,
+        33.2732
+      ]
+    ],
+    "roadKm": 37.3,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -82.02,
+        33.4
+      ],
+      "label": "Augusta Corporate Park",
+      "driveMinutesDesc": 30,
+      "driveMinutesGpc": 28
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "uncertain",
+    "shareable": [
+      "crews",
+      "equipment",
+      "right-sizing review (FERC Order 1920-A)"
+    ],
+    "score": 0.344,
+    "rank": 12,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 6500,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $6,500 per acre (inland county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Urquhart – Aiken PSA 46 kV and Georgia Power's Vogtle – Thomson 500 kV are 20 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 37 km."
+  },
+  {
+    "id": "ov-jasper-okatie-230-2--rincon-substation",
+    "descId": "desc-jasper-okatie-230-2",
+    "gpcId": "gpc-rincon-substation",
+    "distanceKm": 23.22,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -81,
+        32.38
+      ],
+      [
+        -81.23,
+        32.3
+      ]
+    ],
+    "roadKm": 39.7,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.08,
+        32.3
+      ],
+      "label": "Hardeeville laydown (I-95 exit 8)",
+      "driveMinutesDesc": 24,
+      "driveMinutesGpc": 36
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "crews",
+      "equipment"
+    ],
+    "score": 0.294,
+    "rank": 13,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Jasper – Okatie 230 kV #2 and Georgia Power's Rincon 115 kV Substation are 23 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 40 km."
+  },
+  {
+    "id": "ov-okatie-substation--dean-forest-savannah",
+    "descId": "desc-okatie-substation",
+    "gpcId": "gpc-dean-forest-savannah",
+    "distanceKm": 28.55,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -80.93,
+        32.3
+      ],
+      [
+        -81.09,
+        32.08
+      ]
+    ],
+    "roadKm": 36.1,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.08,
+        32.3
+      ],
+      "label": "Hardeeville laydown (I-95 exit 8)",
+      "driveMinutesDesc": 28,
+      "driveMinutesGpc": 41
+    },
+    "timelineOverlapMonths": 7,
+    "robustness": "uncertain",
+    "shareable": [
+      "crews",
+      "equipment"
+    ],
+    "score": 0.288,
+    "rank": 14,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 180000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 240000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Okatie 230-115kV Substation and Georgia Power's Dean Forest – Savannah 115 kV are 29 km apart, close enough to share line crews and heavy equipment. Their build windows overlap by about 7 months. The Savannah River sits between them: the drive is about 36 km."
+  },
+  {
+    "id": "ov-okatie-substation--mcintosh-substation",
+    "descId": "desc-okatie-substation",
+    "gpcId": "gpc-mcintosh-substation",
+    "distanceKm": 24.26,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -80.93,
+        32.3
+      ],
+      [
+        -81.18,
+        32.36
+      ]
+    ],
+    "roadKm": 43.8,
+    "roadVerified": false,
+    "stagingYard": {
+      "position": [
+        -81.08,
+        32.3
+      ],
+      "label": "Hardeeville laydown (I-95 exit 8)",
+      "driveMinutesDesc": 28,
+      "driveMinutesGpc": 40
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "crews",
+      "equipment"
+    ],
+    "score": 0.275,
+    "rank": 15,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Okatie 230-115kV Substation and Georgia Power's Plant McIntosh 230/115 kV Substation are 24 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
+  },
+  {
+    "id": "ov-okatie-substation--mcintosh-effingham",
+    "descId": "desc-okatie-substation",
+    "gpcId": "gpc-mcintosh-effingham",
+    "distanceKm": 24.26,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -80.93,
+        32.3
+      ],
+      [
+        -81.18,
+        32.36
+      ]
+    ],
+    "roadKm": 43.8,
+    "roadVerified": false,
+    "stagingYard": {
+      "position": [
+        -81.08,
+        32.3
+      ],
+      "label": "Hardeeville laydown (I-95 exit 8)",
+      "driveMinutesDesc": 28,
+      "driveMinutesGpc": 40
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "crews",
+      "equipment",
+      "right-sizing review (FERC Order 1920-A)"
+    ],
+    "score": 0.275,
+    "rank": 16,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Okatie 230-115kV Substation and Georgia Power's McIntosh – Effingham 230 kV are 24 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
+  },
+  {
+    "id": "ov-jasper-okatie-230-2--dean-forest-savannah",
+    "descId": "desc-jasper-okatie-230-2",
+    "gpcId": "gpc-dean-forest-savannah",
+    "distanceKm": 28.55,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -80.93,
+        32.3
+      ],
+      [
+        -81.09,
+        32.08
+      ]
+    ],
+    "roadKm": 36.1,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.08,
+        32.3
+      ],
+      "label": "Hardeeville laydown (I-95 exit 8)",
+      "driveMinutesDesc": 28,
+      "driveMinutesGpc": 41
+    },
+    "timelineOverlapMonths": 6,
+    "robustness": "uncertain",
+    "shareable": [
+      "crews",
+      "equipment"
+    ],
+    "score": 0.275,
+    "rank": 17,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 180000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 240000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Jasper – Okatie 230 kV #2 and Georgia Power's Dean Forest – Savannah 115 kV are 29 km apart, close enough to share line crews and heavy equipment. Their build windows overlap by about 6 months. The Savannah River sits between them: the drive is about 36 km."
+  },
+  {
+    "id": "ov-okatie-mcintosh-reactor--dean-forest-savannah",
+    "descId": "desc-okatie-mcintosh-reactor",
+    "gpcId": "gpc-dean-forest-savannah",
+    "distanceKm": 24.65,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -81.02,
+        32.295
+      ],
+      [
+        -81.0922,
+        32.0805
+      ]
+    ],
+    "roadKm": 30.7,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.17,
+        32.14
+      ],
+      "label": "Port Wentworth yard",
+      "driveMinutesDesc": 39,
+      "driveMinutesGpc": 22
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "uncertain",
+    "shareable": [
+      "crews",
+      "equipment"
+    ],
+    "score": 0.269,
+    "rank": 18,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Okatie – McIntosh 115kV Tie and Georgia Power's Dean Forest – Savannah 115 kV are 25 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 31 km."
+  },
+  {
+    "id": "ov-jasper-okatie-230-2--port-wentworth-substation",
+    "descId": "desc-jasper-okatie-230-2",
+    "gpcId": "gpc-port-wentworth-substation",
+    "distanceKm": 27.12,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -80.9359,
+        32.306
+      ],
+      [
+        -81.16,
+        32.15
+      ]
+    ],
+    "roadKm": 36.4,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.08,
+        32.3
+      ],
+      "label": "Hardeeville laydown (I-95 exit 8)",
+      "driveMinutesDesc": 27,
+      "driveMinutesGpc": 33
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "crews",
+      "equipment"
+    ],
+    "score": 0.225,
+    "rank": 19,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Jasper – Okatie 230 kV #2 and Georgia Power's Port Wentworth 230 kV Substation are 27 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 36 km."
+  },
+  {
+    "id": "ov-okatie-substation--port-wentworth-substation",
+    "descId": "desc-okatie-substation",
+    "gpcId": "gpc-port-wentworth-substation",
+    "distanceKm": 27.13,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -80.93,
+        32.3
+      ],
+      [
+        -81.16,
+        32.15
+      ]
+    ],
+    "roadKm": 36.7,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.08,
+        32.3
+      ],
+      "label": "Hardeeville laydown (I-95 exit 8)",
+      "driveMinutesDesc": 28,
+      "driveMinutesGpc": 33
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "crews",
+      "equipment"
+    ],
+    "score": 0.225,
+    "rank": 20,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Okatie 230-115kV Substation and Georgia Power's Port Wentworth 230 kV Substation are 27 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 37 km."
+  },
+  {
+    "id": "ov-okatie-substation--rincon-substation",
+    "descId": "desc-okatie-substation",
+    "gpcId": "gpc-rincon-substation",
+    "distanceKm": 28.01,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -80.93,
+        32.3
+      ],
+      [
+        -81.23,
+        32.3
+      ]
+    ],
+    "roadKm": 39.7,
+    "roadVerified": true,
+    "stagingYard": {
+      "position": [
+        -81.08,
+        32.3
+      ],
+      "label": "Hardeeville laydown (I-95 exit 8)",
+      "driveMinutesDesc": 28,
+      "driveMinutesGpc": 36
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "crews",
+      "equipment"
+    ],
+    "score": 0.21,
+    "rank": 21,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 14000,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $14,000 per acre (coastal county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Okatie 230-115kV Substation and Georgia Power's Rincon 115 kV Substation are 28 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 40 km."
+  },
+  {
+    "id": "ov-urquhart-toolebeck--vogtle-switchyard",
+    "descId": "desc-urquhart-toolebeck",
+    "gpcId": "gpc-vogtle-switchyard",
+    "distanceKm": 35.78,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -81.76,
+        33.14
+      ]
+    ],
+    "roadKm": 59.9,
+    "roadVerified": false,
+    "stagingYard": {
+      "position": [
+        -82.02,
+        33.4
+      ],
+      "label": "Augusta Corporate Park",
+      "driveMinutesDesc": 30,
+      "driveMinutesGpc": 61
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "crews",
+      "equipment",
+      "right-sizing review (FERC Order 1920-A)"
+    ],
+    "score": 0.074,
+    "rank": 22,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 6500,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $6,500 per acre (inland county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Urquhart – Toolebeck 115kV line and Georgia Power's Vogtle 500/230 kV Switchyard are 36 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 60 km."
+  },
+  {
+    "id": "ov-urquhart-aiken-psa--vogtle-switchyard",
+    "descId": "desc-urquhart-aiken-psa",
+    "gpcId": "gpc-vogtle-switchyard",
+    "distanceKm": 35.78,
+    "tier": "crew",
+    "closestPoints": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -81.76,
+        33.14
+      ]
+    ],
+    "roadKm": 59.9,
+    "roadVerified": false,
+    "stagingYard": {
+      "position": [
+        -82.02,
+        33.4
+      ],
+      "label": "Augusta Corporate Park",
+      "driveMinutesDesc": 30,
+      "driveMinutesGpc": 61
+    },
+    "timelineOverlapMonths": 0,
+    "robustness": "robust",
+    "shareable": [
+      "crews",
+      "equipment",
+      "right-sizing review (FERC Order 1920-A)"
+    ],
+    "score": 0.074,
+    "rank": 23,
+    "cost": {
+      "sharedCorridorKm": 0,
+      "sharedAcres": 0,
+      "landValuePerAcreUsd": 6500,
+      "landSavingsUsd": 0,
+      "mobilizationSavingsUsd": 45000,
+      "yardSavingsUsd": 60000,
+      "totalUsd": 105000,
+      "assumptions": [
+        "Shared right-of-way width of 100 ft (30.5 m) wherever the two routes run within 1.6 km; half of the land cost avoided.",
+        "Land value $6,500 per acre (inland county median, sample).",
+        "One crew mobilization avoided is worth $180k–$300k by tier, scaled by months of build-window overlap (25% if windows do not overlap).",
+        "A shared laydown yard avoids one lease plus site preparation, about $150k.",
+        "Order-of-magnitude planning estimate, not an engineering cost."
+      ]
+    },
+    "summary": "DESC's Urquhart – Aiken PSA 46 kV and Georgia Power's Vogtle 500/230 kV Switchyard are 36 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 60 km."
+  }
+]

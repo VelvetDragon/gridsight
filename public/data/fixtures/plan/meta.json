@@ -1,0 +1,47 @@
+{
+  "generatedAt": "fixture",
+  "utilities": [
+    {
+      "id": "DESC",
+      "name": "Dominion Energy South Carolina",
+      "state": "SC",
+      "color": "#0E7C7B"
+    },
+    {
+      "id": "GPC",
+      "name": "Georgia Power",
+      "state": "GA",
+      "color": "#C2410C"
+    }
+  ],
+  "projectCount": {
+    "DESC": 5,
+    "GPC": 11
+  },
+  "pairsCompared": 55,
+  "overlapsFound": 23,
+  "knownMatches": [
+    {
+      "label": "Okatie – McIntosh 115 kV tie ↔ Plant McIntosh",
+      "found": true,
+      "overlapId": "ov-okatie-mcintosh-reactor--mcintosh-substation"
+    },
+    {
+      "label": "Urquhart rebuilds ↔ Augusta – Beech Island tie",
+      "found": true,
+      "overlapId": "ov-urquhart-aiken-psa--augusta-beech-island-tie"
+    }
+  ],
+  "sources": [
+    {
+      "document": "DESC Planned Transmission Projects $2M and Above, 2026–2030",
+      "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+      "page": null
+    },
+    {
+      "document": "SERTP 2026 2nd Quarter Preliminary Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": null
+    }
+  ]
+}
