@@ -2,7 +2,8 @@
 /**
  * Create (or update) the "Ask MrGridy" voice agent on ElevenLabs Agents.
  *
- *   node scripts/create-agent.mjs
+ *   node scripts/create-agent.mjs              # Stormline agent   -> ELEVENLABS_AGENT_ID
+ *   node scripts/create-agent.mjs crosswire    # Crosswire agent   -> ELEVENLABS_CROSSWIRE_AGENT_ID
  *
  * Reads ELEVENLABS_API_KEY (needs the "ElevenLabs Agents" write permission),
  * ELEVENLABS_VOICE_ID and ELEVENLABS_AGENT_ID from .env.local. Without an agent id it
@@ -114,20 +115,70 @@ Rules:
 - Keep every answer to three short sentences, then offer more detail ("Want the details?"). Never read long lists.
 - Connect the facts: who is short of crews, who has spare, where damage overlaps, who needs power first, and what it costs versus the hours saved.`;
 
+const CROSSWIRE_TOOLS = [
+  tool("list_utilities", "Utilities MrGridy can compare, and the pair that is open now."),
+  tool(
+    "compare",
+    "Open two utilities side by side on the map, for example Dominion Energy and Georgia Power.",
+    { you: str("First utility"), neighbor: str("Second utility") },
+    ["you", "neighbor"],
+  ),
+  tool("pair_summary", "The open pair: how many places their planned lines meet, by closeness tier, the top matches and the total estimated saving."),
+  tool(
+    "show_match",
+    "Select one match by rank (1 = best) and zoom the map to it. Returns both projects, distance, timing, staging yard, saving, ways to work together and grants.",
+    { rank: { type: "number", description: "Rank in the list, 1 = best" } },
+    ["rank"],
+  ),
+  tool("ways_to_work_together", "For the selected match (or match 1): each way the two utilities can work together, why it fits, and the first step."),
+  tool("funding", "Grant programs the selected match (or match 1) could apply to, jointly or each on its own."),
+  tool("next_steps", "What the two utilities should do first across their best matches, with the saving behind each."),
+  tool("clear_match", "Close the selected match and show the whole pair again."),
+];
+
+const CROSSWIRE_PROMPT = `You are MrGridy on Crosswire, helping transmission planners at two neighbouring utilities find where their planned lines meet and how to work together.
+
+Rules:
+- Every fact and number comes from a tool. Never invent numbers or project names.
+- When the user asks to see or open something, call the matching tool so the map and list move, then describe it.
+- Matches are ranked by how close the two planned lines come (crossing, under 1.6 km to share land, under 8 km to share a yard, under 40 km to share crews) and how much their build dates overlap.
+- Savings are planning estimates from public cost guides; say so if asked. Grants are screened against each program's published rules; say "could apply", not "will get".
+- You can suggest what to do: use next_steps and ways_to_work_together, and give the reason and the number behind each.
+- Keep every answer to three short sentences, then offer more ("Want the details?"). Round numbers. Plain language, friendly and calm.`;
+
+const PAGE = process.argv[2] === "crosswire" ? "crosswire" : "storm";
+const PAGES = {
+  storm: {
+    name: "Ask MrGridy",
+    envKey: "ELEVENLABS_AGENT_ID",
+    first: "Hi, I'm MrGridy. Ask me about any storm: what breaks, who should help whom, and what it costs.",
+    prompt: PROMPT,
+    tools: TOOLS,
+  },
+  crosswire: {
+    name: "Ask MrGridy: Crosswire",
+    envKey: "ELEVENLABS_CROSSWIRE_AGENT_ID",
+    first: "Hi, I'm MrGridy. Ask me where two utilities' plans meet and how they can work together.",
+    prompt: CROSSWIRE_PROMPT,
+    tools: CROSSWIRE_TOOLS,
+  },
+};
+const cfg = PAGES[PAGE];
+
 const body = {
-  name: "Ask MrGridy",
+  name: cfg.name,
   conversation_config: {
     agent: {
-      first_message: "Hi, I'm MrGridy. Ask me about any storm: what breaks, who should help whom, and what it costs.",
+      first_message: cfg.first,
       language: "en",
-      prompt: { prompt: PROMPT, llm: "gemini-2.5-flash", temperature: 0.2, tools: TOOLS },
+      prompt: { prompt: cfg.prompt, llm: "gemini-2.5-flash", temperature: 0.2, tools: cfg.tools },
     },
     tts: env.ELEVENLABS_VOICE_ID ? { voice_id: env.ELEVENLABS_VOICE_ID } : {},
   },
 };
 
 const API = "https://api.elevenlabs.io/v1/convai/agents";
-const id = env.ELEVENLABS_AGENT_ID;
+const id = env[cfg.envKey];
 const res = await fetch(id ? `${API}/${id}` : `${API}/create`, {
   method: id ? "PATCH" : "POST",
   headers: { "xi-api-key": KEY, "Content-Type": "application/json" },
@@ -140,9 +191,10 @@ if (!res.ok) {
 }
 const agentId = id ?? out.agent_id;
 if (!id) {
-  const next = /^ELEVENLABS_AGENT_ID=/m.test(text)
-    ? text.replace(/^ELEVENLABS_AGENT_ID=.*$/m, `ELEVENLABS_AGENT_ID=${agentId}`)
-    : `${text.trimEnd()}\n# ElevenLabs Agents: the "Ask MrGridy" voice agent (scripts/create-agent.mjs)\nELEVENLABS_AGENT_ID=${agentId}\n`;
+  const re = new RegExp(`^${cfg.envKey}=.*$`, "m");
+  const next = re.test(text)
+    ? text.replace(re, `${cfg.envKey}=${agentId}`)
+    : `${text.trimEnd()}\n# ElevenLabs Agents: "${cfg.name}" (scripts/create-agent.mjs)\n${cfg.envKey}=${agentId}\n`;
   writeFileSync(ENV, next);
 }
-console.log(`${id ? "Updated" : "Created"} agent ${agentId} with ${TOOLS.length} tools.`);
+console.log(`${id ? "Updated" : "Created"} ${cfg.name} agent ${agentId} with ${cfg.tools.length} tools.`);
