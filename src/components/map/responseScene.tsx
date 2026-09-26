@@ -8,8 +8,9 @@ import type { ResponseData } from "@/lib/data";
 import { fmtInt, fmtPct } from "@/lib/format";
 import { approxWindRadiusKm, stormAt, zoneLabel } from "@/lib/response";
 import { ALERT, failureColor, INK, SLATE, UTILITY_RGB, VULNERABLE_RGB } from "@/lib/theme";
-import type { CountyOutage, JointYard, LineSegmentRisk, Position, RepairZone, VulnerableArea } from "@/lib/types";
+import type { CountyOutage, LineSegmentRisk, Position, RepairZone, VulnerableArea } from "@/lib/types";
 import type { MapMarker } from "./MapCanvas";
+import { stateLabelMarkers, yardMarker } from "./mapLabels";
 import { riverLayers } from "./planScene";
 
 export type ResponseLayerId = "track" | "segments" | "counties" | "zones" | "yards" | "vulnerable";
@@ -26,6 +27,8 @@ export interface ResponseSceneProps {
 }
 
 const dashes = new PathStyleExtension({ dash: true });
+/** Only the first few priorities get a label; the rest are listed in the panel. */
+export const TOP_ZONES = 10;
 /** Zone footprint radius drawn on the map, metres. */
 const ZONE_RADIUS_M = 11000;
 
@@ -52,9 +55,7 @@ export function buildResponseLayers(props: ResponseSceneProps): Layer[] {
         data: rows,
         getPath: (s) => s.coordinates,
         getColor: (s) =>
-          timeMs >= reveal.segments[s.i]
-            ? [...failureColor(s.failureProbability), 255]
-            : [120, 126, 138, 70],
+          timeMs >= reveal.segments[s.i] ? [...failureColor(s.failureProbability), 255] : [120, 126, 138, 70],
         getWidth: (s) => (timeMs >= reveal.segments[s.i] ? 1.6 + 4 * Math.min(1, s.failureProbability * 2) : 1.2),
         widthUnits: "pixels",
         capRounded: true,
@@ -74,8 +75,9 @@ export function buildResponseLayers(props: ResponseSceneProps): Layer[] {
         getRadius: ZONE_RADIUS_M,
         radiusUnits: "meters",
         stroked: true,
-        getFillColor: (z) => [...SLATE, z.id === selectedZoneId ? 40 : 14],
-        getLineColor: (z) => [...SLATE, z.id === selectedZoneId ? 255 : 150],
+        // Top priorities read strongest; the long tail stays faint.
+        getFillColor: (z) => [...SLATE, z.id === selectedZoneId ? 40 : z.priority <= TOP_ZONES ? 16 : 6],
+        getLineColor: (z) => [...SLATE, z.id === selectedZoneId ? 255 : z.priority <= TOP_ZONES ? 150 : 60],
         getLineWidth: (z) => (z.id === selectedZoneId ? 2 : 1.2),
         lineWidthUnits: "pixels",
         pickable: true,
@@ -108,7 +110,7 @@ export function buildResponseLayers(props: ResponseSceneProps): Layer[] {
       }),
       new TextLayer<RepairZone>({
         id: "r-zone-labels",
-        data: data.zones,
+        data: data.zones.filter((z) => z.priority <= TOP_ZONES || z.id === selectedZoneId),
         getPosition: (z) => z.centroid,
         getText: (z) => `P${z.priority}`,
         getSize: 12,
@@ -279,9 +281,19 @@ type StormFrameRow = { position: Position; r: number };
 
 export function responseMarkers(props: ResponseSceneProps): MapMarker[] {
   const { data, visible, times, timeMs } = props;
-  const markers: MapMarker[] = [];
+  const markers: MapMarker[] = [...stateLabelMarkers()];
   if (visible.yards) {
-    for (const y of data.yards) markers.push(yardMarker(y));
+    for (const y of data.yards) {
+      markers.push(
+        yardMarker(
+          `jy-${y.id}`,
+          y.position,
+          // Symbol only (explained in the key) so the zone numbers stay readable.
+          null,
+          `Shared yard: ${y.label}. Serves ${y.serves.length} zones, up to ${y.maxDriveMinutes} min drive`,
+        ),
+      );
+    }
   }
   if (visible.track) {
     const frame = stormAt(data.storm, times, timeMs);
@@ -290,8 +302,8 @@ export function responseMarkers(props: ResponseSceneProps): MapMarker[] {
         id: "storm-label",
         position: frame.position,
         node: (
-          <div className="pointer-events-none translate-x-[calc(50%+14px)] rounded-[6px] bg-ink px-2 py-[3px] text-[11px] font-medium whitespace-nowrap text-white shadow-[var(--shadow-float)]">
-            {data.storm.name} · <span className="num">{Math.round(frame.windKt)} kt</span>
+          <div className="gs-passive translate-x-[calc(50%+14px)] rounded-full bg-ink px-2.5 py-1 text-[12px] font-medium whitespace-nowrap text-white shadow-[var(--shadow-float)]">
+            Storm centre · <span className="num">{Math.round(frame.windKt * 1.151)}</span> mph winds
           </div>
         ),
       });
@@ -300,22 +312,10 @@ export function responseMarkers(props: ResponseSceneProps): MapMarker[] {
   return markers;
 }
 
-function yardMarker(y: JointYard): MapMarker {
-  return {
-    id: `jy-${y.id}`,
-    position: y.position,
-    node: (
-      <div
-        title={`${y.label}: serves ${y.serves.length} zones, max ${y.maxDriveMinutes} min drive`}
-        className="flex items-center gap-1.5 rounded-[7px] border border-hairline-strong bg-white/95 py-[3px] pr-2 pl-[3px] text-[12px] font-medium text-ink shadow-[var(--shadow-float)]"
-      >
-        <span className="flex h-[18px] w-[18px] items-center justify-center rounded-[5px] bg-ink text-[10px] font-semibold text-white">
-          Y
-        </span>
-        Joint yard
-      </div>
-    ),
-  };
+function ordinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
 }
 
 export function handleResponseClick(info: PickingInfo, props: ResponseSceneProps): void {
@@ -328,13 +328,13 @@ export function responseTooltip(info: PickingInfo, props: ResponseSceneProps): R
   if (id === "r-segments") {
     const s = info.object as SegmentRow;
     const revealed = props.timeMs >= props.reveal.segments[s.i];
-    const owner = s.utility === "DESC" ? "DESC" : s.utility === "GPC" ? "Georgia Power" : "Other owner";
+    const owner = s.utility === "DESC" ? "Dominion Energy" : s.utility === "GPC" ? "Georgia Power" : "Other owner";
     return (
       <>
-        <div className="eyebrow mb-1">{owner} line segment</div>
+        <div className="eyebrow mb-1">{owner} power line</div>
         {revealed ? (
           <div className="grid grid-cols-[auto_auto] gap-x-4 text-[13px]">
-            <span className="text-ink-3">Failure probability</span>
+            <span className="text-ink-3">Chance of breaking</span>
             <span className="num text-right text-ink">{fmtPct(s.failureProbability, 1)}</span>
             <span className="text-ink-3">Peak gust</span>
             <span className="num text-right text-ink">{Math.round(s.peakWindMph)} mph</span>
@@ -357,7 +357,8 @@ export function responseTooltip(info: PickingInfo, props: ResponseSceneProps): R
           <span className="num text-right text-ink">{fmtInt(c.customers)}</span>
           <span className="text-ink-3">Predicted peak out</span>
           <span className="num text-right text-ink">
-            {fmtInt(c.predictedPeakOut)} <span className="text-ink-3">({fmtPct(c.predictedPeakOut / c.customers)})</span>
+            {fmtInt(c.predictedPeakOut)}{" "}
+            <span className="text-ink-3">({fmtPct(c.predictedPeakOut / c.customers)})</span>
           </span>
           <span className="text-ink-3">Actual peak out</span>
           <span className="num text-right text-ink">
@@ -377,15 +378,17 @@ export function responseTooltip(info: PickingInfo, props: ResponseSceneProps): R
     const z = info.object as RepairZone;
     return (
       <>
-        <div className="eyebrow mb-1">
-          Repair zone · priority <span className="num">{z.priority}</span>
-        </div>
+        <div className="eyebrow mb-1">Repair zone · crews go here {ordinal(z.priority)}</div>
         <div className="text-[13px] font-medium text-ink">near {zoneLabel(z, props.data.counties)}</div>
         <div className="num mt-0.5 text-[12px] text-ink-3">
           {z.expectedDamagedSegments.toFixed(1)} damaged segments expected · {fmtInt(z.vulnerablePeople)} vulnerable
         </div>
         <div className="mt-0.5 text-[12px] text-ink-2">
-          {z.utilities.length > 1 ? "Both utilities working here" : z.utilities[0] === "DESC" ? "DESC" : "Georgia Power"}
+          {z.utilities.length > 1
+            ? "Both companies working here"
+            : z.utilities[0] === "DESC"
+              ? "Dominion Energy"
+              : "Georgia Power"}
         </div>
       </>
     );
@@ -398,7 +401,7 @@ export function responseTooltip(info: PickingInfo, props: ResponseSceneProps): R
           ZIP <span className="num">{v.zip}</span>
         </div>
         <div className="text-[13px] text-ink">
-          <span className="num">{fmtInt(v.electricityDependent)}</span> electricity-dependent residents
+          <span className="num">{fmtInt(v.electricityDependent)}</span> people who rely on powered medical equipment
         </div>
       </>
     );

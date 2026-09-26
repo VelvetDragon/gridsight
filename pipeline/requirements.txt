@@ -10,3 +10,6 @@ scikit-learn>=1.5
 scipy>=1.13
 xgboost>=2.1
 pytest>=8.0
+pyarrow>=15
+# Response-mode Monte Carlo (CPU build works; the GPU pod uses its preinstalled CUDA torch)
+torch>=2.3

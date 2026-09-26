@@ -224,7 +224,8 @@ export interface ResponseMeta {
   validation: {
     countyMaePredicted: number | null;
     countyMaeBaseline: number | null;
-    reportedDescTransmissionPoles: number;
+    /** Public DESC figure for this storm, or null when none was published. */
+    reportedDescTransmissionPoles: number | null;
     predictedDescTransmissionFailures: number | null;
   };
   /**
@@ -236,4 +237,52 @@ export interface ResponseMeta {
     maePredicted: number;
     maeBaseline: number;
   }[];
+}
+
+/* ---------------- Utility catalog (compare any two utilities) ---------------- */
+
+/**
+ * One utility MrGridy knows about. Its planned projects live in
+ * /data/catalog/projects/<id>.json (CatalogProject[]); the list of utilities is
+ * /data/catalog/utilities.json (CatalogUtility[]).
+ */
+export interface CatalogUtility {
+  /** Stable slug, e.g. "desc", "georgia-power", "duke-carolinas", "tva". */
+  id: string;
+  name: string;
+  shortName: string;
+  /** Parent company, e.g. "Southern Company", "Duke Energy". */
+  parent: string | null;
+  states: string[];
+  color: string;
+  /** Where its public plan comes from. */
+  planSources: SourceRef[];
+  projectCount: number;
+  locatedCount: number;
+  /** "catalog" = parsed by the pipeline; "gemini" = found and extracted on demand. */
+  origin: "catalog" | "gemini";
+  /** Utilities it shares a border or region with (ids). */
+  neighbors: string[];
+}
+
+/** A Project that belongs to any catalog utility (utility is the catalog id). */
+export type CatalogProject = Omit<Project, "utility"> & { utility: string };
+
+/** An overlap between two catalog utilities (a < b alphabetically by id). */
+export type PairOverlap = Omit<Overlap, "descId" | "gpcId"> & {
+  aId: string;
+  bId: string;
+};
+
+/**
+ * Precomputed comparison for one pair: /data/catalog/pairs/<a>__<b>.json
+ * (ids sorted alphabetically). Pairs not precomputed can be computed in the
+ * browser from the two project files with the same rules.
+ */
+export interface PairFile {
+  a: string;
+  b: string;
+  generatedAt: string;
+  pairsCompared: number;
+  overlaps: PairOverlap[];
 }

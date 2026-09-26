@@ -49,16 +49,20 @@ export function Scrubber({
 }) {
   const pct = ((value - min) / (max - min || 1)) * 100;
   return (
-    <div className="flex h-full items-center gap-4 px-3">
+    <div className="flex h-full items-center gap-4 px-4">
       <button
         type="button"
         onClick={onToggle}
         aria-label={playing ? "Pause" : "Play"}
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-white transition-transform duration-150 hover:scale-[1.04] active:scale-95"
       >
-        {playing ? <Pause size={15} fill="currentColor" /> : <Play size={15} fill="currentColor" className="translate-x-[1px]" />}
+        {playing ? (
+          <Pause size={15} fill="currentColor" />
+        ) : (
+          <Play size={15} fill="currentColor" className="translate-x-[1px]" />
+        )}
       </button>
-      <div className="w-[156px] shrink-0">{current}</div>
+      <div className="w-[200px] shrink-0">{current}</div>
       <div className="@container relative min-w-0 flex-1 pt-1">
         <div className="relative h-7">
           {histogram && histogram.length ? (
@@ -93,7 +97,7 @@ export function Scrubber({
               <span
                 key={`${t.value}-${t.label}`}
                 className={cx(
-                  "num absolute top-0 text-[11px] whitespace-nowrap text-ink-3",
+                  "absolute top-0 text-[11px] whitespace-nowrap text-ink-3 tabular-nums",
                   left > 94 ? "-translate-x-full" : left < 4 ? "" : "-translate-x-1/2",
                   t.minor && "hidden @[520px]:inline",
                 )}

@@ -6,6 +6,7 @@
  * hand-built sample with the same type, and records that it did so. The UI
  * uses those records to show an honest "Sample data" indicator.
  */
+import { isCostRangeList, isMutualAid, type CostRange, type MutualAid } from "./savings";
 import type {
   CountyOutage,
   JointYard,
@@ -35,9 +36,7 @@ export interface Loaded<T> extends FileStatus {
 /** Minimal GeoJSON typing for the context layers. */
 export interface LineFeature {
   type: "Feature";
-  geometry:
-    | { type: "LineString"; coordinates: Position[] }
-    | { type: "MultiLineString"; coordinates: Position[][] };
+  geometry: { type: "LineString"; coordinates: Position[] } | { type: "MultiLineString"; coordinates: Position[][] };
   properties: {
     voltage?: number | string | null;
     operator?: string | null;
@@ -71,17 +70,16 @@ async function fetchJson(url: string, shape: Shape, signal?: AbortSignal): Promi
 }
 
 export class DataLoadError extends Error {
-  constructor(public readonly path: string, cause: unknown) {
+  constructor(
+    public readonly path: string,
+    cause: unknown,
+  ) {
     super(`Could not load ${path} (pipeline output or sample)`);
     this.cause = cause;
   }
 }
 
-export async function loadDataFile<T>(
-  path: string,
-  shape: Shape,
-  signal?: AbortSignal,
-): Promise<Loaded<T>> {
+export async function loadDataFile<T>(path: string, shape: Shape, signal?: AbortSignal): Promise<Loaded<T>> {
   try {
     const data = (await fetchJson(`/data/${path}`, shape, signal)) as T;
     return { path, origin: "pipeline", data };
@@ -109,11 +107,39 @@ async function loadOptionalLines(path: string, signal?: AbortSignal): Promise<Lo
   }
 }
 
+/**
+ * Optional extra files (cost ranges, mutual-aid scenarios). Missing is normal:
+ * the UI then hides or simplifies the feature. The bundled sample is used only
+ * when the mode itself runs on samples, so sample numbers never get mixed into
+ * real pipeline output.
+ */
+async function loadOptional<T>(
+  path: string,
+  allowSample: boolean,
+  valid: (v: unknown) => v is T,
+  signal?: AbortSignal,
+): Promise<Loaded<T> | null> {
+  const urls: [string, DataOrigin][] = [[`/data/${path}`, "pipeline"]];
+  if (allowSample) urls.push([`/data/fixtures/${path}`, "sample"]);
+  for (const [url, origin] of urls) {
+    try {
+      const res = await fetch(url, { cache: "no-store", signal });
+      if (!res.ok) continue;
+      const body: unknown = await res.json();
+      if (valid(body)) return { path, origin, data: body };
+    } catch (err) {
+      if (signal?.aborted) throw err;
+    }
+  }
+  return null;
+}
+
 export const PLAN_FILES = {
   meta: "plan/meta.json",
   projects: "plan/projects.json",
   overlaps: "plan/overlaps.json",
   lines: "context/transmission-lines.geojson",
+  costRanges: "plan/insights/cost-ranges.json",
   river: "context/savannah-river.geojson",
 } as const;
 
@@ -130,6 +156,7 @@ export function responseFiles(stormId: string) {
     zones: `${dir}/zones.json`,
     yards: `${dir}/yards.json`,
     vulnerable: `${dir}/vulnerable.json`,
+    mutualAid: `${dir}/mutual-aid.json`,
   } as const;
 }
 
@@ -139,6 +166,8 @@ export interface PlanData {
   overlaps: Overlap[];
   lines: LineCollection;
   river: LineCollection;
+  /** Low / central / high savings per overlap, when the pipeline provides them. */
+  costRanges: CostRange[] | null;
 }
 
 export interface ResponseData {
@@ -150,6 +179,8 @@ export interface ResponseData {
   yards: JointYard[];
   vulnerable: VulnerableArea[];
   river: LineCollection;
+  /** Separate vs coordinated restoration scenarios, when available. */
+  mutualAid: MutualAid | null;
 }
 
 export interface Bundle<T> {
@@ -169,6 +200,7 @@ export async function loadPlan(signal?: AbortSignal): Promise<Bundle<PlanData>> 
     loadOptionalLines(PLAN_FILES.lines, signal),
     loadOptionalLines(PLAN_FILES.river, signal),
   ]);
+  const ranges = await loadOptional(PLAN_FILES.costRanges, overlaps.origin === "sample", isCostRangeList, signal);
   return {
     data: {
       meta: meta.data,
@@ -176,8 +208,9 @@ export async function loadPlan(signal?: AbortSignal): Promise<Bundle<PlanData>> 
       overlaps: overlaps.data,
       lines: lines.data,
       river: river.data,
+      costRanges: ranges?.data ?? null,
     },
-    files: [meta, projects, overlaps, lines, river].map(strip),
+    files: [meta, projects, overlaps, lines, river, ...(ranges ? [ranges] : [])].map(strip),
   };
 }
 
@@ -198,6 +231,7 @@ export async function loadResponse(stormId: string, signal?: AbortSignal): Promi
     loadDataFile<VulnerableArea[]>(f.vulnerable, "array", signal),
     loadOptionalLines(PLAN_FILES.river, signal),
   ]);
+  const mutualAid = await loadOptional(f.mutualAid, meta.origin === "sample", isMutualAid, signal);
   return {
     data: {
       meta: meta.data,
@@ -208,8 +242,9 @@ export async function loadResponse(stormId: string, signal?: AbortSignal): Promi
       yards: yards.data,
       vulnerable: vulnerable.data,
       river: river.data,
+      mutualAid: mutualAid?.data ?? null,
     },
     // The river is shared context, reported under Plan mode's status.
-    files: [meta, storm, segments, counties, zones, yards, vulnerable].map(strip),
+    files: [meta, storm, segments, counties, zones, yards, vulnerable, ...(mutualAid ? [mutualAid] : [])].map(strip),
   };
 }
