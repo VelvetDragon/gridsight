@@ -26,6 +26,12 @@ const TIER_TEXT: Record<Overlap["tier"], string> = {
   logistics: "the projects come within 8 km of each other, close enough to share laydown yards and deliveries",
   crew: "the projects come within 40 km of each other, a crew's morning drive",
 };
+const TIER_WHY: Record<Overlap["tier"], string> = {
+  crossing: "their outages and crossing design have to be planned together",
+  row: "they could share right-of-way, access roads and permits",
+  logistics: "they could share laydown yards and material deliveries",
+  crew: "they are within a crew's morning drive, so they could share crews and equipment",
+};
 const TIER_LABEL: Record<Overlap["tier"], string> = {
   crossing: "crossing",
   row: "right-of-way",
@@ -101,6 +107,11 @@ function describe(p: Project): string {
   return `${what}${miles}, in service ${monthYear(p.inService)}`;
 }
 
+/** "SAV: Goshen - McIntosh 115 kV: Rebuild" -> "Goshen - McIntosh 115 kV". */
+function shortName(p: Project): string {
+  return p.name.replace(/^[A-Z]{2,6}:\s*/, "").split(":")[0].trim() || p.name;
+}
+
 function sourceLine(p: Project): string {
   return `${p.source.document}${p.source.page ? `, p. ${p.source.page}` : ""}`;
 }
@@ -140,15 +151,15 @@ export function templateExplanation(m: MatchData): Omit<ExplainResult, "cached" 
 
   const summary =
     o.summary?.trim() ||
-    `DESC's ${desc.name} and Georgia Power's ${gpc.name} ${where ? `meet near ${where}` : "are close"}: ${TIER_TEXT[o.tier]}. ${timing}`;
+    `DESC's ${shortName(desc)} and Georgia Power's ${shortName(gpc)} ${where ? `meet near ${where}` : "are close"}: ${TIER_TEXT[o.tier]}. ${timing}`;
 
-  const subject = `Coordination opportunity: ${desc.name} and ${gpc.name}${where ? ` near ${where}` : ""}`;
+  const subject = `Coordination opportunity: ${shortName(desc)} and ${shortName(gpc)}${where ? ` near ${where}` : ""}`;
   const to = "Transmission Planning, Dominion Energy South Carolina; Transmission Planning, Georgia Power";
   const body = [
     "Hello both teams,",
     `${PRODUCT} compared the two utilities' public transmission plans and flagged a ${TIER_LABEL[o.tier]}-tier match${where ? ` near ${where}` : ""} (rank ${o.rank}).`,
     `DESC: ${desc.name} (${describe(desc)}). Source: ${sourceLine(desc)}.\nGeorgia Power: ${gpc.name} (${describe(gpc)}). Source: ${sourceLine(gpc)}.`,
-    `Why it matters: ${distanceText(o)}, so ${TIER_TEXT[o.tier].replace(/^the projects /, "they ")}. ${timing}`,
+    `Why it matters: ${distanceText(o)}, so ${TIER_WHY[o.tier]}. ${timing}`,
     `What we could share: ${share}.${yard ? ` ${yard}` : ""}`,
     save
       ? `Rough savings: ${save}, from shared mobilization, yards and land. These are planning-level figures from public unit costs, not utility budgets.`
