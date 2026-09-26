@@ -87,10 +87,12 @@ export function TopBar({
   mode,
   onMode,
   status,
+  subtitle,
 }: {
   mode: Mode;
   onMode: (m: Mode) => void;
   status: DataStatusProps;
+  subtitle: string;
 }) {
   return (
     <header className="glass pointer-events-auto flex h-12 items-center gap-4 rounded-[12px] pr-3 pl-3.5">
@@ -102,14 +104,10 @@ export function TopBar({
         onChange={onMode}
         options={[
           { value: "plan", label: "Plan" },
-          { value: "response", label: "Response", disabled: true, hint: "Storm response replay is not available yet" },
+          { value: "response", label: "Response" },
         ]}
       />
-      <span className="hidden text-[13px] text-ink-3 xl:inline">
-        {mode === "plan"
-          ? "Where DESC and Georgia Power construction plans meet"
-          : "Hurricane Helene, September 2024, replayed"}
-      </span>
+      <span className="hidden text-[13px] text-ink-3 xl:inline">{subtitle}</span>
       <div className="ml-auto flex items-center">
         <DataStatus {...status} />
       </div>
