@@ -67,7 +67,6 @@ export function CoordinationCall({
     try {
       const call = await fetchCall(request);
       setEntry({ id, status: { kind: "ready", call } });
-      if (call.audioUrl) play(call);
     } catch (err) {
       setEntry({ id, status: { kind: "error", message: (err as Error).message || "Something went wrong" } });
     }
@@ -109,7 +108,7 @@ export function CoordinationCall({
           ) : (
             <Phone size={14} aria-hidden />
           )}
-          {status.kind === "loading" ? "Dialing…" : "Hear the coordination call"}
+          {status.kind === "loading" ? "Writing the script…" : "Prepare the coordination call"}
         </button>
         {status.kind === "error" ? (
           <p role="alert" className="text-[12px] text-alert">
@@ -133,17 +132,18 @@ export function CoordinationCall({
       <div className="flex items-center justify-between gap-2">
         <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-ink-3">
           <Phone size={12} aria-hidden />
-          {call.script === "gemini" ? "Written with Gemini" : "Built from the plan data"}
-          {call.audio ? " · voiced with ElevenLabs" : " · transcript"}
+          Call script for the planner · {call.script === "gemini" ? "written with Gemini" : "built from the plan data"}
         </span>
         {call.audioUrl ? (
           <button
             type="button"
             onClick={() => (playing ? audioRef.current?.pause() : play(call))}
-            aria-label={playing ? "Pause call" : "Play call"}
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-ink text-white hover:bg-[#2a2e37]"
+            aria-label={playing ? "Pause audio preview" : "Play audio preview"}
+            title="A 60-second audio preview of the call, voiced with ElevenLabs"
+            className="inline-flex h-7 items-center gap-1.5 rounded-full bg-ink px-3 text-[12px] font-medium text-white hover:bg-[#2a2e37]"
           >
-            {playing ? <Pause size={13} aria-hidden /> : <Play size={13} aria-hidden />}
+            {playing ? <Pause size={12} aria-hidden /> : <Play size={12} aria-hidden />}
+            {playing ? "Pause" : "Audio preview"}
           </button>
         ) : null}
       </div>
@@ -165,7 +165,8 @@ export function CoordinationCall({
         ))}
       </ol>
       <p className="text-[11px] text-ink-3">
-        A dramatization built only from the public plan data; no real conversation took place.
+        Talking points for the real call between the two utilities&apos; planners, built only from public plan data.
+        The audio preview is voiced with ElevenLabs; no real conversation took place.
       </p>
     </section>
   );
