@@ -25,6 +25,7 @@ from gridsight.response.common import NM_TO_KM, RAW_DIR, download, iso, pos, utc
 HURDAT_URL = "https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2025-091226.txt"
 HURDAT_PATH = RAW_DIR / "hurdat2.txt"
 ADECK_URL = "https://ftp.nhc.noaa.gov/atcf/archive/{year}/a{basin}{num}{year}.dat.gz"
+BDECK_URL = "https://ftp.nhc.noaa.gov/atcf/archive/{year}/b{basin}{num}{year}.dat.gz"
 
 # Storms used by Response mode. Helene is the replay/test storm; the others (all of
 # which caused outages in Georgia and/or South Carolina) are the training storms for
@@ -145,8 +146,51 @@ def load_storms(ids=None) -> dict[str, Track]:
         tr = db[sid]
         if tr.name.lower() != ALL_STORMS.get(sid, tr.name).lower():
             raise ValueError(f"{sid} is {tr.name}, expected {ALL_STORMS[sid]}")
+        fill_rmw_from_bdeck(tr)
         out[sid] = tr
     return out
+
+
+def bdeck_rmw(storm_id: str) -> pd.Series:
+    """Radius of maximum wind (km) from the ATCF b-deck (NHC working best track), by time.
+
+    HURDAT2 only carries RMW from 2021 on; the b-deck has it for older storms too.
+    Without it, large weakening storms (Irma 2017, Matthew 2016) get a Willoughby Rmax
+    about half the analysed one and their inland winds come out 15-20 mph too low
+    against ASOS stations (windcheck.py).
+    """
+    basin, num, year = storm_id[:2].lower(), storm_id[2:4], storm_id[4:]
+    path = download(BDECK_URL.format(year=year, basin=basin, num=num), RAW_DIR / f"b{basin}{num}{year}.dat.gz")
+    rows = {}
+    with gzip.open(path, "rt") as fh:
+        for line in fh:
+            t = [x.strip() for x in line.split(",")]
+            if len(t) < 20 or not t[19].isdigit() or int(t[19]) <= 0:
+                continue
+            when = datetime.strptime(t[2], "%Y%m%d%H").replace(tzinfo=timezone.utc)
+            rows.setdefault(when, float(t[19]) * NM_TO_KM)
+    return pd.Series(rows).sort_index()
+
+
+def fill_rmw_from_bdeck(track: Track) -> None:
+    """Fill missing best-track RMW from the b-deck (time-interpolated, inside its span)."""
+    df = track.df
+    missing = df["rmw_km"].isna()
+    if not missing.any():
+        return
+    try:
+        b = bdeck_rmw(track.storm_id)
+    except Exception as exc:  # no b-deck: Willoughby fallback stays
+        track.notes.append(f"b-deck RMW unavailable: {exc}")
+        return
+    if b.empty:
+        return
+    bt = np.array([t.timestamp() for t in b.index])
+    tt = np.array([t.timestamp() for t in df["time"]])
+    inside = (tt >= bt[0]) & (tt <= bt[-1])
+    fill = np.interp(tt, bt, b.to_numpy())
+    df.loc[missing & inside, "rmw_km"] = fill[(missing & inside).to_numpy()]
+    track.notes.append(f"RMW from ATCF b-deck for {int((missing & inside).sum())} of {len(df)} fixes")
 
 
 def landfall_times(track: Track) -> list[datetime]:

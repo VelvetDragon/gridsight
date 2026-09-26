@@ -162,7 +162,7 @@ def main(argv=None) -> None:
     table = outages.build_table(best, STORMS)
     fc = {k: simulate.load(k, "forecast") for k in published}
     apply_best = {k: table[table.storm == k] for k in published}
-    apply_fc = {k: outages.features(fc[k]).reset_index().assign(storm=k) for k in published}
+    apply_fc = {k: outages.features(fc[k], STORMS[k]).reset_index().assign(storm=k) for k in published}
     preds_best, cv_best = outages.leave_one_storm_out(table, apply_best)
     preds_fc, cv_fc = outages.leave_one_storm_out(table, apply_fc)
     preds, cv = (preds_best, cv_best) if a.track == "best" else (preds_fc, cv_fc)
@@ -250,7 +250,8 @@ def main(argv=None) -> None:
     print("leave-one-storm-out county MAE, fraction of customers (customers in brackets):")
     for c in cv:
         print(f"  {c['storm']:8s} model {c['maePredicted']:.4f} [{c['maeCustomersPredicted']:8.0f}]"
-              f"  wind-only {c['maeBaseline']:.4f} [{c['maeCustomersBaseline']:8.0f}]  ({c['counties']} counties)")
+              f"  wind-only {c['maeBaseline']:.4f} [{c['maeCustomersBaseline']:8.0f}]  ({c['counties']} counties)"
+              f"  rank {c['rankPredicted']:.2f} vs {c['rankBaseline']:.2f}, top-10 {c['top10Predicted']} vs {c['top10Baseline']}")
     if not a.no_mutual_aid:
         from gridsight.response import mutual_aid
 

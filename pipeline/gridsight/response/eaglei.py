@@ -28,10 +28,14 @@ FILE_IDS = {
     2016: 42547825,
     2017: 42547828,
     2018: 42547879,
+    2019: 42547885,
+    2020: 42547894,
+    2021: 42547891,
+    2022: 42547897,
     2023: 44574907,
     2024: 53581661,
 }
-SORT_KEY = {2016: "time", 2017: "time", 2018: "time", 2023: "time", 2024: "fips"}
+SORT_KEY = {2016: "time", 2017: "time", 2018: "time", 2019: "time", 2020: "time", 2021: "time", 2022: "time", 2023: "time", 2024: "fips"}
 STATES = ("13", "45")  # Georgia, South Carolina
 CACHE = RESP_CACHE / "eaglei"
 CACHE.mkdir(parents=True, exist_ok=True)

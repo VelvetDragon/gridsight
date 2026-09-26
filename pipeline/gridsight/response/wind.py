@@ -14,8 +14,10 @@ Model, per track time step and point:
    centre. When no R34 is available, B follows Vickery & Wadhera (2008), J. Appl.
    Meteor. Climatol. 47:2497-2517: B = 1.881 - 0.00557 Rm[km] - 0.01295 lat, clipped
    to [0.8, 2.2].
-   Rm = best-track radius of maximum wind when present (HURDAT2 since 2021), else
-   Willoughby, Darling & Rahn (2006) (see hurdat.rmax_willoughby).
+   If even B = 0.8 cannot reach R34, the outer exponent x of Holland et al. (2010)
+   is lowered from 0.5 (see outer_exponent) so the profile still passes through R34.
+   Rm = best-track radius of maximum wind when present (HURDAT2 since 2021, ATCF
+   b-deck before that), else Willoughby, Darling & Rahn (2006) (hurdat.rmax_willoughby).
 3. Direction: cyclonic tangential flow turned 20 deg inward (surface inflow angle).
 4. Translation asymmetry: add a*Vt, with a = 0.55 and the translation vector rotated
    20 deg counter-clockwise (Lin & Chavas 2012, J. Geophys. Res. 117:D09120).
@@ -128,6 +130,20 @@ def fit_b_r34(vs: torch.Tensor, rm: torch.Tensor, r34_km: float, iters: int = 40
     return 0.5 * (lo + hi)
 
 
+def outer_exponent(vs: torch.Tensor, rm: torch.Tensor, B: torch.Tensor, r34_km: float) -> torch.Tensor:
+    """Holland et al. (2010) outer exponent x (0.5 = Holland 1980).
+
+    When even B = 0.8 cannot carry 34 kt out to the analysed R34 (very large, weakening
+    storms such as Irma over Georgia), keep B and lower x so V(R34) = 34 kt:
+    x = ln(V34 / Vs) / ln(X e^(1 - X)), X = (Rm / R34)^B, clipped to [0.25, 0.5].
+    Holland, Belanger & Fritz (2010), Mon. Wea. Rev. 138:4393-4401.
+    """
+    X = torch.clamp(rm / r34_km, max=0.999) ** B
+    base = torch.clamp(X * torch.exp(1.0 - X), min=1e-6, max=0.999999)
+    need = torch.log(torch.clamp(V34_MS / vs, max=0.999999)) / torch.log(base)
+    return torch.clamp(need, 0.25, 0.5)
+
+
 def peak_wind(
     steps: TrackSteps,
     pt_lon: torch.Tensor,
@@ -182,14 +198,17 @@ def peak_wind(
         vs = torch.clamp(vmax - A_TRANS * vt, min=5.0)
         rm = (T(steps.rmw_km[k]) * rm_mult)[:, None]  # [S,1]
         r34 = float(steps.r34_km[k])
+        xo = torch.full_like(vs, 0.5)
         if math.isfinite(r34) and float(vmax.min()) > V34_MS * 1.05:
             B = fit_b_r34(vs, rm, r34)
+            xo = outer_exponent(vs, rm, B, r34)
         else:
             B = holland_b(rm, clat)
         f = 2 * OMEGA * math.sin(math.radians(abs(lat_c)))
         rf2 = r * 1000.0 * f / 2.0
         x = (rm / r) ** B
-        v_sym = torch.sqrt(vs * vs * x * torch.exp(1.0 - x) + rf2 * rf2) - rf2
+        shape = (x * torch.exp(1.0 - x)) ** (2.0 * xo)
+        v_sym = torch.sqrt(vs * vs * shape + rf2 * rf2) - rf2
         # cyclonic (counter-clockwise) tangential unit vector, turned inward by the inflow angle
         te, tn = -dy / r, dx / r
         re_, rn_ = -dx / r, -dy / r  # inward radial
