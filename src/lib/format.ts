@@ -72,6 +72,19 @@ export function fmtMinutes(min: number | null | undefined): string {
   return `${Math.floor(r / 60)} h ${String(r % 60).padStart(2, "0")} min`;
 }
 
+/**
+ * A project name without its filing tail or area prefix:
+ * "Jasper – Okatie 230 kV #2: Construct" → "Jasper – Okatie 230 kV #2",
+ * "SAV: Goshen (SAV) - McIntosh 115 kV Line Rebuild" → "Goshen (SAV) - McIntosh 115 kV Line Rebuild".
+ */
+export function shortProjectName(name: string): string {
+  const i = name.indexOf(":");
+  if (i < 0) return name.trim();
+  const head = name.slice(0, i).trim();
+  const tail = name.slice(i + 1).trim();
+  return head.length <= 6 && tail ? tail : head;
+}
+
 export function fmtKv(kv: number[]): string {
   if (!kv.length) return "–";
   return `${kv.join("/")} kV`;

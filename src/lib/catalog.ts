@@ -13,7 +13,7 @@
  */
 import { loadPlan, loadDataFile, PLAN_FILES, type FileStatus, type LineCollection, type PlanData } from "./data";
 import { computeOverlaps, type ComputedOverlap, type ProjectLite } from "./overlaps";
-import { isCostRangeList, type CostRange } from "./savings";
+import { closeInTime } from "./timeline";
 import type {
   CatalogProject,
   CatalogUtility,
@@ -99,6 +99,18 @@ export async function loadCatalog(signal?: AbortSignal): Promise<{ data: Catalog
   }
   const meta = await loadDataFile<PlanMeta>(PLAN_FILES.meta, "object", signal);
   return { data: { utilities: withSaved(fallbackCatalog(meta.data)), origin: "plan" }, files: [] };
+}
+
+/**
+ * Drop pairs built too far apart to coordinate: near each other on the map but
+ * one finished well before the other starts, so nothing is shared.
+ */
+function closeInTimeOnly(plan: PlanData): PlanData {
+  const byId = new Map(plan.projects.map((p) => [p.id, p]));
+  const overlaps = plan.overlaps.filter((o) =>
+    closeInTime(byId.get(o.descId)?.buildWindow ?? null, byId.get(o.gpcId)?.buildWindow ?? null),
+  );
+  return { ...plan, overlaps, meta: { ...plan.meta, overlapsFound: overlaps.length } };
 }
 
 /* ---------------- Slot mapping ---------------- */
@@ -214,7 +226,7 @@ export async function loadPair(
   if (fallbackIds.includes(youId) && fallbackIds.includes(neighborId)) {
     const bundle = await loadPlan(signal);
     const plan = youId === FALLBACK_IDS.GPC ? swapSlots(bundle.data) : bundle.data;
-    return { you, neighbor, plan, files: bundle.files, source: "plan-files" };
+    return { you, neighbor, plan: closeInTimeOnly(plan), files: bundle.files, source: "plan-files" };
   }
 
   const [a, b] = [you.id, neighbor.id].sort();
@@ -229,15 +241,11 @@ export async function loadPair(
     }
     return tryJson<CatalogProject[]>(`/data/catalog/projects/${encodeURIComponent(id)}.json`, signal);
   };
-  const [projA, projB, pair, ctx, ranges] = await Promise.all([
+  const [projA, projB, pair, ctx] = await Promise.all([
     projectsOf(a),
     projectsOf(b),
     tryJson<PairFile>(`/data/catalog/pairs/${encodeURIComponent(a)}__${encodeURIComponent(b)}.json`, signal),
     loadContext(signal),
-    tryJson<CostRange[]>(
-      `/data/catalog/pairs/${encodeURIComponent(a)}__${encodeURIComponent(b)}.cost-ranges.json`,
-      signal,
-    ),
   ]);
   if (!projA || !projB) throw new Error(`Project list missing for ${!projA ? a : b}`);
   const slotA: UtilityId = youIsA ? "DESC" : "GPC";
@@ -281,14 +289,14 @@ export async function loadPair(
   return {
     you,
     neighbor,
-    plan: {
+    plan: closeInTimeOnly({
       meta,
       projects,
       overlaps,
       lines: ctx.lines,
       river: ctx.river,
-      costRanges: isCostRangeList(ranges) ? ranges : null,
-    },
+      wetlands: null,
+    }),
     files,
     source,
   };

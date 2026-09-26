@@ -92,6 +92,39 @@ body {
   box-shadow: var(--shadow-panel);
 }
 
+/* A 1px edge that catches the light: bright where light would hit, hairline elsewhere. */
+@utility edge-shine {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      100deg,
+      rgba(20, 24, 30, 0.2) 0%,
+      rgba(255, 255, 255, 1) 14%,
+      rgba(20, 24, 30, 0.2) 34%,
+      rgba(20, 24, 30, 0.12) 55%,
+      rgba(255, 255, 255, 1) 74%,
+      rgba(20, 24, 30, 0.2) 92%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    pointer-events: none;
+  }
+  /* A soft white halo just outside, so the edge reads on the light page too. */
+  box-shadow:
+    var(--shadow-panel),
+    0 0 0 3px rgba(255, 255, 255, 0.55);
+}
+
 @utility glass-strong {
   background: var(--glass-strong);
   -webkit-backdrop-filter: blur(18px) saturate(160%);

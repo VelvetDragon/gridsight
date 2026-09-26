@@ -6,7 +6,8 @@
  * hand-built sample with the same type, and records that it did so. The UI
  * uses those records to show an honest "Sample data" indicator.
  */
-import { isCostRangeList, isMutualAid, type CostRange, type MutualAid } from "./savings";
+import { isWetlandNoteList, type WetlandNote } from "./opportunities";
+import { isMutualAid, type MutualAid } from "./savings";
 import { isTeamUp, type TeamUp } from "./teamup";
 import type {
   CountyOutage,
@@ -140,7 +141,7 @@ export const PLAN_FILES = {
   projects: "plan/projects.json",
   overlaps: "plan/overlaps.json",
   lines: "context/transmission-lines.geojson",
-  costRanges: "plan/insights/cost-ranges.json",
+  wetlands: "plan/insights/wetlands.json",
   river: "context/savannah-river.geojson",
 } as const;
 
@@ -168,8 +169,8 @@ export interface PlanData {
   overlaps: Overlap[];
   lines: LineCollection;
   river: LineCollection;
-  /** Low / central / high savings per overlap, when the pipeline provides them. */
-  costRanges: CostRange[] | null;
+  /** Wetland screening of shared corridors, when the pipeline provides it. */
+  wetlands: WetlandNote[] | null;
 }
 
 export interface ResponseData {
@@ -204,7 +205,8 @@ export async function loadPlan(signal?: AbortSignal): Promise<Bundle<PlanData>> 
     loadOptionalLines(PLAN_FILES.lines, signal),
     loadOptionalLines(PLAN_FILES.river, signal),
   ]);
-  const ranges = await loadOptional(PLAN_FILES.costRanges, overlaps.origin === "sample", isCostRangeList, signal);
+  const sample = overlaps.origin === "sample";
+  const wetlands = await loadOptional(PLAN_FILES.wetlands, sample, isWetlandNoteList, signal);
   return {
     data: {
       meta: meta.data,
@@ -212,9 +214,11 @@ export async function loadPlan(signal?: AbortSignal): Promise<Bundle<PlanData>> 
       overlaps: overlaps.data,
       lines: lines.data,
       river: river.data,
-      costRanges: ranges?.data ?? null,
+      wetlands: wetlands?.data ?? null,
     },
-    files: [meta, projects, overlaps, lines, river, ...(ranges ? [ranges] : [])].map(strip),
+    files: [meta, projects, overlaps, lines, river, ...(wetlands ? [wetlands] : [])].map(
+      strip,
+    ),
   };
 }
 

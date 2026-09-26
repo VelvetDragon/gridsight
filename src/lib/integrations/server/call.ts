@@ -93,7 +93,7 @@ function labels(m: MatchData): Record<CallSpeaker, string> {
 }
 
 export function templateScript(m: MatchData): CallLine[] {
-  const { overlap: o, desc, gpc, range } = m;
+  const { overlap: o, desc, gpc, saved } = m;
   const label = labels(m);
   const where = place(o.summary);
   const months = Math.round(o.timelineOverlapMonths);
@@ -101,7 +101,7 @@ export function templateScript(m: MatchData): CallLine[] {
     o.tier === "crossing" || o.distanceKm <= 0.05
       ? "they actually touch"
       : `they're about ${o.distanceKm < 10 ? o.distanceKm.toFixed(1) : Math.round(o.distanceKm)} kilometers apart`;
-  const save = savings(o, range);
+  const save = savings(saved);
   const lines: [CallSpeaker, string][] = [
     ["DESC", `Hi, this is transmission planning at ${m.names.a.name}. Got a minute?`],
     ["GPC", "Sure, what's up?"],
@@ -118,7 +118,7 @@ export function templateScript(m: MatchData): CallLine[] {
     ["DESC", `That's it. We could share ${list(o.shareable.slice(0, 4)) || "crews and equipment"}.`],
   ];
   if (o.stagingYard) lines.push(["GPC", "And one staging yard would reach both jobs. That saves us a whole setup."]);
-  if (save) lines.push(["DESC", `Rough planning estimate is ${save.replace(" central estimate", "")}. Not a budget number, but real.`]);
+  if (save) lines.push(["DESC", `Rough planning estimate is ${save}. Not a budget number, but real.`]);
   if (o.robustness === "uncertain") lines.push(["GPC", "The exact routes aren't public yet, so let's compare them first."]);
   lines.push(["DESC", "Agreed. I'll set up a follow-up and send our route and outage windows."]);
   lines.push(["GPC", "Sounds good. Talk soon."]);

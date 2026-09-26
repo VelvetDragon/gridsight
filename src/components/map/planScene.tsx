@@ -6,15 +6,23 @@ import { IconLayer, PathLayer } from "@deck.gl/layers";
 import type { ReactNode } from "react";
 import { corridorHalfWidth, hatchedCorridor } from "@/lib/corridor";
 import type { LineCollection, PlanData } from "@/lib/data";
-import { fmtKm, fmtKv, fmtMonthYear } from "@/lib/format";
+import { fmtKm } from "@/lib/format";
 import { midpoint } from "@/lib/geo";
 import { ICON_CHEVRON, ICON_STATION, ICON_STATION_HALO, ICON_STATION_HOLLOW } from "@/lib/glyphs";
 import type { RankedOverlap } from "@/lib/ranking";
 import { INK, RIVER, TIER_HEX, TIER_RGB, tierFull, UTILITY_HEX, UTILITY_NAME, UTILITY_RGB } from "@/lib/theme";
 import { phaseAt } from "@/lib/timeline";
 import type { Overlap, Position, Project } from "@/lib/types";
-import type { MapMarker } from "./MapCanvas";
-import { distanceLabel, pointAlong, projectLabel, selectionLabel, stateLabelMarkers, yardMarker } from "./mapLabels";
+import { isShiftClick, type MapClickEvent, type MapMarker } from "./MapCanvas";
+import {
+  distanceLabel,
+  pointAlong,
+  projectLabel,
+  selectionLabel,
+  shortName,
+  stateLabelMarkers,
+  yardMarker,
+} from "./mapLabels";
 
 /** Drive-time shapes for the selected pair (isochrones), when the data teammate provides them. */
 export interface ReachCollection {
@@ -369,13 +377,15 @@ export function planMarkers(props: PlanSceneProps): MapMarker[] {
         p.geometry.type === "Point"
           ? p.geometry.coordinates
           : pointAlong(p.geometry.coordinates, selected.closestPoints[idx]);
-      markers.push(projectLabel(`label-${utility}`, at, utility, p.name, placement));
+      // The yard marks a real site and keeps its place; the cards, then the distance, move aside.
+      markers.push({ ...projectLabel(`label-${utility}`, at, utility, p.name, placement), declutter: 1 + idx });
     }
-    markers.push(distanceLabel("distance", mid, selected.distanceKm, selected.distanceKm === 0));
+    markers.push({ ...distanceLabel("distance", mid, selected.distanceKm, selected.distanceKm === 0), declutter: 3 });
     if (selected.stagingYard) {
-      markers.push(
-        yardMarker(`yard-${selected.id}`, selected.stagingYard.position, "Shared yard", selected.stagingYard.label),
-      );
+      markers.push({
+        ...yardMarker(`yard-${selected.id}`, selected.stagingYard.position, "Shared yard", selected.stagingYard.label),
+        declutter: 0,
+      });
     }
     // Drive-time labels on the reach shapes.
     for (const [i, f] of (reach?.features ?? []).entries()) {
@@ -402,7 +412,7 @@ export function planMarkers(props: PlanSceneProps): MapMarker[] {
         p.geometry.type === "Point"
           ? p.geometry.coordinates
           : pointAlong(p.geometry.coordinates, p.geometry.coordinates[0], 0.5);
-      markers.push(selectionLabel(`sel-${id}`, at, p));
+      markers.push(selectionLabel(`sel-${id}`, at, p, isBuilt(p)));
     }
   }
 
@@ -440,7 +450,7 @@ export function planMarkers(props: PlanSceneProps): MapMarker[] {
 export function handlePlanClick(
   info: PickingInfo,
   props: PlanSceneProps,
-  event?: { srcEvent?: { shiftKey?: boolean } },
+  event?: MapClickEvent,
 ): void {
   const id = info.layer?.id ?? "";
   if (id === "overlap-connectors" && info.object) {
@@ -448,7 +458,7 @@ export function handlePlanClick(
     return;
   }
   if (id.startsWith("project-") && info.object && info.coordinate) {
-    props.onProjectClick(info.object as Project, [info.coordinate[0], info.coordinate[1]], !!event?.srcEvent?.shiftKey);
+    props.onProjectClick(info.object as Project, [info.coordinate[0], info.coordinate[1]], isShiftClick(event));
     return;
   }
   props.onEmptyClick();
@@ -480,13 +490,11 @@ export function planTooltip(info: PickingInfo, props: PlanSceneProps): ReactNode
     const picked = props.selectedProjects.has(p.id);
     return (
       <>
-        <div className="mb-1 text-[12px] font-semibold" style={{ color: UTILITY_HEX[p.utility] }}>
-          {UTILITY_NAME[p.utility]} · {p.kind === "line" ? "power line" : "substation"}
-          {isBuilt(p) ? " · built" : ""}
-        </div>
-        <div className="text-[13px] leading-[18px] font-medium text-ink">{p.name}</div>
-        <div className="mt-0.5 text-[12px] text-ink-3">
-          {fmtKv(p.voltageKv)} · ready {fmtMonthYear(p.inService)}
+        <div className="text-[13px] leading-[18px] text-ink">
+          <span className="font-semibold" style={{ color: UTILITY_HEX[p.utility] }}>
+            {UTILITY_NAME[p.utility]}:
+          </span>{" "}
+          {shortName(p.name)}
         </div>
         <div className="mt-1 text-[12px] text-ink-3">
           {picked ? "Click to unpick. Shift-click to add more." : "Click to pick. Shift-click to pick several."}

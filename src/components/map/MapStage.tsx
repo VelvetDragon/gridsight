@@ -4,7 +4,7 @@ import type { Layer, PickingInfo } from "@deck.gl/core";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { FxControls } from "./fx/FxControls";
 import { useFx } from "./fx/useFx";
-import MapCanvas, { type MapMarker, type MapPadding, type MapPopup, type ViewRequest } from "./MapCanvas";
+import MapCanvas, { type MapClickEvent, type MapMarker, type MapPadding, type MapPopup, type ViewRequest } from "./MapCanvas";
 import { buildPlanLayers, handlePlanClick, planMarkers, planTooltip, type PlanSceneProps } from "./planScene";
 import {
   buildResponseLayers,
@@ -23,6 +23,8 @@ export interface MapStageProps {
   popup: MapPopup | null;
   view: ViewRequest | null;
   padding: MapPadding;
+  /** The map sits in a pane that changes size; keep the same area in view. */
+  keepFramedOnResize?: boolean;
 }
 
 interface Hover {
@@ -37,7 +39,7 @@ interface Hover {
  * The one persistent map. Each mode contributes deck.gl layers, DOM markers and
  * a hover tooltip; switching modes swaps the scene without re-creating the map.
  */
-export default function MapStage({ mode, plan, response, popup, view, padding }: MapStageProps) {
+export default function MapStage({ mode, plan, response, popup, view, padding, keepFramedOnResize }: MapStageProps) {
   const [hover, setHover] = useState<Hover | null>(null);
   const fx = useFx(mode, plan, response);
   const fxControlsStyle = {
@@ -72,7 +74,7 @@ export default function MapStage({ mode, plan, response, popup, view, padding }:
   );
 
   const onClick = useCallback(
-    (info: PickingInfo, event?: { srcEvent?: { shiftKey?: boolean } }) => {
+    (info: PickingInfo, event?: MapClickEvent) => {
       if (mode === "plan" && plan) handlePlanClick(info, plan, event);
       else if (mode === "response" && response) handleResponseClick(info, response);
     },
@@ -90,6 +92,7 @@ export default function MapStage({ mode, plan, response, popup, view, padding }:
         onHover={onHover}
         onClick={onClick}
         fx={fx.controller}
+        keepFramedOnResize={keepFramedOnResize}
       />
       <FxControls fx={fx} className="absolute z-20" style={fxControlsStyle} />
       {hover ? (
