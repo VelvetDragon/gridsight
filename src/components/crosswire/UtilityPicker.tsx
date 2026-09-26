@@ -82,7 +82,7 @@ function UtilityCombo({
         <ChevronDown size={15} aria-hidden className="shrink-0 text-ink-3" />
       </button>
       {open ? (
-        <div className="glass-strong absolute top-[calc(100%+6px)] right-0 left-0 z-40 rounded-[12px] p-1.5">
+        <div className="absolute top-[calc(100%+6px)] right-0 left-0 z-40 rounded-[12px] border border-hairline bg-[#FCFBF8] p-1.5 shadow-[var(--shadow-float)]">
           <div className="flex items-center gap-2 border-b border-hairline px-2 pb-1.5">
             <Search size={14} aria-hidden className="text-ink-3" />
             <input

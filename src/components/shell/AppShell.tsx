@@ -128,7 +128,7 @@ function UserMenu() {
         {initials}
       </button>
       {open ? (
-        <div className="glass-strong absolute top-11 right-0 w-64 rounded-[14px] p-2">
+        <div className="absolute top-11 right-0 w-64 rounded-[14px] border border-hairline bg-[#FCFBF8] p-2 shadow-[var(--shadow-float)]">
           <div className="px-3 py-2">
             <div className="text-[14px] font-medium text-ink">{user.name}</div>
             <div className="text-[12px] text-ink-3">{user.email}</div>
