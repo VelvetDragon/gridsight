@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run the Response-mode GPU simulation on a RunPod PyTorch pod and build the JSON.
+# MrGridy: run the Response-mode GPU simulation on a RunPod PyTorch pod and build the JSON.
 #
 # Pod: any RunPod "PyTorch 2.x" template with an NVIDIA GPU (CUDA 12). ~10 GB disk.
 # Usage on the pod (GitHub auth already set up, e.g. `gh auth login` or a token):
@@ -57,7 +57,7 @@ python -m gridsight.response.build --storm "$STORM" --skip-sim
 cd ..
 
 echo
-echo "Done. Outputs:"
+echo "MrGridy response build done. Outputs:"
 ls -la public/data/response public/data/response/*/ | sed 's/^/  /'
 cat <<EOF
 

@@ -15,7 +15,7 @@ import requests
 
 from gridsight.config import CACHE_DIR, RAW_DIR, RESPONSE_OUT
 
-USER_AGENT = "GridSight/0.1 (ShellHacks 2026 research; github.com/VelvetDragon/gridsight)"
+USER_AGENT = "MrGridy/0.1 (ShellHacks 2026 research; github.com/VelvetDragon/gridsight)"
 HEADERS = {"User-Agent": USER_AGENT}
 
 STORM_KEY = "helene"
