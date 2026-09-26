@@ -26,8 +26,8 @@ export interface MapPadding {
 
 /** A camera move requested by the UI. `key` changes each time a move is wanted. */
 export type ViewRequest =
-  | { key: string; kind: "bounds"; bounds: Bounds; maxZoom?: number }
-  | { key: string; kind: "center"; center: Position; zoom: number };
+  | { key: string; kind: "bounds"; bounds: Bounds; maxZoom?: number; pitch?: number; durationMs?: number }
+  | { key: string; kind: "center"; center: Position; zoom: number; pitch?: number; durationMs?: number };
 
 export interface MapMarker {
   id: string;
@@ -83,15 +83,20 @@ export default function MapCanvas({ layers, markers = [], popup, view, padding, 
       const map = mapRef.current;
       if (!map || !req || lastViewKey.current === req.key) return;
       lastViewKey.current = req.key;
+      const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      const duration = reduce ? 0 : (req.durationMs ?? 1100);
+      // Pitch and bearing are always set, so leaving a tilted story view levels the map again.
+      const tilt = { pitch: req.pitch ?? 0, bearing: 0 };
       if (req.kind === "bounds") {
         map.fitBounds(req.bounds, {
           padding,
           maxZoom: req.maxZoom ?? 11,
-          duration: 1100,
+          duration,
           essential: true,
+          ...tilt,
         });
       } else {
-        map.flyTo({ center: req.center, zoom: req.zoom, padding, duration: 1100, essential: true });
+        map.flyTo({ center: req.center, zoom: req.zoom, padding, duration, essential: true, ...tilt });
       }
     },
     [padding],
