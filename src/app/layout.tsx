@@ -1,23 +1,34 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Fraunces: titles, wordmark and headline numbers (soft, optical sizing).
+const fraunces = Fraunces({
+  variable: "--font-display",
   subsets: ["latin"],
+  axes: ["opsz", "SOFT"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// IBM Plex Sans: all interface text.
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-sans-ui",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
+// IBM Plex Mono: tabular figures only (km, $, months).
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-numbers",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const viewport: Viewport = {
-  themeColor: "#f4f1eb",
+  themeColor: "#f2eee6",
 };
 
 export const metadata: Metadata = {
-  title: "GridSight",
+  title: "MrGridy",
   description: "Where neighboring power companies' work collides, before they build and before the storm hits.",
 };
 
@@ -25,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="h-full overflow-hidden">{children}</body>
     </html>

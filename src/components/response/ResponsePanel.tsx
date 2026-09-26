@@ -1,21 +1,19 @@
 "use client";
 
-import { BadgeCheck, PanelRightClose } from "lucide-react";
+import { PanelRightClose } from "lucide-react";
 import type { ReactNode } from "react";
 import type { ResponseData } from "@/lib/data";
 import { fmtInt, fmtMinutes } from "@/lib/format";
 import { fmtMae, stormKey, zoneLabel } from "@/lib/response";
 import type { RepairZone, StormIndexEntry } from "@/lib/types";
 import { SkeletonRows } from "../ui/states";
-import { cx, Divider, Eyebrow, IconButton, Panel, Tooltip, UtilityDot } from "../ui/primitives";
+import { TimeSavedCard } from "./TimeSaved";
+import { cx, Divider, IconButton, Panel, PanelHeader, SectionTitle, Tooltip, UtilityDot } from "../ui/primitives";
 
 function Section({ title, children, aside }: { title: string; children: ReactNode; aside?: ReactNode }) {
   return (
-    <section className="flex flex-col gap-2.5 px-4 py-4">
-      <div className="flex items-baseline justify-between gap-2">
-        <Eyebrow>{title}</Eyebrow>
-        {aside}
-      </div>
+    <section className="flex flex-col gap-3 px-5 py-5">
+      <SectionTitle aside={aside}>{title}</SectionTitle>
       {children}
     </section>
   );
@@ -36,21 +34,20 @@ export interface ResponsePanelProps {
 export function ResponsePanel(props: ResponsePanelProps) {
   const { storms, stormId, onStorm, data, loading } = props;
   return (
-    <Panel className="flex h-full w-[372px] flex-col overflow-hidden" aria-label="Storm response">
-      <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <Eyebrow>Storm</Eyebrow>
-        <IconButton label="Collapse panel" onClick={props.onCollapse} className="-mr-1.5">
-          <PanelRightClose size={16} />
-        </IconButton>
-      </div>
+    <Panel className="flex h-full w-[372px] flex-col overflow-hidden" aria-label="Storm replay">
+      <PanelHeader
+        title="Storm replay"
+        subtitle="Pick a storm, press play, and see where both companies should send crews first."
+        actions={
+          <IconButton label="Collapse panel" onClick={props.onCollapse}>
+            <PanelRightClose size={16} />
+          </IconButton>
+        }
+      />
       <StormPicker storms={storms} stormId={stormId} onStorm={onStorm} />
-      <Divider className="mt-2" />
+      <Divider className="mt-4" />
       <div className="scroll-quiet min-h-0 flex-1 overflow-y-auto">
-        {loading || !data ? (
-          <SkeletonRows rows={6} />
-        ) : (
-          <ResponseDetails {...props} data={data} />
-        )}
+        {loading || !data ? <SkeletonRows rows={6} /> : <ResponseDetails {...props} data={data} />}
       </div>
     </Panel>
   );
@@ -74,7 +71,7 @@ function StormPicker({
     );
   }
   return (
-    <div role="radiogroup" aria-label="Choose a storm" className="flex flex-col px-2">
+    <div role="radiogroup" aria-label="Choose a storm" className="flex flex-col gap-1 px-3">
       {storms.map((s) => {
         const on = s.id === stormId;
         return (
@@ -85,8 +82,10 @@ function StormPicker({
             aria-checked={on}
             onClick={() => onStorm(s.id)}
             className={cx(
-              "flex items-center gap-3 rounded-[9px] px-2.5 py-2 text-left transition-colors duration-150",
-              on ? "bg-white shadow-[0_0_0_1px_rgba(20,22,28,0.1),0_2px_6px_-2px_rgba(20,22,28,0.12)]" : "hover:bg-wash",
+              "flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-left transition-colors duration-150",
+              on
+                ? "bg-white/85 shadow-[0_0_0_1px_rgba(20,24,30,0.12),0_4px_12px_-4px_rgba(20,24,30,0.14)]"
+                : "hover:bg-white/45",
             )}
           >
             <span
@@ -98,15 +97,14 @@ function StormPicker({
             />
             <span className="min-w-0 flex-1">
               <span className="flex items-baseline gap-1.5">
-                <span className="text-[14px] font-medium text-ink">{s.name}</span>
+                <span className="display text-[17px] font-medium text-ink">{s.name}</span>
                 <span className="num text-[12px] text-ink-3">{s.year}</span>
                 {s.validated ? (
                   <span
-                    className="ml-auto inline-flex items-center gap-1 text-[11px] font-medium text-ink-2"
+                    className="ml-auto text-[12px] font-medium text-desc"
                     title="Model output checked against DOE EAGLE-I actual outages"
                   >
-                    <BadgeCheck size={13} aria-hidden className="text-ink-2" />
-                    Validated
+                    Checked against real outages
                   </span>
                 ) : null}
               </span>
@@ -132,11 +130,19 @@ function ResponseDetails({
 
   return (
     <>
-      <Section title="Simulation">
+      {data.mutualAid ? (
+        <>
+          <Section title="Time saved by working together">
+            <TimeSavedCard aid={data.mutualAid} />
+          </Section>
+          <Divider className="mx-5" />
+        </>
+      ) : null}
+      <Section title="How it was simulated">
         <div className="grid grid-cols-2 gap-3 rounded-[10px] border border-hairline bg-white/55 px-3.5 py-3">
           <div>
-            <div className="text-[12px] text-ink-3">Monte Carlo runs</div>
-            <div className="num text-[18px] leading-6 font-medium">{fmtInt(data.meta.simulations)}</div>
+            <div className="text-[12px] text-ink-3">Storm simulations run</div>
+            <div className="display text-[20px] leading-7 font-medium">{fmtInt(data.meta.simulations)}</div>
           </div>
           <div>
             <div className="text-[12px] text-ink-3">Computed on</div>
@@ -148,10 +154,12 @@ function ResponseDetails({
       </Section>
 
       <Section
-        title="Outage model check"
+        title="How close the model came"
         aside={
-          <Tooltip content="Mean absolute error of each county's peak share of customers out. Baseline predicts the same share everywhere.">
-            <span className="text-[11px] text-ink-3 underline decoration-dotted underline-offset-2">what is this</span>
+          <Tooltip content="Average miss, per county, in the share of homes that lost power. The comparison is a wind-only model (peak gust at the county centre).">
+            <span className="text-[12px] text-ink-3 underline decoration-dotted underline-offset-2">
+              what this means
+            </span>
           </Tooltip>
         }
       >
@@ -164,11 +172,11 @@ function ResponseDetails({
         )}
         <div className="mt-1 grid grid-cols-2 gap-3">
           <div>
-            <div className="text-[12px] text-ink-3">DESC transmission, reported</div>
-            <div className="num text-[15px] font-medium">{fmtInt(v.reportedDescTransmissionPoles)} poles</div>
+            <div className="text-[12px] text-ink-3">Dominion poles reported down</div>
+            <div className="display text-[20px] font-medium">{v.reportedDescTransmissionPoles != null ? fmtInt(v.reportedDescTransmissionPoles) : "not published"}</div>
           </div>
           <div>
-            <div className="text-[12px] text-ink-3">Predicted failures</div>
+            <div className="text-[12px] text-ink-3">Model predicted</div>
             <div className="num text-[15px] font-medium">
               {v.predictedDescTransmissionFailures != null ? fmtInt(v.predictedDescTransmissionFailures) : "–"}
             </div>
@@ -184,14 +192,15 @@ function ResponseDetails({
               <thead>
                 <tr className="text-left text-[11px] text-ink-3">
                   <th className="pb-1 font-medium">Storm</th>
-                  <th className="pb-1 text-right font-medium">Model error</th>
-                  <th className="pb-1 text-right font-medium">Baseline</th>
+                  <th className="pb-1 text-right font-medium">Our error</th>
+                  <th className="pb-1 text-right font-medium">Wind-only</th>
                 </tr>
               </thead>
               <tbody>
                 {data.meta.crossValidation.map((row) => {
                   const current =
-                    stormKey(row.storm) === stormKey(stormId ?? "") || stormKey(row.storm) === stormKey(data.storm.name);
+                    stormKey(row.storm) === stormKey(stormId ?? "") ||
+                    stormKey(row.storm) === stormKey(data.storm.name);
                   const better = row.maePredicted < row.maeBaseline;
                   return (
                     <tr
@@ -213,7 +222,7 @@ function ResponseDetails({
               </tbody>
             </table>
             <p className="text-[12px] leading-4 text-ink-3">
-              Each row: model trained on every other storm, scored on this one.
+              For each storm, the model learned from the others only, then was scored on this one. Lower is better.
             </p>
           </Section>
         </>
@@ -221,7 +230,10 @@ function ResponseDetails({
 
       <Divider className="mx-4" />
 
-      <Section title="Top repair zones" aside={<span className="num text-[12px] text-ink-3">{data.zones.length}</span>}>
+      <Section
+        title="Where to send crews first"
+        aside={<span className="num text-[12px] text-ink-3">{data.zones.length}</span>}
+      >
         {topZones.length ? (
           <ol className="-mx-2 flex flex-col">
             {topZones.map((z) => (
@@ -246,7 +258,8 @@ function ResponseDetails({
                       </span>
                     </span>
                     <span className="num block text-[12px] text-ink-3">
-                      {z.expectedDamagedSegments.toFixed(1)} segments · {fmtInt(z.vulnerablePeople)} vulnerable
+                      {z.expectedDamagedSegments.toFixed(1)} line sections likely down · {fmtInt(z.vulnerablePeople)}{" "}
+                      vulnerable people
                     </span>
                   </span>
                   {z.utilities.length > 1 ? (
@@ -265,7 +278,10 @@ function ResponseDetails({
 
       <Divider className="mx-4" />
 
-      <Section title="Joint staging yards" aside={<span className="num text-[12px] text-ink-3">{data.yards.length}</span>}>
+      <Section
+        title="Shared staging yards"
+        aside={<span className="num text-[12px] text-ink-3">{data.yards.length}</span>}
+      >
         {data.yards.length ? (
           <ul className="-mx-2 flex flex-col">
             {data.yards.map((y) => (
@@ -283,14 +299,14 @@ function ResponseDetails({
                       .filter((z): z is RepairZone => !!z)
                       .map((z) => `P${z.priority}`)
                       .join(", ") || y.serves.join(", ")}{" "}
-                    · <span className="num">≤ {fmtMinutes(y.maxDriveMinutes)}</span> drive
+                    · up to <span className="num">{fmtMinutes(y.maxDriveMinutes)}</span> drive
                   </span>
                 </button>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-[13px] text-ink-3">No yard serves both utilities for this storm.</p>
+          <p className="text-[13px] text-ink-3">No yard serves both companies for this storm.</p>
         )}
       </Section>
     </>
@@ -300,8 +316,8 @@ function ResponseDetails({
 function MaeCompare({ model, baseline }: { model: number; baseline: number }) {
   const max = Math.max(model, baseline) || 1;
   const rows: [string, number, boolean][] = [
-    ["GridSight model", model, true],
-    ["Baseline", baseline, false],
+    ["Our model", model, true],
+    ["Wind-only model", baseline, false],
   ];
   return (
     <div className="flex flex-col gap-2">
@@ -320,7 +336,7 @@ function MaeCompare({ model, baseline }: { model: number; baseline: number }) {
       {model < baseline ? (
         <p className="text-[12px] text-ink-3">
           County error is <span className="num text-ink-2">{Math.round((1 - model / baseline) * 100)}%</span> lower than
-          the baseline.
+          the wind-only model.
         </p>
       ) : null}
     </div>
