@@ -16,7 +16,7 @@ import { StormBriefingButton } from "../integrations/StormBriefingButton";
 import { StormWatch } from "./StormWatch";
 import { panelInset, TeamUpPanel } from "./TeamUpSection";
 import { StormAgent } from "./StormAgent";
-import { Block, BothGridsLine, CrewsSection, ModelCheck, More, StormPicker, TimeSavedBlock } from "./StormSections";
+import { Block, BothGridsLine, CrewsSection, ModelCheck, More, RealOutages, StormPicker, TimeSavedBlock } from "./StormSections";
 
 const MapStage = dynamic(() => import("../map/MapStage"), {
   ssr: false,
@@ -74,6 +74,11 @@ export function Stormline() {
               {data.mutualAid ? (
                 <Block>
                   <TimeSavedBlock data={data} />
+                </Block>
+              ) : null}
+              {response.stormId ? (
+                <Block>
+                  <RealOutages stormId={response.stormId} />
                 </Block>
               ) : null}
               <Block>
