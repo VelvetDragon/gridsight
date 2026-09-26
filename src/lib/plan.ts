@@ -1,6 +1,6 @@
 /** Derived facts about an overlap, shared by the list, drawer and memo. */
 import { fmtKm, fmtMinutes, fmtMonthYear, fmtMonths, fmtUsd, ACTION_LABEL, fmtKv } from "./format";
-import { TIER_LABEL, TIER_RANGE } from "./theme";
+import { tierFull } from "./theme";
 import { windowOverlap } from "./timeline";
 import type { Overlap, Project } from "./types";
 
@@ -65,14 +65,14 @@ export function buildMemo(o: Overlap, desc: Project, gpc: Project, rank: number)
   const road = roadNote(o);
   const lines: string[] = [];
   lines.push(`COORDINATION MEMO: ${desc.name} / ${gpc.name}`);
-  lines.push(`Prepared with GridSight. Opportunity #${rank} of the current ranking.`);
+  lines.push(`Prepared with MrGridy. Opportunity #${rank} of the current ranking.`);
   lines.push("");
   lines.push("WHAT");
-  lines.push(`- DESC: ${desc.name} (${projectLine(desc)}), in service ${fmtMonthYear(desc.inService)}.`);
+  lines.push(`- Dominion Energy (DESC): ${desc.name} (${projectLine(desc)}), in service ${fmtMonthYear(desc.inService)}.`);
   lines.push(`- Georgia Power: ${gpc.name} (${projectLine(gpc)}), in service ${fmtMonthYear(gpc.inService)}.`);
   lines.push("");
   lines.push("WHY COORDINATE");
-  lines.push(`- Tier: ${TIER_LABEL[o.tier]} (${TIER_RANGE[o.tier]}). Closest distance ${fmtKm(o.distanceKm)} straight line.`);
+  lines.push(`- ${tierFull(o.tier)}. Distance apart ${fmtKm(o.distanceKm)} in a straight line.`);
   if (o.roadKm != null) lines.push(`- Road distance ${fmtKm(o.roadKm)}. ${road.text}.`);
   lines.push(
     shared
@@ -91,7 +91,7 @@ export function buildMemo(o: Overlap, desc: Project, gpc: Project, rank: number)
     lines.push("");
     lines.push("SUGGESTED STAGING YARD");
     lines.push(`- ${y.label} (${y.position[1].toFixed(4)}, ${y.position[0].toFixed(4)})`);
-    lines.push(`- Drive: DESC ${fmtMinutes(y.driveMinutesDesc)}, Georgia Power ${fmtMinutes(y.driveMinutesGpc)}.`);
+    lines.push(`- Drive: Dominion Energy ${fmtMinutes(y.driveMinutesDesc)}, Georgia Power ${fmtMinutes(y.driveMinutesGpc)}.`);
   }
   if (o.cost) {
     lines.push("");

@@ -2,8 +2,8 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { loadResponse, loadStormIndex, type FileStatus } from "@/lib/data";
-import { boundsOf, circleBounds, type Bounds } from "@/lib/geo";
-import { closestApproachTimes, REPLAY_STEP_MS, trackTimes } from "@/lib/response";
+import { boundsOf, circleBounds, haversineKm, type Bounds } from "@/lib/geo";
+import { closestApproachTimes, REPLAY_STEP_MS, stormAt, trackTimes } from "@/lib/response";
 import type { Position } from "@/lib/types";
 import { useDataset } from "@/lib/useDataset";
 import { usePlayback } from "@/lib/usePlayback";
@@ -16,7 +16,7 @@ const DEFAULT_VISIBLE: Record<ResponseLayerId, boolean> = {
   counties: true,
   zones: true,
   yards: true,
-  vulnerable: true,
+  vulnerable: false,
 };
 
 /** Replay speed: one 15-minute step every 90 ms (a 36 h storm plays in about 13 s). */
@@ -37,10 +37,7 @@ export function useResponseMode(initialStorm: string | null, initialTime: string
     return (storms.find((s) => s.featured) ?? storms[0]).id;
   }, [storms, picked]);
 
-  const loader = useMemo(
-    () => (stormId ? (signal: AbortSignal) => loadResponse(stormId, signal) : null),
-    [stormId],
-  );
+  const loader = useMemo(() => (stormId ? (signal: AbortSignal) => loadResponse(stormId, signal) : null), [stormId]);
   const [stormState, retryStorm] = useDataset(loader);
   const data = stormState.status === "ready" ? stormState.data : null;
 
@@ -55,12 +52,13 @@ export function useResponseMode(initialStorm: string | null, initialTime: string
       : data
         ? Date.parse(data.storm.replayStart)
         : NaN;
+  const openingTime = Number.isFinite(start) ? Math.min(tMax, Math.max(tMin, start)) : tMin;
   const replay = usePlayback({
     min: tMin,
     max: tMax,
     step: REPLAY_STEP_MS,
     intervalMs: TICK_MS,
-    initial: Number.isFinite(start) ? Math.min(tMax, Math.max(tMin, start)) : tMin,
+    initial: openingTime,
     resetKey: data ? `${stormId}:${data.storm.id}` : "none",
   });
 
@@ -107,7 +105,10 @@ export function useResponseMode(initialStorm: string | null, initialTime: string
       const y = data?.yards.find((x) => x.id === id);
       if (!y) return;
       const zoneById = new Map(data!.zones.map((z) => [z.id, z]));
-      const pts: Position[] = [y.position, ...y.serves.flatMap((zid) => (zoneById.get(zid) ? [zoneById.get(zid)!.centroid] : []))];
+      const pts: Position[] = [
+        y.position,
+        ...y.serves.flatMap((zid) => (zoneById.get(zid) ? [zoneById.get(zid)!.centroid] : [])),
+      ];
       const b = boundsOf(pts);
       if (!b) return;
       const pad = circleBounds(y.position, 14);
@@ -139,8 +140,12 @@ export function useResponseMode(initialStorm: string | null, initialTime: string
     if (!b) return null;
     const c: Position = [(b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2];
     const pad = circleBounds(c, 45);
-    return { key: `storm-${stormId}`, kind: "bounds", bounds: boundsOf([b[0], b[1], pad[0], pad[1]])!, maxZoom: 9.5 };
-  }, [data, stormId]);
+    const frame: Position[] = [b[0], b[1], pad[0], pad[1]];
+    // Keep the storm in view when the replay opens with it already nearby.
+    const now = stormAt(data.storm, times, openingTime);
+    if (now && haversineKm(now.position, c) < 450) frame.push(now.position);
+    return { key: `storm-${stormId}`, kind: "bounds", bounds: boundsOf(frame)!, maxZoom: 9.5 };
+  }, [data, stormId, times, openingTime]);
 
   const view = request && request.stormId === stormId ? request.view : stormView;
 

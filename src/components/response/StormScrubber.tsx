@@ -52,7 +52,7 @@ export function StormScrubber({
   });
 
   return (
-    <Panel className="h-[76px]" aria-label="Storm replay">
+    <Panel className="h-[72px]" aria-label="Storm replay">
       <Scrubber
         label="Replay time"
         min={min}
@@ -67,10 +67,9 @@ export function StormScrubber({
         histogram={histogram}
         current={
           <div className="flex flex-col">
-            <span className="eyebrow">
-              {storm.name} {storm.year}
+            <span className="display text-[16px] leading-5 font-medium text-ink">
+              {storm.name}, <span className="tabular-nums">{fmtUtc(value)}</span>
             </span>
-            <span className="num text-[14px] leading-5 font-medium text-ink">{fmtUtc(value)}</span>
             <span className="text-[12px] leading-4 text-ink-3">
               {frame ? (
                 <>
