@@ -62,10 +62,15 @@ function bez(a: P, c: P, b: P, t: number): P {
 
 /* ---------------------------------------------------------------- timeline */
 
-const CH = 8.6; // one chapter
-const T_ENTER = 1.1; // card slides in
-const T_MERGE = 6.3; // card flies into its station
-const T_FILL = 7.3; // station lights up
+const CH = 10; // one chapter
+const T_FOCUS = 1.2; // camera closes in on the new part
+const T_TITLE = 2.2; // the title trace grows out of the station
+const T_STAT = 3.3; // the headline number counts up
+const T_FACTS = 3.7; // one trace per fact
+const T_TAGS = 4.7; // tech tags drift into orbit
+const T_MERGE = 7.4; // everything is pulled back into the station
+const T_FILL = 8.5; // the station lights up
+const T_RELEASE = 8.4; // camera pulls back out
 
 const FIN_INTRO = 3.6;
 const STEP = 1.15;
@@ -132,7 +137,22 @@ function status(id: string, f: Frame) {
 
 type Cam = { cx: number; cy: number; s: number; vx: number; vy: number; vw: number; vh: number };
 
+/** Where the part in focus sits on screen, leaving the right side for its story. */
+const FOCUS = { x: 430, y: 480, s: 1.9 };
+
 function camTarget(f: Frame): Cam {
+  if (f.mode === "build" && f.lt >= T_FOCUS && f.lt < T_RELEASE) {
+    const p = PART[CHAPTERS[f.ch].fill];
+    return {
+      cx: p.x + (W / 2 - FOCUS.x) / FOCUS.s,
+      cy: p.y + (H / 2 - FOCUS.y) / FOCUS.s,
+      s: FOCUS.s,
+      vx: 0,
+      vy: 0,
+      vw: W,
+      vh: H,
+    };
+  }
   // While building, follow the new part, its neighbours and the blanks it spawns; the finale shows everything.
   let ids: string[];
   if (f.mode === "build") {
@@ -157,7 +177,7 @@ function camTarget(f: Frame): Cam {
     y0 = m - minH / 2;
     y1 = m + minH / 2;
   }
-  const vp = f.mode === "build" ? { vx: 20, vy: 118, vw: 1040, vh: 730 } : { vx: 30, vy: 112, vw: 1540, vh: 668 };
+  const vp = f.mode === "build" ? { vx: 40, vy: 116, vw: 1520, vh: 700 } : { vx: 30, vy: 112, vw: 1540, vh: 668 };
   const s = Math.min(vp.vw / (x1 - x0), vp.vh / (y1 - y0));
   return { cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, s, ...vp };
 }
@@ -229,7 +249,7 @@ function Show() {
       last = now;
       if (!paused.current) clock.current += dt;
       const target = camTarget(frameAt(clock.current));
-      const k = 1 - Math.exp(-dt * 2.4);
+      const k = 1 - Math.exp(-dt * 3);
       const c = cam.current;
       const next: Cam = {
         cx: lerp(c.cx, target.cx, k),
@@ -309,18 +329,11 @@ function Show() {
           <Edges f={f} />
           {flow && f.mode === "flow" ? <FlowPulses f={f} /> : null}
           {PARTS.map((p) => (
-            <Station
-              key={p.id}
-              part={p}
-              f={f}
-              t={view.t}
-              current={current?.id === p.id}
-              onPick={() => goTo(FILL_CH[p.id] * CH)}
-            />
+            <Station key={p.id} part={p} f={f} t={view.t} onPick={() => goTo(FILL_CH[p.id] * CH)} />
           ))}
         </g>
 
-        {current && f.mode === "build" ? <CardLayer part={current} ch={f.ch} lt={f.lt} cam={c} live={live} /> : null}
+        {current && f.mode === "build" ? <Focus part={current} ch={f.ch} lt={f.lt} cam={c} live={live} /> : null}
 
         <Chrome f={f} paused={isPaused} out={out} />
       </svg>
@@ -533,26 +546,13 @@ function Edges({ f }: { f: Frame }) {
   );
 }
 
-function Station({
-  part,
-  f,
-  t,
-  current,
-  onPick,
-}: {
-  part: Part;
-  f: Frame;
-  t: number;
-  current: boolean;
-  onPick: () => void;
-}) {
+function Station({ part, f, t, onPick }: { part: Part; f: Frame; t: number; onPick: () => void }) {
   const { shown, filled, age } = status(part.id, f);
   if (shown <= 0) return null;
   const hex = TONE[part.tone];
   const Icon = part.icon;
   const pop = easeBack(shown);
   const r = 36;
-  const waiting = current && f.mode === "build" && f.lt > T_ENTER - 0.3 && filled === 0;
   const breathe = 0.5 + 0.5 * Math.sin(t * 1.4 + part.x * 0.01);
   return (
     <g
@@ -560,17 +560,10 @@ function Station({
       className={filled >= 1 ? "cursor-pointer" : undefined}
       onClick={filled >= 1 ? onPick : undefined}
     >
-      {/* Blank */}
+      {/* Not explained yet: the icon in grey, no label */}
       <g opacity={1 - filled}>
         <circle r={r} fill="#0a0f1c" stroke="#475569" strokeWidth={1.4} strokeDasharray="4 5" />
-        <rect x={-46} y={r + 16} width={92} height={9} rx={4.5} fill="#1e293b" />
-        <rect x={-30} y={r + 32} width={60} height={7} rx={3.5} fill="#172033" />
-        {waiting ? (
-          <g transform={`rotate(${t * 40})`}>
-            <circle r={r + 12} fill="none" stroke={hex} strokeOpacity={0.55} strokeWidth={1.5} strokeDasharray="10 8" />
-          </g>
-        ) : null}
-        {waiting ? <circle r={r + 20 + breathe * 6} fill="none" stroke={hex} strokeOpacity={0.14} /> : null}
+        <Icon x={-14} y={-14} width={28} height={28} color="#64748b" strokeWidth={1.6} />
       </g>
 
       {/* Filled */}
@@ -580,7 +573,7 @@ function Station({
           <circle r={r} fill="#0b1222" stroke={hex} strokeWidth={1.8} />
           <circle r={r - 6} fill={hex} fillOpacity={0.09} />
           <Icon x={-14} y={-14} width={28} height={28} color={hex} strokeWidth={1.7} />
-          <g transform={`translate(0,${(1 - filled) * 8})`}>
+          <g>
             <text
               y={r + 26}
               textAnchor="middle"
@@ -705,126 +698,354 @@ function Spark({ at: c, p }: { at: P; p: number }) {
   );
 }
 
-/* ---------------------------------------------------------------- the card */
+/* ---------------------------------------------------------------- the part in focus */
 
-const CARD = { x: 1090, y: 150, w: 470, h: 640 };
+/*
+ * A new part is explained where it stands. The camera closes in, the rest of
+ * the grid dims, and the part's story grows out of it like circuitry: a trace
+ * to its title, one trace per fact, its tech in orbit. Then every trace is
+ * pulled back in, the title shrinks into the station's label, and it lights up.
+ */
 
-function CardLayer({ part, ch, lt, cam, live }: { part: Part; ch: number; lt: number; cam: Cam; live: string }) {
-  if (lt < T_ENTER || lt >= T_FILL) return null;
+const seg = (lt: number, start: number, dur: number) => clamp((lt - start) / dur);
+
+type Poly = P[];
+
+function polyLen(pts: Poly) {
+  let l = 0;
+  for (let i = 1; i < pts.length; i++) l += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+  return l;
+}
+
+function polyAt(pts: Poly, t: number): P {
+  let want = polyLen(pts) * clamp(t);
+  for (let i = 1; i < pts.length; i++) {
+    const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+    if (want <= d) {
+      const k = d ? want / d : 0;
+      return { x: lerp(pts[i - 1].x, pts[i].x, k), y: lerp(pts[i - 1].y, pts[i].y, k) };
+    }
+    want -= d;
+  }
+  return pts[pts.length - 1];
+}
+
+const polyD = (pts: Poly) => pts.map((p, i) => `${i ? "L" : "M"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+
+/** A trace leaves the ring at `deg`, runs out, bends 45 degrees and ends level with `y` at `x`. */
+function trace(n: P, rr: number, deg: number, x: number, y: number): Poly {
+  const a = (deg * Math.PI) / 180;
+  const p0 = { x: n.x + Math.cos(a) * rr, y: n.y + Math.sin(a) * rr };
+  const p1 = { x: n.x + Math.cos(a) * (rr + 22), y: n.y + Math.sin(a) * (rr + 22) };
+  const p2 = { x: p1.x + Math.abs(y - p1.y), y };
+  return [p0, p1, p2, { x, y }];
+}
+
+function wrap(text: string, max: number): string[] {
+  const out: string[] = [];
+  let line = "";
+  for (const w of text.split(" ")) {
+    if (line && (line + " " + w).length > max) {
+      out.push(line);
+      line = w;
+    } else line = line ? line + " " + w : w;
+  }
+  if (line) out.push(line);
+  return out;
+}
+
+/** "10,000" counts up; "~50 s" keeps its prefix and unit; words appear as they are. */
+function counting(value: string, k: number): string {
+  const m = value.match(/^(~?)([\d,]+)(.*)$/);
+  if (!m) return value;
+  const n = Number(m[2].replace(/,/g, ""));
+  const now = Math.round(n * k);
+  return m[1] + (m[2].includes(",") ? now.toLocaleString("en-US") : String(now)) + m[3];
+}
+
+const widthCache = new Map<string, number>();
+/** Width of the hero title, so it can shrink onto the label's exact spot. */
+function titleWidth(text: string, size: number): number {
+  const key = `${size}|${text}`;
+  const hit = widthCache.get(key);
+  if (hit) return hit;
+  const ctx = document.createElement("canvas").getContext("2d");
+  const family = getComputedStyle(document.documentElement).getPropertyValue("--font-sans-ui") || "sans-serif";
+  if (!ctx) return text.length * size * 0.55;
+  ctx.font = `600 ${size}px ${family}`;
+  const w = ctx.measureText(text).width;
+  if (document.fonts?.status === "loaded") widthCache.set(key, w);
+  return w;
+}
+
+const HERO = 52; // title size in the focus
+const LABEL = 17; // station label size in the world
+
+function Focus({ part, ch, lt, cam, live }: { part: Part; ch: number; lt: number; cam: Cam; live: string }) {
+  if (lt < T_FOCUS) return null;
   const hex = TONE[part.tone];
-  const enter = easeOut(clamp((lt - T_ENTER) / 0.6));
-  const m = clamp((lt - T_MERGE) / (T_FILL - T_MERGE));
-  const home = { x: CARD.x + CARD.w / 2, y: CARD.y + CARD.h / 2 };
-  const node = toScreen(cam, part);
-  const em = easeInOut(m);
-  const pos = {
-    x: lerp(home.x + (1 - enter) * 70, node.x, em),
-    y: lerp(home.y, node.y, em) - Math.sin(m * Math.PI) * 90,
-  };
-  const scale = lerp(1, 0.06, easeInOut(clamp(m * 1.1)));
-  const opacity = enter * (m < 0.7 ? 1 : 1 - (m - 0.7) / 0.3);
-  const tether = m === 0 ? clamp((lt - T_ENTER - 0.5) / 0.6) : 0;
+  const n = toScreen(cam, part);
+  const R = 36 * cam.s;
+  const rr = R + 12;
+  const tx = n.x + R + 112; // text column
+  const padX = tx - 26;
+  const sx = 1220; // number column
+
+  const spot = seg(lt, T_FOCUS, 0.8) * (1 - seg(lt, T_FILL - 0.2, 0.8));
+  const merge = seg(lt, T_MERGE, T_FILL - T_MERGE);
+  const fadeOut = 1 - seg(lt, T_MERGE, 0.35);
+  const ring = seg(lt, T_FOCUS + 0.6, 0.6) * (1 - merge);
+
+  // Title trace and accent bar
+  const topY = n.y - 176;
+  const botY = n.y - 44;
+  const titleTrace = trace(n, rr, -40, padX, (topY + botY) / 2);
+  const titleDraw = seg(lt, T_TITLE, 0.45) * (1 - seg(lt, T_MERGE, 0.4));
+  const bar = seg(lt, T_TITLE + 0.35, 0.35) * fadeOut;
+
+  // Hero title: wipes in, then shrinks onto the station label
+  const reveal = easeOut(seg(lt, T_TITLE + 0.55, 0.6));
+  const morph = easeInOut(seg(lt, T_MERGE + 0.25, T_FILL - T_MERGE - 0.25));
+  const label = toScreen(cam, { x: part.x, y: part.y + 36 + 26 });
+  const endScale = (LABEL * cam.s) / HERO;
+  const w = titleWidth(part.name, HERO);
+  const hx = lerp(tx, label.x - (w * endScale) / 2, morph);
+  const hy = lerp(n.y - 98, label.y, morph);
+  const hs = lerp(1, endScale, morph);
+
+  // Facts
+  const rows = part.points.map((pt, i) => {
+    const y = n.y + 42 + i * 52;
+    const start = T_FACTS + i * 0.32;
+    const back = seg(lt, T_MERGE + (2 - i) * 0.1, 0.5);
+    return {
+      pt,
+      y,
+      poly: trace(n, rr, 12 + i * 20, padX, y),
+      draw: easeOut(seg(lt, start, 0.45)) * (1 - easeInOut(back)),
+      text: seg(lt, start + 0.35, 0.35) * (1 - seg(lt, T_MERGE + (2 - i) * 0.1, 0.25)),
+      back,
+    };
+  });
+
+  // Number
+  const statIn = seg(lt, T_STAT, 0.4) * fadeOut;
+  const count = easeOut(seg(lt, T_STAT, 1.1));
+  const isLive = part.id === "nhc";
+  const statLines = wrap(isLive ? live : part.stat.label, 34);
+
+  const kickerIn = seg(lt, T_TITLE + 0.45, 0.4) * fadeOut;
+  const doesIn = seg(lt, T_TITLE + 0.9, 0.45) * fadeOut;
+  const region = REGIONS.find((r) => r.id === part.region);
 
   return (
-    <g>
-      {/* A thin line ties the card to the blank it describes */}
-      {tether > 0 ? (
-        <g opacity={tether * 0.8}>
-          <path
-            d={`M${CARD.x},${home.y} C${CARD.x - 120},${home.y} ${node.x + 140},${node.y} ${node.x + 50 * cam.s},${node.y}`}
+    <g pointerEvents="none">
+      {/* Spotlight */}
+      <defs>
+        <radialGradient id="ab-spot" gradientUnits="userSpaceOnUse" cx={n.x} cy={n.y} r={R + 150}>
+          <stop offset="0" stopColor="#000" />
+          <stop offset="0.45" stopColor="#000" />
+          <stop offset="1" stopColor="#fff" />
+        </radialGradient>
+        <mask id="ab-spot-mask">
+          <rect width={W} height={H} fill="url(#ab-spot)" />
+        </mask>
+        <linearGradient id="ab-fade-right" x1="0" x2="1">
+          <stop offset="0" stopColor="#03050a" stopOpacity="0" />
+          <stop offset="1" stopColor="#03050a" stopOpacity="0.5" />
+        </linearGradient>
+      </defs>
+      <rect width={W} height={H} fill="#03050a" opacity={0.8 * spot} mask="url(#ab-spot-mask)" />
+
+      {/* Ring powering up around the station */}
+      {ring > 0 ? (
+        <g>
+          <circle
+            cx={n.x}
+            cy={n.y}
+            r={rr}
             fill="none"
             stroke={hex}
-            strokeOpacity={0.45}
-            strokeWidth={1.2}
-            strokeDasharray="3 6"
-            className="ab-tether"
+            strokeWidth={2}
+            strokeDasharray={`${2 * Math.PI * rr} ${2 * Math.PI * rr}`}
+            strokeDashoffset={2 * Math.PI * rr * (1 - easeOut(ring))}
+            transform={`rotate(-90 ${n.x} ${n.y})`}
+            filter="url(#ab-glow)"
           />
-          <circle cx={CARD.x} cy={home.y} r={3.5} fill={hex} />
+          <g transform={`rotate(${lt * 8} ${n.x} ${n.y})`} opacity={0.4 * ring}>
+            {Array.from({ length: 48 }, (_, i) => {
+              const a = (i / 48) * Math.PI * 2;
+              const r0 = rr + 10;
+              const r1 = rr + (i % 4 === 0 ? 20 : 15);
+              return (
+                <line
+                  key={i}
+                  x1={n.x + Math.cos(a) * r0}
+                  y1={n.y + Math.sin(a) * r0}
+                  x2={n.x + Math.cos(a) * r1}
+                  y2={n.y + Math.sin(a) * r1}
+                  stroke={hex}
+                  strokeWidth={1}
+                />
+              );
+            })}
+          </g>
+          <circle cx={n.x} cy={n.y} r={R + 34} fill={hex} opacity={0.12 * ring} filter="url(#ab-bloom)" />
         </g>
       ) : null}
 
-      {m > 0 ? <circle cx={pos.x} cy={pos.y} r={10 + Math.sin(m * Math.PI) * 26} fill={hex} opacity={Math.sin(m * Math.PI) * 0.7} filter="url(#ab-bloom)" /> : null}
-
-      <g transform={`translate(${pos.x},${pos.y}) scale(${scale})`} opacity={opacity}>
-        <foreignObject x={-CARD.w / 2} y={-CARD.h / 2} width={CARD.w} height={CARD.h} style={{ overflow: "visible" }}>
-          <CardBody part={part} ch={ch} live={live} />
-        </foreignObject>
+      {/* Title trace, accent bar, kicker, title, one-liner */}
+      <Trace poly={titleTrace} draw={titleDraw} hex={hex} lt={lt} back={seg(lt, T_MERGE, 0.4)} />
+      <line x1={padX} y1={topY} x2={padX} y2={lerp(topY, botY, easeOut(bar))} stroke={hex} strokeWidth={2.5} strokeLinecap="round" opacity={bar} />
+      <text
+        x={tx}
+        y={n.y - 152}
+        fontSize="13"
+        letterSpacing="3"
+        fill={hex}
+        opacity={kickerIn}
+        fontFamily="var(--font-numbers)"
+      >
+        {`PART ${String(ch + 1).padStart(2, "0")} OF ${CHAPTERS.length}  ·  ${region?.name.toUpperCase()}`}
+      </text>
+      <defs>
+        <clipPath id="ab-title-clip">
+          <rect x={tx - 6} y={n.y - 150} width={morph > 0 ? 4000 : (w + 20) * reveal} height={80} />
+        </clipPath>
+      </defs>
+      <g clipPath={morph > 0 ? undefined : "url(#ab-title-clip)"} opacity={1 - seg(lt, T_FILL, 0.3)}>
+        <text
+          transform={`translate(${hx},${hy}) scale(${hs})`}
+          fontSize={HERO}
+          fontWeight="600"
+          fill="#f8fafc"
+          fontFamily="var(--font-sans-ui)"
+          letterSpacing="-0.5"
+        >
+          {part.name}
+        </text>
       </g>
+      <text
+        x={tx}
+        y={n.y - 56}
+        fontSize="23"
+        fill="#cbd5e1"
+        opacity={doesIn}
+        fontFamily="var(--font-sans-ui)"
+        transform={`translate(0,${(1 - doesIn) * 8})`}
+      >
+        {part.does}
+      </text>
+
+      {/* The number */}
+      <g opacity={statIn} transform={`translate(${(1 - statIn) * 16},0)`}>
+        <line x1={sx - 44} y1={n.y - 178} x2={sx - 44} y2={n.y - 6} stroke="#334155" strokeWidth={1} />
+        <g transform={`translate(${sx},${n.y - 84})`}>
+          {isLive ? <circle cx={8} cy={-26} r={7} fill="#F87171" className="ab-blink" /> : null}
+          <text
+            x={isLive ? 26 : 0}
+            fontSize="80"
+            fill={hex}
+            fontFamily="var(--font-numbers)"
+            letterSpacing="-2"
+            filter="url(#ab-glow)"
+          >
+            {counting(part.stat.value, count)}
+          </text>
+        </g>
+        {statLines.map((l, i) => (
+          <text key={i} x={sx} y={n.y - 46 + i * 21} fontSize="16" fill="#94a3b8" fontFamily="var(--font-sans-ui)">
+            {l}
+          </text>
+        ))}
+      </g>
+
+      {/* Facts, each on its own trace */}
+      {rows.map((r, i) => (
+        <g key={i}>
+          <Trace poly={r.poly} draw={r.draw} hex={hex} lt={lt + i * 0.37} back={r.back} />
+          {r.draw > 0.97 ? (
+            <g>
+              <circle cx={padX} cy={r.y} r={6} fill="#060910" stroke={hex} strokeWidth={1.6} />
+              <circle cx={padX} cy={r.y} r={2.4} fill={hex} />
+            </g>
+          ) : null}
+          <text
+            x={tx}
+            y={r.y + 7}
+            fontSize="20"
+            fill="#e2e8f0"
+            opacity={r.text}
+            transform={`translate(${(1 - r.text) * -14},0)`}
+            fontFamily="var(--font-sans-ui)"
+          >
+            {r.pt}
+          </text>
+        </g>
+      ))}
+
+      {/* Tech tags in orbit on the left */}
+      {part.tech.map((tag, i) => {
+        const k = part.tech.length;
+        const appear = easeBack(seg(lt, T_TAGS + i * 0.09, 0.5));
+        const pull = easeInOut(seg(lt, T_MERGE + 0.15 + i * 0.05, 0.7));
+        if (appear <= 0 || pull >= 1) return null;
+        const base = Math.PI + (i - (k - 1) / 2) * 0.46 + Math.sin(lt * 0.35) * 0.04;
+        const ang = base + pull * 2.2;
+        const rad = lerp(rr, rr + 74, appear) * (1 - pull) + R * 0.2 * pull;
+        const cx = n.x + Math.cos(ang) * rad;
+        const cy = n.y + Math.sin(ang) * rad;
+        const tw = tag.length * 8 + 26;
+        const o = clamp(appear) * (1 - pull);
+        return (
+          <g key={tag} opacity={o}>
+            <line
+              x1={n.x + Math.cos(ang) * (rr + 4)}
+              y1={n.y + Math.sin(ang) * (rr + 4)}
+              x2={n.x + Math.cos(ang) * (rad - 8)}
+              y2={n.y + Math.sin(ang) * (rad - 8)}
+              stroke={hex}
+              strokeOpacity={0.35}
+            />
+            <g transform={`translate(${cx - tw / 2 - Math.max(0, -Math.cos(ang)) * (tw / 2 - 6)},${cy - 14}) scale(${1 - pull * 0.6})`}>
+              <rect width={tw} height={28} rx={14} fill="#0b1222" stroke={hex} strokeOpacity={0.45} />
+              <text x={tw / 2} y={19} textAnchor="middle" fontSize="13" fill="#e2e8f0" fontFamily="var(--font-numbers)">
+                {tag}
+              </text>
+            </g>
+          </g>
+        );
+      })}
+
+      {/* The pull-in: a flash gathering in the station */}
+      {merge > 0 ? (
+        <circle cx={n.x} cy={n.y} r={R * (0.6 + merge * 0.6)} fill={hex} opacity={Math.sin(merge * Math.PI) * 0.45} filter="url(#ab-bloom)" />
+      ) : null}
     </g>
   );
 }
 
-const CardBody = memo(function CardBody({ part, ch, live }: { part: Part; ch: number; live: string }) {
-  const hex = TONE[part.tone];
-  const Icon = part.icon;
-  const region = REGIONS.find((r) => r.id === part.region);
-  const isLive = part.id === "nhc";
+/** A trace that grows out of the station, carries current while it is up, and retracts back in. */
+function Trace({ poly, draw, hex, lt, back }: { poly: Poly; draw: number; hex: string; lt: number; back: number }) {
+  if (draw <= 0) return null;
+  const len = polyLen(poly);
+  const d = polyD(poly);
+  const tip = polyAt(poly, draw);
+  const settled = draw > 0.97 && back === 0;
   return (
-    <div
-      className="relative flex h-full flex-col overflow-hidden rounded-[26px] border px-8 pt-7 pb-7 text-slate-300"
-      style={{
-        background: "linear-gradient(160deg, rgba(17,25,42,0.97), rgba(9,13,24,0.97))",
-        borderColor: `${hex}33`,
-        boxShadow: `0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03) inset, 0 0 60px ${hex}14`,
-        fontFamily: "var(--font-sans-ui)",
-      }}
-    >
-      <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: `linear-gradient(90deg, ${hex}, transparent 80%)` }} />
-      <div
-        className="ab-in font-mono text-[12px] tracking-[0.22em] uppercase"
-        style={{ color: hex, animationDelay: "0.05s" }}
-      >
-        Part {String(ch + 1).padStart(2, "0")} · {region?.name}
-      </div>
-
-      <div className="ab-in mt-4 flex items-center gap-4" style={{ animationDelay: "0.12s" }}>
-        <span
-          className="grid size-[58px] shrink-0 place-items-center rounded-2xl"
-          style={{ background: `${hex}14`, color: hex, boxShadow: `inset 0 0 0 1px ${hex}55, 0 0 28px ${hex}22` }}
-        >
-          <Icon size={28} strokeWidth={1.7} />
-        </span>
-        <h2
-          className="text-[36px] leading-[40px] text-white"
-          style={{ fontFamily: "var(--font-display)", fontVariationSettings: '"SOFT" 60, "opsz" 72' }}
-        >
-          {part.name}
-        </h2>
-      </div>
-
-      <p className="ab-in mt-4 text-[20px] leading-[28px] text-slate-200" style={{ animationDelay: "0.22s" }}>
-        {part.does}
-      </p>
-
-      <div className="ab-in mt-6 border-t border-white/[0.07] pt-5" style={{ animationDelay: "0.34s" }}>
-        <div className="flex items-baseline gap-3">
-          {isLive ? <span className="ab-blink size-2.5 translate-y-[-6px] rounded-full bg-red-400" /> : null}
-          <span className="font-mono text-[46px] leading-none tracking-tight" style={{ color: hex, textShadow: `0 0 28px ${hex}55` }}>
-            {part.stat.value}
-          </span>
-        </div>
-        <div className="mt-2 text-[14px] leading-5 text-slate-400">{isLive ? live : part.stat.label}</div>
-      </div>
-
-      <ul className="mt-6 space-y-3">
-        {part.points.map((pt, i) => (
-          <li key={pt} className="ab-in flex gap-3 text-[15.5px] leading-[23px]" style={{ animationDelay: `${0.5 + i * 0.12}s` }}>
-            <span className="mt-[9px] size-1.5 shrink-0 rounded-full" style={{ background: hex }} />
-            <span>{pt}</span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="ab-in mt-auto flex flex-wrap gap-2 pt-5" style={{ animationDelay: "0.95s" }}>
-        {part.tech.map((tag) => (
-          <span key={tag} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 font-mono text-[12px] text-slate-300">
-            {tag}
-          </span>
-        ))}
-      </div>
-    </div>
+    <g>
+      <path d={d} fill="none" stroke={hex} strokeOpacity={0.18} strokeWidth={6} strokeDasharray={`${len} ${len}`} strokeDashoffset={len * (1 - draw)} strokeLinejoin="round" />
+      <path d={d} fill="none" stroke={hex} strokeOpacity={0.85} strokeWidth={1.6} strokeDasharray={`${len} ${len}`} strokeDashoffset={len * (1 - draw)} strokeLinejoin="round" />
+      {!settled ? <circle cx={tip.x} cy={tip.y} r={4.5} fill="#f8fafc" filter="url(#ab-glow)" /> : null}
+      {settled
+        ? [0, 0.5].map((o) => {
+            const q = polyAt(poly, (lt * 0.55 + o) % 1);
+            return <circle key={o} cx={q.x} cy={q.y} r={2.6} fill="#f8fafc" opacity={0.85} filter="url(#ab-glow)" />;
+          })
+        : null}
+    </g>
   );
-});
+}
 
 /* ---------------------------------------------------------------- title, counter, captions */
 
