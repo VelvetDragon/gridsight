@@ -1,4 +1,5 @@
-"""EAGLE-I county outage curves for the replayable storms (GA and SC only).
+"""EAGLE-I county outage curves for the replayable storms (the Stormline counties: GA, SC and
+the neighbouring FL / AL / NC / TN counties inside the line network).
 
 Reads the 15-minute EAGLE-I snapshots the response pipeline cached under
 <gridsight-data>/cache/response/eaglei/eaglei_<year>_<startYYYYMMDDHH>_<endYYYYMMDDHH>.parquet
@@ -25,8 +26,8 @@ from gridsight.config import CACHE_DIR
 from gridsight.integrations.common import data_dir, read_json, write_json
 
 EAGLEI_DIR = CACHE_DIR / "response" / "eaglei"
-STATE_FIPS = {"13": "GA", "45": "SC"}
-FILE_RE = re.compile(r"eaglei_(\d{4})_(\d{10})_(\d{10})\.parquet$")
+STATE_FIPS = {"13": "GA", "45": "SC", "12": "FL", "01": "AL", "37": "NC", "47": "TN"}
+FILE_RE = re.compile(r"eaglei_(\d{4})_(\d{10})_(\d{10})(_\d+st)?\.parquet$")
 
 # Landfall-ish reference times used when a storm has no storm.json (e.g. Michael,
 # which the response pipeline trains on but does not list in storms.json).
@@ -52,12 +53,15 @@ def _ts(s: str) -> datetime:
 
 
 def eaglei_files(directory: Path = EAGLEI_DIR) -> list[EagleiFile]:
-    out = []
+    by_window: dict[tuple[str, str], tuple[int, Path]] = {}
     for p in sorted(directory.glob("eaglei_*.parquet")) if directory.is_dir() else []:
         m = FILE_RE.search(p.name)
         if m:
-            out.append(EagleiFile(p, _ts(m.group(2)), _ts(m.group(3))))
-    return out
+            states = int(m.group(4)[1:-2]) if m.group(4) else 2
+            key = (m.group(2), m.group(3))
+            if key not in by_window or states > by_window[key][0]:  # the widest file for a window wins
+                by_window[key] = (states, p)
+    return [EagleiFile(p, _ts(a), _ts(b)) for (a, b), (_, p) in sorted(by_window.items())]
 
 
 def _iso(s: str) -> datetime:
@@ -95,11 +99,14 @@ def load_storm(files: list[EagleiFile]):
     """15-minute snapshots for GA and SC as a DataFrame (fips, state, time, customers_out)."""
     import pandas as pd
 
+    from gridsight.response.geo import counties
+
+    keep = set(counties()["fips"])
     frames = []
     for f in files:
         df = pd.read_parquet(f.path, columns=["fips", "time", "customers_out"])
         df["fips"] = df["fips"].astype(str).str.zfill(5)
-        df = df[df["fips"].str[:2].isin(STATE_FIPS)]
+        df = df[df["fips"].isin(keep)]
         frames.append(df)
     if not frames:
         return pd.DataFrame(columns=["fips", "state", "time", "customers_out"])

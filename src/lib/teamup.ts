@@ -127,3 +127,50 @@ export function teamUpImpact(t: TeamUp, counties: { state: string; predictedPeak
     sharedCrewAreas: t.moves.filter((m) => m.kind === "crews").length,
   };
 }
+
+/** Team-up owner ids that have repair zones (the two utilities the zones are built for). */
+const SLOT_OF: Record<string, "DESC" | "GPC"> = { desc: "DESC", "georgia-power": "GPC" };
+
+export interface ZoneCrews {
+  /** Lent crews working in this zone, by lender. */
+  helpers: { from: string; name: string; crews: number }[];
+  /** Shared staging yard serving this zone, if any. */
+  yard: string | null;
+}
+
+/**
+ * Who repairs where. For every lend move into Dominion or Georgia Power, the lent crews go
+ * to the helped company's repair zones in priority order, split by each zone's share of that
+ * company's expected damage (largest remainders to the highest priorities). Computed from
+ * teamup.json, zones.json and yards.json for the storm on screen.
+ */
+export function zoneCrewPlan(
+  t: TeamUp | null,
+  zones: { id: string; utilities: string[]; expectedDamagedSegments: number; priority: number }[],
+  yards: { label: string; serves: string[] }[],
+): Map<string, ZoneCrews> {
+  const plan = new Map<string, ZoneCrews>();
+  for (const z of zones) {
+    plan.set(z.id, { helpers: [], yard: yards.find((y) => y.serves.includes(z.id))?.label ?? null });
+  }
+  if (!t) return plan;
+  const name = new Map(t.owners.map((o) => [o.id, o.name]));
+  for (const m of t.moves) {
+    if (m.kind !== "lend" || !SLOT_OF[m.to]) continue;
+    const mine = zones.filter((z) => z.utilities.includes(SLOT_OF[m.to])).sort((a, b) => a.priority - b.priority);
+    const total = mine.reduce((a, z) => a + z.expectedDamagedSegments, 0);
+    if (!mine.length || total <= 0) continue;
+    const exact = mine.map((z) => (m.crews * z.expectedDamagedSegments) / total);
+    const whole = exact.map(Math.floor);
+    let left = m.crews - whole.reduce((a, b) => a + b, 0);
+    for (const i of exact.map((v, i) => i).sort((a, b) => exact[b] - whole[b] - (exact[a] - whole[a]) || a - b)) {
+      if (left <= 0) break;
+      whole[i] += 1;
+      left -= 1;
+    }
+    mine.forEach((z, i) => {
+      if (whole[i] > 0) plan.get(z.id)!.helpers.push({ from: m.from, name: name.get(m.from) ?? m.from, crews: whole[i] });
+    });
+  }
+  return plan;
+}

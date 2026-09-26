@@ -7,6 +7,7 @@ import { fmtInt, fmtMinutes } from "@/lib/format";
 import { fmtMae, stormKey, zoneLabel } from "@/lib/response";
 import { DEFAULT_UTILITY_NAME as UTILITY_NAME } from "@/lib/theme";
 import type { RepairZone, StormIndexEntry } from "@/lib/types";
+import { zoneCrewPlan, type ZoneCrews } from "@/lib/teamup";
 import { TimeSavedCard } from "../response/TimeSaved";
 import { cx, UtilityDot } from "../ui/primitives";
 
@@ -217,18 +218,22 @@ export function CrewsSection({
   const top = zones.slice(0, 5);
   const shared = zones.filter((z) => z.utilities.length > 1).length;
   const zoneById = new Map(data.zones.map((z) => [z.id, z]));
+  const crews = zoneCrewPlan(data.teamUp, data.zones, data.yards);
+  const helped = [...crews.values()].filter((c) => c.helpers.length).length;
   return (
     <>
       <Block>
         <p className="text-[15px] leading-[23px] text-ink">
           {zones.length
-            ? `There are ${zones.length} repair zones, numbered by priority; ${shared} of them need both companies.`
+            ? `There are ${zones.length} repair zones, numbered by priority; ${shared} of them need both companies.${
+                helped ? ` Borrowed crews from the Team up plan go to ${helped} of them, most-urgent first.` : ""
+              }`
             : "No repair zones pass the damage threshold for this storm."}
         </p>
         {top.length ? (
           <ol className="-mx-2 mt-3 flex flex-col">
             {top.map((z) => (
-              <ZoneRow key={z.id} zone={z} data={data} selected={z.id === selectedZoneId} onZone={onZone} />
+              <ZoneRow key={z.id} zone={z} data={data} crews={crews.get(z.id)} selected={z.id === selectedZoneId} onZone={onZone} />
             ))}
           </ol>
         ) : null}
@@ -236,7 +241,7 @@ export function CrewsSection({
           <More label={`The other ${zones.length - top.length} zones`}>
             <ol className="-mx-2 flex flex-col">
               {zones.slice(top.length).map((z) => (
-                <ZoneRow key={z.id} zone={z} data={data} selected={z.id === selectedZoneId} onZone={onZone} />
+                <ZoneRow key={z.id} zone={z} data={data} crews={crews.get(z.id)} selected={z.id === selectedZoneId} onZone={onZone} />
               ))}
             </ol>
           </More>
@@ -278,11 +283,13 @@ export function CrewsSection({
 function ZoneRow({
   zone: z,
   data,
+  crews,
   selected,
   onZone,
 }: {
   zone: RepairZone;
   data: ResponseData;
+  crews?: ZoneCrews;
   selected: boolean;
   onZone: (id: string) => void;
 }) {
@@ -303,6 +310,15 @@ function ZoneRow({
           <span className="block text-[12px] text-ink-3">
             About {z.expectedDamagedSegments.toFixed(0)} line sections down, {fmtInt(z.vulnerablePeople)} people on
             medical equipment nearby.
+          </span>
+          <span className="mt-0.5 block text-[12px] text-ink-2">
+            {z.utilities.map((u) => UTILITY_NAME[u]).join(" and ")} crews
+            {crews?.helpers.length
+              ? crews.helpers.map((h) => ` + ${fmtInt(h.crews)} ${h.name} crew${h.crews === 1 ? "" : "s"}`).join("")
+              : z.utilities.length > 1
+                ? ", side by side"
+                : ""}
+            {crews?.yard ? ` · stage at ${crews.yard}` : ""}
           </span>
         </span>
         <span
