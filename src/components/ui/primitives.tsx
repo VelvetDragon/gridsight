@@ -4,7 +4,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { OverlapTier, UtilityId } from "@/lib/types";
-import { TIER_HEX, TIER_LABEL, UTILITY_HEX } from "@/lib/theme";
+import { TIER_HEX, TIER_LABEL, UTILITY_HEX, UTILITY_NAME } from "@/lib/theme";
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -13,9 +13,82 @@ export function cx(...parts: (string | false | null | undefined)[]): string {
 /** Floating glass surface. */
 export function Panel({ className, children, ...rest }: ComponentProps<"section">) {
   return (
-    <section className={cx("glass rounded-[12px] text-ink", className)} {...rest}>
+    <section className={cx("glass rounded-[16px] text-ink", className)} {...rest}>
       {children}
     </section>
+  );
+}
+
+/** Panel title (Fraunces) with a one-line plain-language subtitle. */
+export function PanelHeader({
+  title,
+  subtitle,
+  actions,
+  className,
+}: {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  actions?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <header className={cx("flex items-start gap-3 px-5 pt-[18px] pb-4", className)}>
+      <div className="min-w-0 flex-1">
+        <h2 className="display text-[20px] leading-[26px] font-medium text-ink">{title}</h2>
+        {subtitle ? <p className="mt-1 text-[13px] leading-[19px] text-ink-3">{subtitle}</p> : null}
+      </div>
+      {actions ? <div className="-mt-0.5 -mr-2 flex shrink-0 items-center">{actions}</div> : null}
+    </header>
+  );
+}
+
+/** Section heading inside a panel. */
+export function SectionTitle({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <h3 className="text-[14px] leading-5 font-semibold text-ink">{children}</h3>
+      {aside}
+    </div>
+  );
+}
+
+/**
+ * One company's project, with the company's colour as a left rule and its
+ * name in words, so the two sides never rely on colour alone.
+ */
+export function CompanyBlock({
+  utility,
+  children,
+  detail,
+  size = "md",
+  className,
+}: {
+  utility: UtilityId;
+  children: ReactNode;
+  detail?: ReactNode;
+  size?: "sm" | "md" | "lg";
+  className?: string;
+}) {
+  return (
+    <div className={cx("flex min-w-0 gap-2.5", className)}>
+      <span aria-hidden className="w-[3px] shrink-0 rounded-full" style={{ background: UTILITY_HEX[utility] }} />
+      <div className="min-w-0 flex-1">
+        <div className="text-[12px] leading-4 font-semibold" style={{ color: UTILITY_HEX[utility] }}>
+          {UTILITY_NAME[utility]}
+        </div>
+        <div
+          className={cx(
+            "text-ink",
+            size === "sm" && "line-clamp-2 text-[13px] leading-[18px]",
+            size === "md" && "line-clamp-2 text-[14px] leading-5",
+            size === "lg" && "text-[15px] leading-[21px] font-medium",
+          )}
+        >
+          {children}
+        </div>
+        {detail ? <div className="mt-0.5 text-[12px] leading-4 text-ink-3">{detail}</div> : null}
+      </div>
+    </div>
   );
 }
 
@@ -51,7 +124,7 @@ export function TierChip({ tier, className }: { tier: OverlapTier; className?: s
   return (
     <span
       className={cx(
-        "inline-flex h-[22px] items-center gap-1.5 rounded-full border border-hairline bg-white/70 px-2 text-[12px] font-medium text-ink-2",
+        "inline-flex h-[22px] items-center gap-1.5 rounded-full border border-hairline bg-white/60 px-2 text-[12px] font-medium whitespace-nowrap text-ink-2",
         className,
       )}
     >
@@ -156,12 +229,7 @@ export function Tooltip({
   );
 }
 
-export function IconButton({
-  label,
-  className,
-  children,
-  ...rest
-}: ComponentProps<"button"> & { label: string }) {
+export function IconButton({ label, className, children, ...rest }: ComponentProps<"button"> & { label: string }) {
   return (
     <button
       type="button"
@@ -220,7 +288,7 @@ export function SegmentedControl<T extends string>({
   label: string;
 }) {
   return (
-    <div role="radiogroup" aria-label={label} className="flex h-8 items-center rounded-[9px] bg-wash-2 p-[3px]">
+    <div role="radiogroup" aria-label={label} className="flex h-9 items-center rounded-[11px] bg-wash-2 p-[3px]">
       {options.map((o) => {
         const active = o.value === value;
         return (
@@ -233,7 +301,7 @@ export function SegmentedControl<T extends string>({
             title={o.hint}
             onClick={() => onChange(o.value)}
             className={cx(
-              "h-[26px] rounded-[7px] px-3 text-[13px] font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-45",
+              "h-[30px] rounded-[9px] px-3.5 text-[14px] font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-45",
               active
                 ? "bg-white text-ink shadow-[0_1px_2px_rgba(20,22,28,0.12),0_0_0_1px_rgba(20,22,28,0.06)]"
                 : "text-ink-3 hover:text-ink",
@@ -303,12 +371,7 @@ export function ToggleRow({
 }) {
   return (
     <label className="group flex h-8 cursor-pointer items-center gap-2.5 rounded-[8px] px-2 text-[13px] text-ink transition-colors duration-150 hover:bg-wash">
-      <input
-        type="checkbox"
-        className="peer sr-only"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
+      <input type="checkbox" className="peer sr-only" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       <span
         aria-hidden
         className={cx(

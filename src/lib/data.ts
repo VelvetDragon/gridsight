@@ -46,37 +46,6 @@ export interface LineFeature {
   } | null;
 }
 
-/** State outline (Georgia / South Carolina) for the tinted map background. */
-export interface StateFeature {
-  type: "Feature";
-  geometry: { type: "Polygon"; coordinates: Position[][] } | { type: "MultiPolygon"; coordinates: Position[][][] };
-  properties: { state: "GA" | "SC"; name: string; utility: "GPC" | "DESC" };
-}
-
-export interface StateCollection {
-  type: "FeatureCollection";
-  features: StateFeature[];
-}
-
-/**
- * Georgia and South Carolina outlines, committed with the app (not pipeline output).
- * Source: U.S. Census Bureau, 2018 Cartographic Boundary File, States, 1:20,000,000
- * (cb_2018_us_state_20m), public domain; simplified to about 0.006° and rounded.
- */
-export const STATES_FILE = "/data/context/states.geojson";
-
-async function loadStates(signal?: AbortSignal): Promise<StateCollection> {
-  try {
-    const res = await fetch(STATES_FILE, { signal });
-    if (!res.ok) return { type: "FeatureCollection", features: [] };
-    const body = (await res.json()) as StateCollection;
-    return Array.isArray(body.features) ? body : { type: "FeatureCollection", features: [] };
-  } catch (err) {
-    if (signal?.aborted) throw err;
-    return { type: "FeatureCollection", features: [] };
-  }
-}
-
 export interface LineCollection {
   type: "FeatureCollection";
   features: LineFeature[];
@@ -170,7 +139,6 @@ export interface PlanData {
   overlaps: Overlap[];
   lines: LineCollection;
   river: LineCollection;
-  states: StateCollection;
 }
 
 export interface ResponseData {
@@ -182,7 +150,6 @@ export interface ResponseData {
   yards: JointYard[];
   vulnerable: VulnerableArea[];
   river: LineCollection;
-  states: StateCollection;
 }
 
 export interface Bundle<T> {
@@ -195,13 +162,12 @@ function strip({ path, origin }: FileStatus): FileStatus {
 }
 
 export async function loadPlan(signal?: AbortSignal): Promise<Bundle<PlanData>> {
-  const [meta, projects, overlaps, lines, river, states] = await Promise.all([
+  const [meta, projects, overlaps, lines, river] = await Promise.all([
     loadDataFile<PlanMeta>(PLAN_FILES.meta, "object", signal),
     loadDataFile<Project[]>(PLAN_FILES.projects, "array", signal),
     loadDataFile<Overlap[]>(PLAN_FILES.overlaps, "array", signal),
     loadOptionalLines(PLAN_FILES.lines, signal),
     loadOptionalLines(PLAN_FILES.river, signal),
-    loadStates(signal),
   ]);
   return {
     data: {
@@ -210,7 +176,6 @@ export async function loadPlan(signal?: AbortSignal): Promise<Bundle<PlanData>> 
       overlaps: overlaps.data,
       lines: lines.data,
       river: river.data,
-      states,
     },
     files: [meta, projects, overlaps, lines, river].map(strip),
   };
@@ -223,7 +188,7 @@ export async function loadStormIndex(signal?: AbortSignal): Promise<Bundle<Storm
 
 export async function loadResponse(stormId: string, signal?: AbortSignal): Promise<Bundle<ResponseData>> {
   const f = responseFiles(stormId);
-  const [meta, storm, segments, counties, zones, yards, vulnerable, river, states] = await Promise.all([
+  const [meta, storm, segments, counties, zones, yards, vulnerable, river] = await Promise.all([
     loadDataFile<ResponseMeta>(f.meta, "object", signal),
     loadDataFile<Storm>(f.storm, "object", signal),
     loadDataFile<LineSegmentRisk[]>(f.segments, "array", signal),
@@ -232,7 +197,6 @@ export async function loadResponse(stormId: string, signal?: AbortSignal): Promi
     loadDataFile<JointYard[]>(f.yards, "array", signal),
     loadDataFile<VulnerableArea[]>(f.vulnerable, "array", signal),
     loadOptionalLines(PLAN_FILES.river, signal),
-    loadStates(signal),
   ]);
   return {
     data: {
@@ -244,7 +208,6 @@ export async function loadResponse(stormId: string, signal?: AbortSignal): Promi
       yards: yards.data,
       vulnerable: vulnerable.data,
       river: river.data,
-      states,
     },
     // The river is shared context, reported under Plan mode's status.
     files: [meta, storm, segments, counties, zones, yards, vulnerable].map(strip),

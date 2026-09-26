@@ -17,15 +17,7 @@ export function SkeletonRows({ rows = 5 }: { rows?: number }) {
   );
 }
 
-export function EmptyState({
-  title,
-  body,
-  action,
-}: {
-  title: string;
-  body?: ReactNode;
-  action?: ReactNode;
-}) {
+export function EmptyState({ title, body, action }: { title: string; body?: ReactNode; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-start gap-2 px-4 py-6">
       <div className="text-[14px] font-medium text-ink">{title}</div>
@@ -42,12 +34,10 @@ export function ErrorCard({ message, onRetry }: { message: string; onRetry: () =
         <div className="eyebrow mb-2">Data unavailable</div>
         <div className="text-[15px] font-medium">GridSight could not load this mode&apos;s data.</div>
         <p className="mt-1.5 text-[13px] leading-5 text-ink-3">
-          Neither the pipeline output nor the bundled sample could be read. Check that the dev
-          server is serving <span className="num">public/data</span>.
+          Neither the pipeline output nor the bundled sample could be read. Check that the dev server is serving{" "}
+          <span className="num">public/data</span>.
         </p>
-        <p className="num mt-3 rounded-[8px] bg-wash px-2.5 py-2 text-[12px] break-words text-ink-2">
-          {message}
-        </p>
+        <p className="num mt-3 rounded-[8px] bg-wash px-2.5 py-2 text-[12px] break-words text-ink-2">{message}</p>
         <Button className="mt-4" onClick={onRetry}>
           <RotateCw size={14} aria-hidden />
           Try again
