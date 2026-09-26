@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { CloudLightning, Handshake, Layers, Wrench } from "lucide-react";
+import { CloudLightning, Layers, Wrench } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useUrlParam } from "@/lib/useUrlState";
 import type { MapPadding } from "../map/MapCanvas";
@@ -10,11 +10,11 @@ import { LayerKey } from "../response/LayerKey";
 import { useResponseMode } from "../response/useResponseMode";
 import { AppShell, NAV_CLEARANCE } from "../shell/AppShell";
 import { NAV } from "../shell/nav";
-import { Rail, railInset, RAIL_GUTTER, type RailSection } from "../shell/Rail";
+import { Rail, railInset, type RailSection } from "../shell/Rail";
 import { ErrorCard } from "../ui/states";
 import { StormBriefingButton } from "../integrations/StormBriefingButton";
 import { StormWatch } from "./StormWatch";
-import { TeamUpSection } from "./TeamUpSection";
+import { panelInset, TeamUpPanel } from "./TeamUpSection";
 import { Block, BothGridsLine, CrewsSection, ModelCheck, More, StormPicker, TimeSavedBlock } from "./StormSections";
 
 const MapStage = dynamic(() => import("../map/MapStage"), {
@@ -30,6 +30,7 @@ export function Stormline() {
   const timeParam = useUrlParam("t");
   const response = useResponseMode(stormParam, timeParam);
   const [open, setOpen] = useState(true);
+  const [teamOpen, setTeamOpen] = useState(true);
   const [active, setActive] = useState("storm");
   const { clearZone } = response;
 
@@ -40,8 +41,8 @@ export function Stormline() {
   }, [clearZone]);
 
   const padding = useMemo<MapPadding>(
-    () => ({ top: NAV_CLEARANCE + 16, bottom: SCRUBBER_H + 40, left: railInset(open), right: 40 }),
-    [open],
+    () => ({ top: NAV_CLEARANCE + 16, bottom: SCRUBBER_H + 40, left: railInset(open), right: panelInset(teamOpen) }),
+    [open, teamOpen],
   );
 
   const data = response.data;
@@ -82,12 +83,6 @@ export function Stormline() {
           )}
         </>
       ),
-    },
-    {
-      id: "teamup",
-      label: "Team up",
-      icon: <Handshake size={15} aria-hidden />,
-      content: data ? <TeamUpSection data={data} onFly={response.flyToPoints} /> : null,
     },
     {
       id: "crews",
@@ -136,10 +131,11 @@ export function Stormline() {
           open={open}
           onOpen={setOpen}
         />
+        <TeamUpPanel data={data ?? null} onFly={response.flyToPoints} open={teamOpen} onOpen={setTeamOpen} />
         {data && response.times.length > 1 ? (
           <div
             className="fixed z-20"
-            style={{ left: railInset(open) - 12, right: RAIL_GUTTER + 4, bottom: 34, transition: "left 220ms ease" }}
+            style={{ left: railInset(open) - 12, right: panelInset(teamOpen) - 12, bottom: 34, transition: "left 220ms ease, right 220ms ease" }}
           >
             <div className="mx-auto max-w-[820px]">
               <StormScrubber

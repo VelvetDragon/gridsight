@@ -50,3 +50,45 @@ export function isTeamUp(v: unknown): v is TeamUp {
   const t = v as TeamUp | null;
   return !!t && Array.isArray(t.owners) && Array.isArray(t.moves);
 }
+
+/** Customers in each state stand in for Dominion (SC) and Georgia Power (GA) customers. */
+const STATE_OF: Record<string, "SC" | "GA"> = { desc: "SC", "georgia-power": "GA" };
+/** Restoration is spread over the outage, so the average customer gains about half the time saved. */
+export const AVERAGE_GAIN = 0.5;
+
+export interface TeamUpImpact {
+  /** Receiving utility -> hours sooner (sum of its lend moves). */
+  sooner: { id: string; name: string; hours: number; customers: number | null }[];
+  customerHours: number;
+  costUsd: number;
+  /** Crew cost of the moves whose customer-hours are counted (Dominion / Georgia Power). */
+  costCountedUsd: number;
+  sharedYards: number;
+  sharedCrewAreas: number;
+}
+
+export function teamUpImpact(t: TeamUp, counties: { state: string; predictedPeakOut: number }[]): TeamUpImpact {
+  const name = new Map(t.owners.map((o) => [o.id, o.name]));
+  const byTo = new Map<string, number>();
+  let costUsd = 0;
+  let costCountedUsd = 0;
+  for (const m of t.moves) {
+    if (m.kind !== "lend") continue;
+    byTo.set(m.to, (byTo.get(m.to) ?? 0) + m.hoursSooner);
+    costUsd += m.costUsd;
+    if (STATE_OF[m.to]) costCountedUsd += m.costUsd;
+  }
+  const out = (st: string) => counties.filter((c) => c.state === st).reduce((a, c) => a + c.predictedPeakOut, 0);
+  const sooner = [...byTo.entries()]
+    .map(([id, hours]) => ({ id, name: name.get(id) ?? id, hours, customers: STATE_OF[id] ? out(STATE_OF[id]) : null }))
+    .sort((a, b) => b.hours - a.hours);
+  const customerHours = sooner.reduce((a, s) => a + (s.customers ?? 0) * s.hours * AVERAGE_GAIN, 0);
+  return {
+    sooner,
+    customerHours,
+    costUsd,
+    costCountedUsd,
+    sharedYards: t.moves.filter((m) => m.kind === "yard").length,
+    sharedCrewAreas: t.moves.filter((m) => m.kind === "crews").length,
+  };
+}
