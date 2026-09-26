@@ -54,3 +54,6 @@ __pycache__/
 # raw source data lives outside the repo (see pipeline/scripts/fetch_data.py)
 pipeline/data/raw/
 pipeline/data/cache/
+
+# MapLibre worker, copied from node_modules by scripts/copy-maplibre-worker.mjs
+/public/maplibre/

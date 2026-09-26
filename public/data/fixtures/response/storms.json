@@ -1,0 +1,20 @@
+[
+  {
+    "id": "helene",
+    "name": "Helene",
+    "year": 2024,
+    "headline": "Inland: Augusta and Aiken",
+    "focus": "inland",
+    "validated": true,
+    "featured": true
+  },
+  {
+    "id": "matthew",
+    "name": "Matthew",
+    "year": 2016,
+    "headline": "Coastal: Savannah to Beaufort",
+    "focus": "coastal",
+    "validated": false,
+    "featured": false
+  }
+]

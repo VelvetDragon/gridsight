@@ -1,0 +1,34 @@
+[
+  {
+    "id": "jy-north-augusta",
+    "position": [
+      -81.95,
+      33.53
+    ],
+    "label": "North Augusta laydown (I-20 exit 5)",
+    "serves": [
+      "z-augusta",
+      "z-evans",
+      "z-hephzibah",
+      "z-aiken",
+      "z-edgefield"
+    ],
+    "maxDriveMinutes": 46
+  },
+  {
+    "id": "jy-bush-field",
+    "position": [
+      -81.96,
+      33.37
+    ],
+    "label": "South Augusta yard near Bush Field",
+    "serves": [
+      "z-augusta",
+      "z-evans",
+      "z-hephzibah",
+      "z-aiken",
+      "z-waynesboro"
+    ],
+    "maxDriveMinutes": 54
+  }
+]

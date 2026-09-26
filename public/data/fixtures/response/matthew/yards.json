@@ -1,0 +1,45 @@
+[
+  {
+    "id": "jy-hardeeville",
+    "position": [
+      -81.08,
+      32.3
+    ],
+    "label": "Hardeeville laydown (I-95 exit 8)",
+    "serves": [
+      "z-savannah",
+      "z-port-hardeeville",
+      "z-okatie-jasper",
+      "z-hilton-head"
+    ],
+    "maxDriveMinutes": 53
+  },
+  {
+    "id": "jy-port-wentworth",
+    "position": [
+      -81.17,
+      32.14
+    ],
+    "label": "Port Wentworth yard",
+    "serves": [
+      "z-savannah",
+      "z-port-hardeeville",
+      "z-okatie-jasper",
+      "z-richmond-hill"
+    ],
+    "maxDriveMinutes": 49
+  },
+  {
+    "id": "jy-ridgeland",
+    "position": [
+      -80.98,
+      32.48
+    ],
+    "label": "Ridgeland staging yard",
+    "serves": [
+      "z-port-hardeeville",
+      "z-okatie-jasper"
+    ],
+    "maxDriveMinutes": 51
+  }
+]
