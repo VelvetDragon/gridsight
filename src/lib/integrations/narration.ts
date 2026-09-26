@@ -317,3 +317,37 @@ export function useNarrationProgress(id: string | null | undefined): number {
   }, [active, playing]);
   return active ? t : 0;
 }
+
+/* ---------------------------------------------------------------- sound effects */
+
+const sfxCache = new Map<string, HTMLAudioElement>();
+
+/**
+ * Play a short sound effect from the manifest ("sfx-spark", "sfx-hum") on its
+ * own channel, so it never interrupts narration. Silent when muted, when the
+ * MP3 does not exist yet, or when the browser blocks audio. Returns a stop function.
+ *
+ *   playSfx("sfx-spark");                                          // one-shot accent
+ *   const stop = playSfx("sfx-hum", { loop: true, volume: 0.25 }); // splash ambience
+ */
+export function playSfx(id: string, opts: { loop?: boolean; volume?: number } = {}): () => void {
+  let stopped = false;
+  let el: HTMLAudioElement | null = null;
+  if (typeof window === "undefined" || state.muted) return () => {};
+  void loadNarrationManifest().then((manifest) => {
+    const file = manifest.get(id)?.file;
+    if (!file || stopped || state.muted) return;
+    el = sfxCache.get(id) ?? new Audio(file);
+    sfxCache.set(id, el);
+    el.loop = Boolean(opts.loop);
+    el.volume = Math.max(0, Math.min(1, opts.volume ?? 0.5));
+    el.currentTime = 0;
+    el.play().catch(() => {
+      /* autoplay blocked: stay silent */
+    });
+  });
+  return () => {
+    stopped = true;
+    el?.pause();
+  };
+}
