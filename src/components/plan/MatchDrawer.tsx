@@ -1,13 +1,33 @@
 "use client";
 
-import { ArrowUpRight, Check, ClipboardCopy, MapPin, Scale, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
-import { ACTION_LABEL, fmtInt, fmtKm, fmtKv, fmtMinutes, fmtMonthYear, fmtMonths, fmtUsd } from "@/lib/format";
-import { buildMemo, isRightSizingCandidate, isRightSizingItem, RIGHT_SIZING_TIP, roadNote, sourceHref } from "@/lib/plan";
+import { ACTION_LABEL, fmtInt, fmtKm, fmtKv, fmtMinutes, fmtMonthYear, fmtUsd } from "@/lib/format";
+import {
+  buildMemo,
+  isRightSizingCandidate,
+  isRightSizingItem,
+  RIGHT_SIZING_TIP,
+  roadNote,
+  sourceHref,
+} from "@/lib/plan";
 import type { RankedOverlap } from "@/lib/ranking";
-import { TIER_LABEL, TIER_RANGE, TIER_SHARES, TIERS, UTILITY_HEX } from "@/lib/theme";
+import { TIER_LABEL, TIER_RANGE, TIER_SHARES, TIERS, UTILITY_HEX, UTILITY_NAME } from "@/lib/theme";
 import type { Overlap, Project } from "@/lib/types";
-import { Button, Chip, cx, Divider, Eyebrow, IconButton, Panel, Stat, TierChip, TierSwatch, Tooltip, UtilityDot } from "../ui/primitives";
+import {
+  Button,
+  Chip,
+  CompanyBlock,
+  cx,
+  Divider,
+  IconButton,
+  Panel,
+  PanelHeader,
+  SectionTitle,
+  TierSwatch,
+  Tooltip,
+  UtilityDot,
+} from "../ui/primitives";
 import { MiniGantt } from "./MiniGantt";
 import { RightSizingChip } from "./RightSizing";
 
@@ -21,11 +41,8 @@ export interface MatchDrawerProps {
 
 function Section({ title, children, aside }: { title: string; children: ReactNode; aside?: ReactNode }) {
   return (
-    <section className="flex flex-col gap-2.5 px-5 py-4">
-      <div className="flex items-center justify-between">
-        <Eyebrow>{title}</Eyebrow>
-        {aside}
-      </div>
+    <section className="flex flex-col gap-3 px-5 py-5">
+      <SectionTitle aside={aside}>{title}</SectionTitle>
       {children}
     </section>
   );
@@ -36,41 +53,49 @@ export function MatchDrawer({ item, desc, gpc, radarMonth, onClose }: MatchDrawe
   const rightSizing = isRightSizingCandidate(desc, gpc);
 
   return (
-    <Panel className="flex h-full w-[408px] flex-col overflow-hidden" aria-label="Selected coordination opportunity">
-      <header className="px-5 pt-4 pb-4">
-        <div className="flex items-center justify-between">
-          <Eyebrow>
-            Opportunity <span className="num text-ink-2">#{item.rank}</span>
-          </Eyebrow>
-          <IconButton label="Close details" onClick={onClose} className="-mr-2">
+    <Panel className="flex h-full w-[408px] flex-col overflow-hidden" aria-label="Selected pair">
+      <PanelHeader
+        title={
+          <>
+            Pair #{item.rank}: {TIER_LABEL[o.tier].toLowerCase()}
+          </>
+        }
+        subtitle="What these two projects have in common, and what the two companies could do together."
+        actions={
+          <IconButton label="Close details" onClick={onClose}>
             <X size={16} />
           </IconButton>
-        </div>
-        <div className="mt-1.5 flex flex-col gap-1.5">
-          <PairName utility="DESC" project={desc} fallback={o.descId} />
-          <PairName utility="GPC" project={gpc} fallback={o.gpcId} />
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <TierChip tier={o.tier} />
-          {rightSizing ? <RightSizingChip /> : null}
-          {o.robustness === "uncertain" ? (
-            <Tooltip content="At least one project's location is approximate. The tier could change once exact routes are known.">
-              <Chip tone="quiet">Location uncertain</Chip>
-            </Tooltip>
-          ) : null}
-        </div>
-      </header>
+        }
+      />
+      <div className="flex flex-col gap-3 px-5 pb-4">
+        <PairName utility="DESC" project={desc} fallback={o.descId} />
+        <PairName utility="GPC" project={gpc} fallback={o.gpcId} />
+        {rightSizing || o.robustness === "uncertain" ? (
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            {rightSizing ? <RightSizingChip /> : null}
+            {o.robustness === "uncertain" ? (
+              <Tooltip content="At least one project's location is approximate. The distance could change once exact routes are known.">
+                <Chip tone="quiet">Location approximate</Chip>
+              </Tooltip>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
 
       <Divider />
 
       <div className="scroll-quiet min-h-0 flex-1 overflow-y-auto">
-        <div className="px-5 pt-4 pb-1">
-          <p className="text-[14px] leading-[21px] text-ink">{o.summary}</p>
-          <div className="mt-4 grid grid-cols-3 gap-3 rounded-[10px] border border-hairline bg-white/55 px-3.5 py-3">
-            <Stat label="Closest" value={fmtKm(o.distanceKm)} />
-            <Stat label="Both building" value={fmtMonths(o.timelineOverlapMonths)} />
-            <Stat label="Est. savings" value={o.cost ? fmtUsd(o.cost.totalUsd) : "–"} />
-          </div>
+        <div className="px-5 pt-5 pb-1">
+          <p className="text-[14px] leading-[22px] text-ink">{o.summary}</p>
+          <dl className="mt-4 grid grid-cols-3 gap-3 rounded-[12px] border border-hairline bg-white/50 px-4 py-3">
+            <BigStat label="Distance apart" value={fmtKm(o.distanceKm)} />
+            <BigStat
+              label="Both building"
+              value={o.timelineOverlapMonths > 0 ? `${Math.round(o.timelineOverlapMonths)} mo` : "–"}
+              note={o.timelineOverlapMonths > 0 ? undefined : "not at once"}
+            />
+            <BigStat label="Could save" value={o.cost ? fmtUsd(o.cost.totalUsd) : "–"} />
+          </dl>
         </div>
 
         <Section title="What they can share">
@@ -79,20 +104,20 @@ export function MatchDrawer({ item, desc, gpc, radarMonth, onClose }: MatchDrawe
 
         <Divider className="mx-5" />
 
-        <Section title="Build windows">
+        <Section title="When each one is built">
           {desc && gpc ? <MiniGantt desc={desc} gpc={gpc} cursorMonth={radarMonth} /> : null}
         </Section>
 
         <Divider className="mx-5" />
 
-        <Section title="Distance">
+        <Section title="How far apart">
           <DistanceBlock overlap={o} />
         </Section>
 
         {o.stagingYard ? (
           <>
             <Divider className="mx-5" />
-            <Section title="Staging yard">
+            <Section title="Suggested shared staging yard">
               <YardBlock overlap={o} />
             </Section>
           </>
@@ -100,13 +125,13 @@ export function MatchDrawer({ item, desc, gpc, radarMonth, onClose }: MatchDrawe
 
         <Divider className="mx-5" />
 
-        <Section title="Cost estimate">
+        <Section title="Rough savings estimate">
           <CostBlock overlap={o} />
         </Section>
 
         <Divider className="mx-5" />
 
-        <Section title="Sources">
+        <Section title="Where this comes from">
           <ul className="flex flex-col gap-2">
             {[desc, gpc].map((p) => (p ? <SourceLink key={p.id} project={p} /> : null))}
           </ul>
@@ -122,30 +147,36 @@ export function MatchDrawer({ item, desc, gpc, radarMonth, onClose }: MatchDrawe
 
 function PairName({ utility, project, fallback }: { utility: "DESC" | "GPC"; project?: Project; fallback: string }) {
   return (
-    <div className="flex gap-2.5">
-      <span className="pt-[7px]">
-        <UtilityDot utility={utility} size={9} />
-      </span>
-      <div className="min-w-0">
-        <div className="text-[15px] leading-[21px] font-medium tracking-[-0.01em] text-ink">{project?.name ?? fallback}</div>
-        <div className="text-[12px] text-ink-3">
-          <span style={{ color: UTILITY_HEX[utility] }} className="font-medium">
-            {utility === "DESC" ? "DESC" : "Georgia Power"}
-          </span>
-          {project ? (
-            <>
-              {" · "}
-              {ACTION_LABEL[project.action]} · <span className="num">{fmtKv(project.voltageKv)}</span>
-              {project.miles != null ? (
-                <>
-                  {" · "}
-                  <span className="num">{project.miles} mi</span>
-                </>
-              ) : null}
-            </>
-          ) : null}
-        </div>
-      </div>
+    <CompanyBlock
+      utility={utility}
+      size="lg"
+      detail={
+        project ? (
+          <>
+            {ACTION_LABEL[project.action]} · <span className="num">{fmtKv(project.voltageKv)}</span>
+            {project.miles != null ? (
+              <>
+                {" · "}
+                <span className="num">{project.miles} mi</span>
+              </>
+            ) : null}
+            {" · ready "}
+            {fmtMonthYear(project.inService)}
+          </>
+        ) : null
+      }
+    >
+      {project?.name ?? fallback}
+    </CompanyBlock>
+  );
+}
+
+function BigStat({ label, value, note }: { label: string; value: string; note?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <dt className="text-[12px] text-ink-3">{label}</dt>
+      <dd className="display text-[22px] leading-7 font-medium text-ink">{value}</dd>
+      {note ? <dd className="text-[11px] text-ink-3">{note}</dd> : null}
     </div>
   );
 }
@@ -170,11 +201,11 @@ function ShareLadder({ overlap }: { overlap: Overlap }) {
                 )}
               </span>
               <span className="flex min-w-0 flex-col">
-                <span className="flex items-center gap-2 text-[13px] font-medium text-ink">
+                <span className="flex flex-wrap items-center gap-x-2 text-[13px] font-medium text-ink">
                   {TIER_SHARES[t].title}
-                  <span className="flex items-center gap-1 text-[11px] font-normal text-ink-3">
+                  <span className="flex items-center gap-1 text-[12px] font-normal text-ink-3">
                     <TierSwatch tier={t} size={6} />
-                    {TIER_LABEL[t]} · <span className={t === "crossing" ? undefined : "num"}>{TIER_RANGE[t]}</span>
+                    {TIER_RANGE[t]}
                   </span>
                 </span>
                 <span className="text-[12px] leading-[17px] text-ink-3">{TIER_SHARES[t].items.join(", ")}</span>
@@ -185,25 +216,21 @@ function ShareLadder({ overlap }: { overlap: Overlap }) {
       </ol>
       {extras.length ? (
         <div>
-          <div className="mb-1.5 text-[12px] text-ink-3">Listed for this pair</div>
-          <ul className="flex flex-wrap gap-1.5">
-            {extras.map((s) =>
-              isRightSizingItem(s) ? (
-                <li key={s}>
+          <div className="mb-1 text-[12px] text-ink-3">Specifically for this pair</div>
+          <p className="text-[13px] leading-5 text-ink-2">
+            {extras.map((item, i) => (
+              <span key={item}>
+                {i > 0 ? ", " : null}
+                {isRightSizingItem(item) ? (
                   <Tooltip content={RIGHT_SIZING_TIP} width={260}>
-                    <Chip className="border-dashed">
-                      <Scale size={12} aria-hidden className="text-ink-3" />
-                      {s}
-                    </Chip>
+                    <span className="underline decoration-dotted underline-offset-2">{item}</span>
                   </Tooltip>
-                </li>
-              ) : (
-                <li key={s}>
-                  <Chip>{s}</Chip>
-                </li>
-              ),
-            )}
-          </ul>
+                ) : (
+                  item
+                )}
+              </span>
+            ))}
+          </p>
         </div>
       ) : null}
     </div>
@@ -224,21 +251,28 @@ function DistanceBlock({ overlap }: { overlap: Overlap }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3 text-[13px]">
-        <span className="w-[86px] text-ink-2">Straight line</span>
+        <span className="w-[118px] text-ink-2">Straight line</span>
         {bar(overlap.distanceKm, true)}
         <span className="num w-[58px] text-right text-ink">{fmtKm(overlap.distanceKm)}</span>
       </div>
       <div className="flex items-center gap-3 text-[13px]">
-        <span className="w-[86px] text-ink-2">By road</span>
-        {overlap.roadKm != null ? bar(overlap.roadKm, false) : <span className="flex-1 text-[12px] text-ink-3">not computed</span>}
+        <span className="w-[118px] text-ink-2">By road</span>
+        {overlap.roadKm != null ? (
+          bar(overlap.roadKm, false)
+        ) : (
+          <span className="flex-1 text-[12px] text-ink-3">not computed</span>
+        )}
         <span className="num w-[58px] text-right text-ink">{fmtKm(overlap.roadKm)}</span>
       </div>
       {note.kind !== "unknown" ? (
         <div className="mt-0.5">
-          <Chip tone={note.kind === "far" ? "alert" : note.kind === "detour" ? "quiet" : "neutral"}>
-            {note.kind === "verified" ? <Check size={12} aria-hidden /> : null}
-            {note.text}
-          </Chip>
+          <p className={cx("text-[13px]", note.kind === "far" ? "text-alert" : "text-ink-2")}>
+            {note.kind === "verified"
+              ? "Drive-verified: the road trip is short enough to share crews."
+              : note.kind === "detour"
+                ? `${note.text}: crews have to drive around to a bridge.`
+                : note.text}
+          </p>
         </div>
       ) : null}
     </div>
@@ -250,22 +284,19 @@ function YardBlock({ overlap }: { overlap: Overlap }) {
   const max = Math.max(60, y.driveMinutesDesc, y.driveMinutesGpc);
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex items-start gap-2 text-[13px] text-ink">
-        <MapPin size={16} aria-hidden className="mt-0.5 shrink-0 text-ink-3" />
-        <span>
-          {y.label}
-          <span className="num block text-[12px] text-ink-3">
-            {y.position[1].toFixed(4)}, {y.position[0].toFixed(4)}
-          </span>
+      <div className="text-[14px] text-ink">
+        {y.label}
+        <span className="num block text-[12px] text-ink-3">
+          {y.position[1].toFixed(4)}, {y.position[0].toFixed(4)}
         </span>
       </div>
       {(["DESC", "GPC"] as const).map((u) => {
         const min = u === "DESC" ? y.driveMinutesDesc : y.driveMinutesGpc;
         return (
           <div key={u} className="flex items-center gap-3 text-[13px]">
-            <span className="flex w-[86px] items-center gap-1.5 text-ink-2">
+            <span className="flex w-[118px] items-center gap-1.5 text-ink-2">
               <UtilityDot utility={u} size={7} />
-              {u === "DESC" ? "DESC" : "Georgia Pwr"}
+              {UTILITY_NAME[u]}
             </span>
             <span className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-wash-2">
               <span
@@ -277,7 +308,9 @@ function YardBlock({ overlap }: { overlap: Overlap }) {
           </div>
         );
       })}
-      <p className="text-[12px] text-ink-3">Drive time from the yard to each project&apos;s closest point.</p>
+      <p className="text-[12px] text-ink-3">
+        Drive time from the yard to each project. Marked on the map as a small square.
+      </p>
     </div>
   );
 }
@@ -286,7 +319,11 @@ function CostBlock({ overlap }: { overlap: Overlap }) {
   const c = overlap.cost;
   if (!c) return <p className="text-[13px] text-ink-3">No cost estimate for this pair.</p>;
   const rows: [string, number, string?][] = [
-    ["Land and right-of-way", c.landSavingsUsd, c.sharedAcres ? `${c.sharedAcres} acres × ${fmtUsd(c.landValuePerAcreUsd)}/acre` : undefined],
+    [
+      "Land and right-of-way",
+      c.landSavingsUsd,
+      c.sharedAcres ? `${c.sharedAcres} acres × ${fmtUsd(c.landValuePerAcreUsd)}/acre` : undefined,
+    ],
     ["Crew mobilization", c.mobilizationSavingsUsd],
     ["Shared laydown yard", c.yardSavingsUsd],
   ];
@@ -316,8 +353,7 @@ function CostBlock({ overlap }: { overlap: Overlap }) {
       {c.assumptions.length ? (
         <details className="group rounded-[8px] bg-wash px-3 py-2">
           <summary className="cursor-pointer list-none text-[12px] font-medium text-ink-2 marker:hidden">
-            <span className="inline-block transition-transform duration-150 group-open:rotate-90">›</span> Assumptions (
-            <span className="num">{c.assumptions.length}</span>)
+            How this was estimated
           </summary>
           <ul className="mt-2 flex list-disc flex-col gap-1 pl-4 text-[12px] leading-[17px] text-ink-2">
             {c.assumptions.map((a) => (
@@ -334,15 +370,33 @@ function SourceLink({ project }: { project: Project }) {
   const href = sourceHref(project);
   const body = (
     <>
-      <UtilityDot utility={project.utility} size={7} />
+      <span
+        aria-hidden
+        className="w-[3px] shrink-0 self-stretch rounded-full"
+        style={{ background: UTILITY_HEX[project.utility] }}
+      />
       <span className="min-w-0 flex-1">
-        <span className="block text-[13px] leading-[18px] text-ink">{project.source.document}</span>
-        <span className="num block text-[12px] text-ink-3">
-          {project.source.page != null ? `page ${project.source.page}` : "page not recorded"} · in service{" "}
-          {fmtMonthYear(project.inService)}
+        <span className="block text-[12px] font-semibold" style={{ color: UTILITY_HEX[project.utility] }}>
+          {UTILITY_NAME[project.utility]}
+        </span>
+        <span
+          className={cx(
+            "block text-[13px] leading-[18px] text-ink",
+            href && "underline decoration-hairline-strong underline-offset-2",
+          )}
+        >
+          {project.source.document}
+        </span>
+        <span className="block text-[12px] text-ink-3">
+          {project.source.page != null ? (
+            <>
+              page <span className="num">{project.source.page}</span>
+            </>
+          ) : (
+            "page not recorded"
+          )}
         </span>
       </span>
-      {href ? <ArrowUpRight size={16} aria-hidden className="shrink-0 text-ink-3" /> : null}
     </>
   );
   return (
@@ -383,8 +437,7 @@ function CopyMemo({ overlap, desc, gpc, rank }: { overlap: Overlap; desc: Projec
 
   return (
     <div className="flex items-center gap-3">
-      <Button variant="primary" onClick={copy} className="flex-1">
-        {state === "copied" ? <Check size={14} aria-hidden /> : <ClipboardCopy size={14} aria-hidden />}
+      <Button variant="primary" onClick={copy} className="h-9 flex-1">
         {state === "copied" ? "Memo copied" : "Copy coordination memo"}
       </Button>
       <span className="sr-only" aria-live="polite">
