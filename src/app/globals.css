@@ -488,15 +488,6 @@ input[type="range"].range::-moz-range-thumb {
 }
 
 /* ---------- Architecture page ---------- */
-.ab-in {
-  animation: ab-in 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-@keyframes ab-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-}
 .ab-river {
   stroke-dasharray: 14 26;
   animation: ab-river 6s linear infinite;
@@ -504,14 +495,6 @@ input[type="range"].range::-moz-range-thumb {
 @keyframes ab-river {
   to {
     stroke-dashoffset: -80;
-  }
-}
-.ab-tether {
-  animation: ab-tether 1.2s linear infinite;
-}
-@keyframes ab-tether {
-  to {
-    stroke-dashoffset: -18;
   }
 }
 .ab-blink {
@@ -535,7 +518,6 @@ input[type="range"].range::-moz-range-thumb {
 }
 @media (prefers-reduced-motion: reduce) {
   .ab-river,
-  .ab-tether,
   .ab-blink {
     animation: none;
   }
