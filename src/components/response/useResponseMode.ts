@@ -103,6 +103,17 @@ export function useResponseMode(initialStorm: string | null, initialTime: string
     [data, stormId],
   );
 
+  const flyToPoints = useCallback(
+    (pts: Position[], key: string) => {
+      if (!pts.length) return;
+      const pad = circleBounds(pts[0], 20);
+      const b = boundsOf([...pts, pad[0], pad[1]]);
+      if (!b) return;
+      setRequest({ stormId, view: { key: `${key}-${Date.now()}`, kind: "bounds", bounds: b, maxZoom: 9.5 } });
+    },
+    [stormId],
+  );
+
   const flyToYard = useCallback(
     (id: string) => {
       const y = data?.yards.find((x) => x.id === id);
@@ -192,6 +203,7 @@ export function useResponseMode(initialStorm: string | null, initialTime: string
     selectZone,
     clearZone,
     flyToYard,
+    flyToPoints,
     view,
     scene,
     files,

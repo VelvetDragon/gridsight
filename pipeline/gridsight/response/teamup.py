@@ -162,6 +162,7 @@ def lend_moves(t: pd.DataFrame) -> list[dict]:
             dh = drive_hours(t.loc[did, "home"], r["damageCenter"])
             moves.append({
                 "kind": "lend", "from": did, "to": rid, "crews": round(give),
+                "path": [[round(v, 4) for v in t.loc[did, "home"]], [round(v, 4) for v in r["damageCenter"]]],
                 "driveHours": round(dh, 1), "hoursSooner": round(before - after - dh, 1),
                 "costUsd": round(crew_cost(give, after, dh), -3),
                 "why": f"{NAME[did]} can finish its own repairs within a day and still send {round(give)} crews; "
@@ -210,6 +211,7 @@ def build(storm: str) -> dict:
             "id": oid, "name": r["name"], "lineKm": int(r.lineKm), "damagedSections": float(r.damagedSections),
             "workHours": int(r.workHours), "crews": int(r.crews), "hoursAlone": float(r.hoursAlone),
             "strongWindShare": float(r.strongWindShare),
+            "damageCenter": [round(v, 4) for v in r.damageCenter],
             "role": "little on this map" if r.lineKm < MIN_KM
             else "needs help" if r.hoursAlone > NEED_HOURS and r.damagedSections >= MIN_SECTIONS
             else ("can help" if r.hoursAlone <= KEEP_HOURS else "busy"),

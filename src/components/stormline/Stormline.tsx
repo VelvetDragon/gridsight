@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { CloudLightning, Layers, Wrench } from "lucide-react";
+import { CloudLightning, Handshake, Layers, Wrench } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useUrlParam } from "@/lib/useUrlState";
 import type { MapPadding } from "../map/MapCanvas";
@@ -14,6 +14,7 @@ import { Rail, railInset, RAIL_GUTTER, type RailSection } from "../shell/Rail";
 import { ErrorCard } from "../ui/states";
 import { StormBriefingButton } from "../integrations/StormBriefingButton";
 import { StormWatch } from "./StormWatch";
+import { TeamUpSection } from "./TeamUpSection";
 import { Block, BothGridsLine, CrewsSection, ModelCheck, More, StormPicker, TimeSavedBlock } from "./StormSections";
 
 const MapStage = dynamic(() => import("../map/MapStage"), {
@@ -81,6 +82,12 @@ export function Stormline() {
           )}
         </>
       ),
+    },
+    {
+      id: "teamup",
+      label: "Team up",
+      icon: <Handshake size={15} aria-hidden />,
+      content: data ? <TeamUpSection data={data} onFly={response.flyToPoints} /> : null,
     },
     {
       id: "crews",

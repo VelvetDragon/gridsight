@@ -7,6 +7,7 @@
  * uses those records to show an honest "Sample data" indicator.
  */
 import { isCostRangeList, isMutualAid, type CostRange, type MutualAid } from "./savings";
+import { isTeamUp, type TeamUp } from "./teamup";
 import type {
   CountyOutage,
   JointYard,
@@ -157,6 +158,7 @@ export function responseFiles(stormId: string) {
     yards: `${dir}/yards.json`,
     vulnerable: `${dir}/vulnerable.json`,
     mutualAid: `${dir}/mutual-aid.json`,
+    teamUp: `${dir}/teamup.json`,
   } as const;
 }
 
@@ -181,6 +183,8 @@ export interface ResponseData {
   river: LineCollection;
   /** Separate vs coordinated restoration scenarios, when available. */
   mutualAid: MutualAid | null;
+  /** Every transmission owner in the path and who should team up, when available. */
+  teamUp: TeamUp | null;
 }
 
 export interface Bundle<T> {
@@ -231,7 +235,10 @@ export async function loadResponse(stormId: string, signal?: AbortSignal): Promi
     loadDataFile<VulnerableArea[]>(f.vulnerable, "array", signal),
     loadOptionalLines(PLAN_FILES.river, signal),
   ]);
-  const mutualAid = await loadOptional(f.mutualAid, meta.origin === "sample", isMutualAid, signal);
+  const [mutualAid, teamUp] = await Promise.all([
+    loadOptional(f.mutualAid, meta.origin === "sample", isMutualAid, signal),
+    loadOptional(f.teamUp, false, isTeamUp, signal),
+  ]);
   return {
     data: {
       meta: meta.data,
@@ -243,8 +250,9 @@ export async function loadResponse(stormId: string, signal?: AbortSignal): Promi
       vulnerable: vulnerable.data,
       river: river.data,
       mutualAid: mutualAid?.data ?? null,
+      teamUp: teamUp?.data ?? null,
     },
     // The river is shared context, reported under Plan mode's status.
-    files: [meta, storm, segments, counties, zones, yards, vulnerable, ...(mutualAid ? [mutualAid] : [])].map(strip),
+    files: [meta, storm, segments, counties, zones, yards, vulnerable, ...(mutualAid ? [mutualAid] : []), ...(teamUp ? [teamUp] : [])].map(strip),
   };
 }
