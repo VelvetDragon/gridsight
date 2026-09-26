@@ -65,7 +65,7 @@ export function buildMemo(o: Overlap, desc: Project, gpc: Project, rank: number)
   const road = roadNote(o);
   const lines: string[] = [];
   lines.push(`COORDINATION MEMO: ${desc.name} / ${gpc.name}`);
-  lines.push(`Prepared with GridSight. Opportunity #${rank} of the current ranking.`);
+  lines.push(`Prepared with MrGridy. Opportunity #${rank} of the current ranking.`);
   lines.push("");
   lines.push("WHAT");
   lines.push(`- Dominion Energy (DESC): ${desc.name} (${projectLine(desc)}), in service ${fmtMonthYear(desc.inService)}.`);

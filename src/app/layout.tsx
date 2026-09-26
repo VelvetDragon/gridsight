@@ -28,7 +28,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "GridSight",
+  title: "MrGridy",
   description: "Where neighboring power companies' work collides, before they build and before the storm hits.",
 };
 
