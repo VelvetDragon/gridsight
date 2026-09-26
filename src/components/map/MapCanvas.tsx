@@ -110,7 +110,7 @@ export default function MapCanvas({
   );
 
   return (
-    <div className="absolute inset-0 bg-paper">
+    <div className="absolute inset-0 isolate bg-paper">
       <Map
         ref={mapRef}
         mapLib={maplibregl}

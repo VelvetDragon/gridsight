@@ -295,3 +295,11 @@ input[type="range"].range::-moz-range-thumb {
     animation: none;
   }
 }
+
+/* Without backdrop blur, glass needs to be nearly opaque to stay legible. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --glass: rgba(250, 248, 244, 0.97);
+    --glass-strong: rgba(252, 251, 248, 0.98);
+  }
+}
