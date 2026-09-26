@@ -1,0 +1,4307 @@
+[
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.97,
+        33.47
+      ],
+      [
+        -82.0066,
+        33.4186
+      ]
+    ],
+    "peakWindMph": 20,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.0066,
+        33.4186
+      ],
+      [
+        -82.03,
+        33.36
+      ]
+    ],
+    "peakWindMph": 20,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.03,
+        33.36
+      ],
+      [
+        -81.9969,
+        33.3317
+      ]
+    ],
+    "peakWindMph": 21,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9969,
+        33.3317
+      ],
+      [
+        -81.9638,
+        33.3034
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9638,
+        33.3034
+      ],
+      [
+        -81.9307,
+        33.2751
+      ]
+    ],
+    "peakWindMph": 23,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9307,
+        33.2751
+      ],
+      [
+        -81.8976,
+        33.2468
+      ]
+    ],
+    "peakWindMph": 24,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8976,
+        33.2468
+      ],
+      [
+        -81.8518,
+        33.2112
+      ]
+    ],
+    "peakWindMph": 26,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8518,
+        33.2112
+      ],
+      [
+        -81.8059,
+        33.1756
+      ]
+    ],
+    "peakWindMph": 27,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8059,
+        33.1756
+      ],
+      [
+        -81.76,
+        33.14
+      ]
+    ],
+    "peakWindMph": 29,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.76,
+        33.14
+      ],
+      [
+        -81.8077,
+        33.1573
+      ]
+    ],
+    "peakWindMph": 29,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8077,
+        33.1573
+      ],
+      [
+        -81.8555,
+        33.1746
+      ]
+    ],
+    "peakWindMph": 28,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8555,
+        33.1746
+      ],
+      [
+        -81.9032,
+        33.1919
+      ]
+    ],
+    "peakWindMph": 26,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9032,
+        33.1919
+      ],
+      [
+        -81.9509,
+        33.2092
+      ]
+    ],
+    "peakWindMph": 25,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9509,
+        33.2092
+      ],
+      [
+        -81.9987,
+        33.2265
+      ]
+    ],
+    "peakWindMph": 24,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9987,
+        33.2265
+      ],
+      [
+        -82.0464,
+        33.2438
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.0464,
+        33.2438
+      ],
+      [
+        -82.0941,
+        33.2611
+      ]
+    ],
+    "peakWindMph": 21,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.0941,
+        33.2611
+      ],
+      [
+        -82.1419,
+        33.2784
+      ]
+    ],
+    "peakWindMph": 20,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1419,
+        33.2784
+      ],
+      [
+        -82.1866,
+        33.3023
+      ]
+    ],
+    "peakWindMph": 19,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1866,
+        33.3023
+      ],
+      [
+        -82.2314,
+        33.3263
+      ]
+    ],
+    "peakWindMph": 18,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.2314,
+        33.3263
+      ],
+      [
+        -82.2762,
+        33.3502
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.2762,
+        33.3502
+      ],
+      [
+        -82.3209,
+        33.3742
+      ]
+    ],
+    "peakWindMph": 16,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3209,
+        33.3742
+      ],
+      [
+        -82.3657,
+        33.3981
+      ]
+    ],
+    "peakWindMph": 15,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3657,
+        33.3981
+      ],
+      [
+        -82.4105,
+        33.4221
+      ]
+    ],
+    "peakWindMph": 15,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.4105,
+        33.4221
+      ],
+      [
+        -82.4552,
+        33.446
+      ]
+    ],
+    "peakWindMph": 14,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.4552,
+        33.446
+      ],
+      [
+        -82.5,
+        33.47
+      ]
+    ],
+    "peakWindMph": 13,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.76,
+        33.14
+      ],
+      [
+        -81.8262,
+        33.1337
+      ]
+    ],
+    "peakWindMph": 29,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8262,
+        33.1337
+      ],
+      [
+        -81.8924,
+        33.1275
+      ]
+    ],
+    "peakWindMph": 28,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8924,
+        33.1275
+      ],
+      [
+        -81.9349,
+        33.115
+      ]
+    ],
+    "peakWindMph": 27,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9349,
+        33.115
+      ],
+      [
+        -81.9775,
+        33.1025
+      ]
+    ],
+    "peakWindMph": 26,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9775,
+        33.1025
+      ],
+      [
+        -82.02,
+        33.09
+      ]
+    ],
+    "peakWindMph": 25,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.02,
+        33.09
+      ],
+      [
+        -82.0687,
+        33.0788
+      ]
+    ],
+    "peakWindMph": 25,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.0687,
+        33.0788
+      ],
+      [
+        -82.1175,
+        33.0675
+      ]
+    ],
+    "peakWindMph": 24,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1175,
+        33.0675
+      ],
+      [
+        -82.1662,
+        33.0563
+      ]
+    ],
+    "peakWindMph": 23,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1662,
+        33.0563
+      ],
+      [
+        -82.215,
+        33.045
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.215,
+        33.045
+      ],
+      [
+        -82.2637,
+        33.0338
+      ]
+    ],
+    "peakWindMph": 21,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.2637,
+        33.0338
+      ],
+      [
+        -82.3125,
+        33.0225
+      ]
+    ],
+    "peakWindMph": 21,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3125,
+        33.0225
+      ],
+      [
+        -82.3612,
+        33.0113
+      ]
+    ],
+    "peakWindMph": 20,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3612,
+        33.0113
+      ],
+      [
+        -82.41,
+        33
+      ]
+    ],
+    "peakWindMph": 19,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.41,
+        33
+      ],
+      [
+        -82.41,
+        33.053
+      ]
+    ],
+    "peakWindMph": 18,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.41,
+        33.053
+      ],
+      [
+        -82.4101,
+        33.106
+      ]
+    ],
+    "peakWindMph": 18,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.4101,
+        33.106
+      ],
+      [
+        -82.4,
+        33.158
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.4,
+        33.158
+      ],
+      [
+        -82.39,
+        33.21
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.39,
+        33.21
+      ],
+      [
+        -82.4052,
+        33.2547
+      ]
+    ],
+    "peakWindMph": 16,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.4052,
+        33.2547
+      ],
+      [
+        -82.4204,
+        33.2993
+      ]
+    ],
+    "peakWindMph": 16,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.4204,
+        33.2993
+      ],
+      [
+        -82.4356,
+        33.344
+      ]
+    ],
+    "peakWindMph": 15,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.4356,
+        33.344
+      ],
+      [
+        -82.4571,
+        33.386
+      ]
+    ],
+    "peakWindMph": 14,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.4571,
+        33.386
+      ],
+      [
+        -82.4785,
+        33.428
+      ]
+    ],
+    "peakWindMph": 14,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.4785,
+        33.428
+      ],
+      [
+        -82.5,
+        33.47
+      ]
+    ],
+    "peakWindMph": 13,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.5,
+        33.47
+      ],
+      [
+        -82.4499,
+        33.4679
+      ]
+    ],
+    "peakWindMph": 13,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.4499,
+        33.4679
+      ],
+      [
+        -82.3998,
+        33.4657
+      ]
+    ],
+    "peakWindMph": 14,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3998,
+        33.4657
+      ],
+      [
+        -82.3498,
+        33.4636
+      ]
+    ],
+    "peakWindMph": 14,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3498,
+        33.4636
+      ],
+      [
+        -82.2998,
+        33.4591
+      ]
+    ],
+    "peakWindMph": 15,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.2998,
+        33.4591
+      ],
+      [
+        -82.2499,
+        33.4545
+      ]
+    ],
+    "peakWindMph": 15,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.2499,
+        33.4545
+      ],
+      [
+        -82.2,
+        33.45
+      ]
+    ],
+    "peakWindMph": 16,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.2,
+        33.45
+      ],
+      [
+        -82.1542,
+        33.491
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1542,
+        33.491
+      ],
+      [
+        -82.1,
+        33.52
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1,
+        33.52
+      ],
+      [
+        -82.0362,
+        33.4919
+      ]
+    ],
+    "peakWindMph": 18,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.0362,
+        33.4919
+      ],
+      [
+        -81.97,
+        33.47
+      ]
+    ],
+    "peakWindMph": 19,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1,
+        33.52
+      ],
+      [
+        -82.1157,
+        33.5343
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1157,
+        33.5343
+      ],
+      [
+        -82.13,
+        33.55
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.13,
+        33.55
+      ],
+      [
+        -82.1664,
+        33.5848
+      ]
+    ],
+    "peakWindMph": 16,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1664,
+        33.5848
+      ],
+      [
+        -82.2028,
+        33.6196
+      ]
+    ],
+    "peakWindMph": 15,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.2028,
+        33.6196
+      ],
+      [
+        -82.2392,
+        33.6544
+      ]
+    ],
+    "peakWindMph": 14,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.2392,
+        33.6544
+      ],
+      [
+        -82.2756,
+        33.6892
+      ]
+    ],
+    "peakWindMph": 13,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.2756,
+        33.6892
+      ],
+      [
+        -82.3192,
+        33.7144
+      ]
+    ],
+    "peakWindMph": 13,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3192,
+        33.7144
+      ],
+      [
+        -82.3628,
+        33.7396
+      ]
+    ],
+    "peakWindMph": 12,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3628,
+        33.7396
+      ],
+      [
+        -82.4064,
+        33.7648
+      ]
+    ],
+    "peakWindMph": 11,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.4064,
+        33.7648
+      ],
+      [
+        -82.45,
+        33.79
+      ]
+    ],
+    "peakWindMph": 11,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.03,
+        33.36
+      ],
+      [
+        -82.072,
+        33.3835
+      ]
+    ],
+    "peakWindMph": 20,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.072,
+        33.3835
+      ],
+      [
+        -82.1139,
+        33.407
+      ]
+    ],
+    "peakWindMph": 19,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1139,
+        33.407
+      ],
+      [
+        -82.157,
+        33.4285
+      ]
+    ],
+    "peakWindMph": 18,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.157,
+        33.4285
+      ],
+      [
+        -82.2,
+        33.45
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.02,
+        33.09
+      ],
+      [
+        -82.0049,
+        33.0425
+      ]
+    ],
+    "peakWindMph": 26,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.0049,
+        33.0425
+      ],
+      [
+        -81.9897,
+        32.995
+      ]
+    ],
+    "peakWindMph": 27,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9897,
+        32.995
+      ],
+      [
+        -81.9746,
+        32.9475
+      ]
+    ],
+    "peakWindMph": 28,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9746,
+        32.9475
+      ],
+      [
+        -81.9664,
+        32.8983
+      ]
+    ],
+    "peakWindMph": 29,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9664,
+        32.8983
+      ],
+      [
+        -81.9582,
+        32.8492
+      ]
+    ],
+    "peakWindMph": 30,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9582,
+        32.8492
+      ],
+      [
+        -81.95,
+        32.8
+      ]
+    ],
+    "peakWindMph": 31,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.95,
+        32.8
+      ],
+      [
+        -81.8991,
+        32.7867
+      ]
+    ],
+    "peakWindMph": 33,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8991,
+        32.7867
+      ],
+      [
+        -81.8483,
+        32.7734
+      ]
+    ],
+    "peakWindMph": 35,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8483,
+        32.7734
+      ],
+      [
+        -81.7974,
+        32.7601
+      ]
+    ],
+    "peakWindMph": 37,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.7974,
+        32.7601
+      ],
+      [
+        -81.7449,
+        32.7567
+      ]
+    ],
+    "peakWindMph": 39,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.7449,
+        32.7567
+      ],
+      [
+        -81.6925,
+        32.7534
+      ]
+    ],
+    "peakWindMph": 40,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.6925,
+        32.7534
+      ],
+      [
+        -81.64,
+        32.75
+      ]
+    ],
+    "peakWindMph": 43,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.64,
+        32.75
+      ],
+      [
+        -81.6575,
+        32.7125
+      ]
+    ],
+    "peakWindMph": 44,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.6575,
+        32.7125
+      ],
+      [
+        -81.675,
+        32.675
+      ]
+    ],
+    "peakWindMph": 44,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.675,
+        32.675
+      ],
+      [
+        -81.6925,
+        32.6375
+      ]
+    ],
+    "peakWindMph": 44,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.6925,
+        32.6375
+      ],
+      [
+        -81.71,
+        32.6
+      ]
+    ],
+    "peakWindMph": 44,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.71,
+        32.6
+      ],
+      [
+        -81.7275,
+        32.5625
+      ]
+    ],
+    "peakWindMph": 44,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.7275,
+        32.5625
+      ],
+      [
+        -81.745,
+        32.525
+      ]
+    ],
+    "peakWindMph": 44,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.745,
+        32.525
+      ],
+      [
+        -81.7625,
+        32.4875
+      ]
+    ],
+    "peakWindMph": 44,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.7625,
+        32.4875
+      ],
+      [
+        -81.78,
+        32.45
+      ]
+    ],
+    "peakWindMph": 44,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.78,
+        32.45
+      ],
+      [
+        -81.8364,
+        32.4597
+      ]
+    ],
+    "peakWindMph": 43,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8364,
+        32.4597
+      ],
+      [
+        -81.8929,
+        32.4694
+      ]
+    ],
+    "peakWindMph": 41,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8929,
+        32.4694
+      ],
+      [
+        -81.9493,
+        32.4792
+      ]
+    ],
+    "peakWindMph": 38,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9493,
+        32.4792
+      ],
+      [
+        -82.0058,
+        32.4889
+      ]
+    ],
+    "peakWindMph": 36,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.0058,
+        32.4889
+      ],
+      [
+        -82.0622,
+        32.4986
+      ]
+    ],
+    "peakWindMph": 34,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.0622,
+        32.4986
+      ],
+      [
+        -82.1158,
+        32.5189
+      ]
+    ],
+    "peakWindMph": 32,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1158,
+        32.5189
+      ],
+      [
+        -82.1693,
+        32.5392
+      ]
+    ],
+    "peakWindMph": 30,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.1693,
+        32.5392
+      ],
+      [
+        -82.2229,
+        32.5594
+      ]
+    ],
+    "peakWindMph": 28,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.2229,
+        32.5594
+      ],
+      [
+        -82.2764,
+        32.5797
+      ]
+    ],
+    "peakWindMph": 27,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.2764,
+        32.5797
+      ],
+      [
+        -82.33,
+        32.6
+      ]
+    ],
+    "peakWindMph": 25,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.33,
+        32.6
+      ],
+      [
+        -82.3351,
+        32.6406
+      ]
+    ],
+    "peakWindMph": 24,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3351,
+        32.6406
+      ],
+      [
+        -82.3402,
+        32.6812
+      ]
+    ],
+    "peakWindMph": 24,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3402,
+        32.6812
+      ],
+      [
+        -82.3454,
+        32.7217
+      ]
+    ],
+    "peakWindMph": 23,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3454,
+        32.7217
+      ],
+      [
+        -82.3505,
+        32.7623
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3505,
+        32.7623
+      ],
+      [
+        -82.3556,
+        32.8029
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3556,
+        32.8029
+      ],
+      [
+        -82.3692,
+        32.8522
+      ]
+    ],
+    "peakWindMph": 21,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3692,
+        32.8522
+      ],
+      [
+        -82.3828,
+        32.9014
+      ]
+    ],
+    "peakWindMph": 21,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3828,
+        32.9014
+      ],
+      [
+        -82.3964,
+        32.9507
+      ]
+    ],
+    "peakWindMph": 20,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -82.3964,
+        32.9507
+      ],
+      [
+        -82.41,
+        33
+      ]
+    ],
+    "peakWindMph": 19,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.78,
+        32.45
+      ],
+      [
+        -81.7235,
+        32.4426
+      ]
+    ],
+    "peakWindMph": 46,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.7235,
+        32.4426
+      ],
+      [
+        -81.6671,
+        32.4352
+      ]
+    ],
+    "peakWindMph": 48,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.6671,
+        32.4352
+      ],
+      [
+        -81.6106,
+        32.4278
+      ]
+    ],
+    "peakWindMph": 51,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.6106,
+        32.4278
+      ],
+      [
+        -81.5542,
+        32.4204
+      ]
+    ],
+    "peakWindMph": 54,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.5542,
+        32.4204
+      ],
+      [
+        -81.4981,
+        32.4103
+      ]
+    ],
+    "peakWindMph": 58,
+    "failureProbability": 0.001
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.4981,
+        32.4103
+      ],
+      [
+        -81.4421,
+        32.4002
+      ]
+    ],
+    "peakWindMph": 61,
+    "failureProbability": 0.001
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.4421,
+        32.4002
+      ],
+      [
+        -81.386,
+        32.3901
+      ]
+    ],
+    "peakWindMph": 65,
+    "failureProbability": 0.003
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.386,
+        32.3901
+      ],
+      [
+        -81.33,
+        32.38
+      ]
+    ],
+    "peakWindMph": 69,
+    "failureProbability": 0.007
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.33,
+        32.38
+      ],
+      [
+        -81.2538,
+        32.379
+      ]
+    ],
+    "peakWindMph": 73,
+    "failureProbability": 0.015
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.2538,
+        32.379
+      ],
+      [
+        -81.18,
+        32.36
+      ]
+    ],
+    "peakWindMph": 79,
+    "failureProbability": 0.035
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.18,
+        32.36
+      ],
+      [
+        -81.1837,
+        32.3167
+      ]
+    ],
+    "peakWindMph": 83,
+    "failureProbability": 0.055
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.1837,
+        32.3167
+      ],
+      [
+        -81.1875,
+        32.2735
+      ]
+    ],
+    "peakWindMph": 84,
+    "failureProbability": 0.064
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.1875,
+        32.2735
+      ],
+      [
+        -81.1912,
+        32.2302
+      ]
+    ],
+    "peakWindMph": 86,
+    "failureProbability": 0.073
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.1912,
+        32.2302
+      ],
+      [
+        -81.1908,
+        32.1868
+      ]
+    ],
+    "peakWindMph": 87,
+    "failureProbability": 0.084
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.1908,
+        32.1868
+      ],
+      [
+        -81.1904,
+        32.1434
+      ]
+    ],
+    "peakWindMph": 89,
+    "failureProbability": 0.099
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.1904,
+        32.1434
+      ],
+      [
+        -81.19,
+        32.1
+      ]
+    ],
+    "peakWindMph": 91,
+    "failureProbability": 0.115
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.19,
+        32.1
+      ],
+      [
+        -81.1395,
+        32.0924
+      ]
+    ],
+    "peakWindMph": 94,
+    "failureProbability": 0.15
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.1395,
+        32.0924
+      ],
+      [
+        -81.09,
+        32.08
+      ]
+    ],
+    "peakWindMph": 99,
+    "failureProbability": 0.213
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.09,
+        32.08
+      ],
+      [
+        -81.1467,
+        32.0513
+      ]
+    ],
+    "peakWindMph": 100,
+    "failureProbability": 0.22
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.1467,
+        32.0513
+      ],
+      [
+        -81.2034,
+        32.0226
+      ]
+    ],
+    "peakWindMph": 95,
+    "failureProbability": 0.167
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.2034,
+        32.0226
+      ],
+      [
+        -81.2356,
+        31.9951
+      ]
+    ],
+    "peakWindMph": 93,
+    "failureProbability": 0.135
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.2356,
+        31.9951
+      ],
+      [
+        -81.2678,
+        31.9675
+      ]
+    ],
+    "peakWindMph": 91,
+    "failureProbability": 0.117
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.2678,
+        31.9675
+      ],
+      [
+        -81.3,
+        31.94
+      ]
+    ],
+    "peakWindMph": 89,
+    "failureProbability": 0.1
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.76,
+        33.14
+      ],
+      [
+        -81.7848,
+        33.0981
+      ]
+    ],
+    "peakWindMph": 30,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.7848,
+        33.0981
+      ],
+      [
+        -81.8095,
+        33.0561
+      ]
+    ],
+    "peakWindMph": 30,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8095,
+        33.0561
+      ],
+      [
+        -81.8343,
+        33.0142
+      ]
+    ],
+    "peakWindMph": 31,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8343,
+        33.0142
+      ],
+      [
+        -81.8591,
+        32.9723
+      ]
+    ],
+    "peakWindMph": 31,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8591,
+        32.9723
+      ],
+      [
+        -81.8818,
+        32.9292
+      ]
+    ],
+    "peakWindMph": 31,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.8818,
+        32.9292
+      ],
+      [
+        -81.9045,
+        32.8861
+      ]
+    ],
+    "peakWindMph": 32,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9045,
+        32.8861
+      ],
+      [
+        -81.9273,
+        32.8431
+      ]
+    ],
+    "peakWindMph": 32,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9273,
+        32.8431
+      ],
+      [
+        -81.95,
+        32.8
+      ]
+    ],
+    "peakWindMph": 32,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.18,
+        32.36
+      ],
+      [
+        -81.1712,
+        32.3079
+      ]
+    ],
+    "peakWindMph": 84,
+    "failureProbability": 0.059
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.1712,
+        32.3079
+      ],
+      [
+        -81.1624,
+        32.2557
+      ]
+    ],
+    "peakWindMph": 86,
+    "failureProbability": 0.078
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.1624,
+        32.2557
+      ],
+      [
+        -81.1612,
+        32.2029
+      ]
+    ],
+    "peakWindMph": 89,
+    "failureProbability": 0.099
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.1612,
+        32.2029
+      ],
+      [
+        -81.16,
+        32.15
+      ]
+    ],
+    "peakWindMph": 91,
+    "failureProbability": 0.119
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.16,
+        32.15
+      ],
+      [
+        -81.1284,
+        32.1116
+      ]
+    ],
+    "peakWindMph": 94,
+    "failureProbability": 0.155
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.1284,
+        32.1116
+      ],
+      [
+        -81.09,
+        32.08
+      ]
+    ],
+    "peakWindMph": 99,
+    "failureProbability": 0.215
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -81.94,
+        33.475
+      ]
+    ],
+    "peakWindMph": 21,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.94,
+        33.475
+      ],
+      [
+        -81.95,
+        33.52
+      ]
+    ],
+    "peakWindMph": 20,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.95,
+        33.52
+      ],
+      [
+        -81.951,
+        33.5653
+      ]
+    ],
+    "peakWindMph": 19,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.951,
+        33.5653
+      ],
+      [
+        -81.952,
+        33.6106
+      ]
+    ],
+    "peakWindMph": 18,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.952,
+        33.6106
+      ],
+      [
+        -81.953,
+        33.656
+      ]
+    ],
+    "peakWindMph": 18,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.953,
+        33.656
+      ],
+      [
+        -81.9453,
+        33.7006
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.9453,
+        33.7006
+      ],
+      [
+        -81.9377,
+        33.7453
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.9377,
+        33.7453
+      ],
+      [
+        -81.93,
+        33.79
+      ]
+    ],
+    "peakWindMph": 16,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -81.8907,
+        33.4523
+      ]
+    ],
+    "peakWindMph": 21,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.8907,
+        33.4523
+      ],
+      [
+        -81.8514,
+        33.4746
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.8514,
+        33.4746
+      ],
+      [
+        -81.8157,
+        33.5023
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.8157,
+        33.5023
+      ],
+      [
+        -81.78,
+        33.53
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.78,
+        33.53
+      ],
+      [
+        -81.7504,
+        33.5457
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.7504,
+        33.5457
+      ],
+      [
+        -81.72,
+        33.56
+      ]
+    ],
+    "peakWindMph": 23,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.72,
+        33.56
+      ],
+      [
+        -81.7303,
+        33.6034
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.7303,
+        33.6034
+      ],
+      [
+        -81.7406,
+        33.6468
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.7406,
+        33.6468
+      ],
+      [
+        -81.7508,
+        33.6902
+      ]
+    ],
+    "peakWindMph": 21,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.7508,
+        33.6902
+      ],
+      [
+        -81.7611,
+        33.7336
+      ]
+    ],
+    "peakWindMph": 20,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.7611,
+        33.7336
+      ],
+      [
+        -81.7714,
+        33.777
+      ]
+    ],
+    "peakWindMph": 19,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.7714,
+        33.777
+      ],
+      [
+        -81.7711,
+        33.8216
+      ]
+    ],
+    "peakWindMph": 18,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.7711,
+        33.8216
+      ],
+      [
+        -81.7708,
+        33.8662
+      ]
+    ],
+    "peakWindMph": 18,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.7708,
+        33.8662
+      ],
+      [
+        -81.7706,
+        33.9108
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.7706,
+        33.9108
+      ],
+      [
+        -81.7703,
+        33.9554
+      ]
+    ],
+    "peakWindMph": 17,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.7703,
+        33.9554
+      ],
+      [
+        -81.77,
+        34
+      ]
+    ],
+    "peakWindMph": 16,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.72,
+        33.56
+      ],
+      [
+        -81.6593,
+        33.5721
+      ]
+    ],
+    "peakWindMph": 23,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.6593,
+        33.5721
+      ],
+      [
+        -81.5986,
+        33.5842
+      ]
+    ],
+    "peakWindMph": 24,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.5986,
+        33.5842
+      ],
+      [
+        -81.5378,
+        33.5964
+      ]
+    ],
+    "peakWindMph": 25,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.5378,
+        33.5964
+      ],
+      [
+        -81.4934,
+        33.6098
+      ]
+    ],
+    "peakWindMph": 26,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.4934,
+        33.6098
+      ],
+      [
+        -81.4489,
+        33.6232
+      ]
+    ],
+    "peakWindMph": 27,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.4489,
+        33.6232
+      ],
+      [
+        -81.4045,
+        33.6366
+      ]
+    ],
+    "peakWindMph": 28,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.4045,
+        33.6366
+      ],
+      [
+        -81.36,
+        33.65
+      ]
+    ],
+    "peakWindMph": 29,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.36,
+        33.65
+      ],
+      [
+        -81.3092,
+        33.6364
+      ]
+    ],
+    "peakWindMph": 30,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.3092,
+        33.6364
+      ],
+      [
+        -81.2585,
+        33.6228
+      ]
+    ],
+    "peakWindMph": 31,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.2585,
+        33.6228
+      ],
+      [
+        -81.2077,
+        33.6092
+      ]
+    ],
+    "peakWindMph": 33,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.2077,
+        33.6092
+      ],
+      [
+        -81.1569,
+        33.5956
+      ]
+    ],
+    "peakWindMph": 35,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.1569,
+        33.5956
+      ],
+      [
+        -81.1062,
+        33.582
+      ]
+    ],
+    "peakWindMph": 37,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.1062,
+        33.582
+      ],
+      [
+        -81.0569,
+        33.5636
+      ]
+    ],
+    "peakWindMph": 39,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0569,
+        33.5636
+      ],
+      [
+        -81.0077,
+        33.5452
+      ]
+    ],
+    "peakWindMph": 41,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0077,
+        33.5452
+      ],
+      [
+        -80.9585,
+        33.5268
+      ]
+    ],
+    "peakWindMph": 43,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9585,
+        33.5268
+      ],
+      [
+        -80.9092,
+        33.5084
+      ]
+    ],
+    "peakWindMph": 45,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9092,
+        33.5084
+      ],
+      [
+        -80.86,
+        33.49
+      ]
+    ],
+    "peakWindMph": 48,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.36,
+        33.24
+      ],
+      [
+        -81.3038,
+        33.2434
+      ]
+    ],
+    "peakWindMph": 40,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.3038,
+        33.2434
+      ],
+      [
+        -81.2476,
+        33.2468
+      ]
+    ],
+    "peakWindMph": 42,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.2476,
+        33.2468
+      ],
+      [
+        -81.1914,
+        33.2502
+      ]
+    ],
+    "peakWindMph": 44,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.1914,
+        33.2502
+      ],
+      [
+        -81.1376,
+        33.2668
+      ]
+    ],
+    "peakWindMph": 45,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.1376,
+        33.2668
+      ],
+      [
+        -81.0838,
+        33.2834
+      ]
+    ],
+    "peakWindMph": 47,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0838,
+        33.2834
+      ],
+      [
+        -81.03,
+        33.3
+      ]
+    ],
+    "peakWindMph": 48,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.03,
+        33.3
+      ],
+      [
+        -81.0009,
+        33.331
+      ]
+    ],
+    "peakWindMph": 49,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0009,
+        33.331
+      ],
+      [
+        -80.9718,
+        33.362
+      ]
+    ],
+    "peakWindMph": 49,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9718,
+        33.362
+      ],
+      [
+        -80.9427,
+        33.393
+      ]
+    ],
+    "peakWindMph": 49,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9427,
+        33.393
+      ],
+      [
+        -80.9151,
+        33.4253
+      ]
+    ],
+    "peakWindMph": 49,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9151,
+        33.4253
+      ],
+      [
+        -80.8876,
+        33.4577
+      ]
+    ],
+    "peakWindMph": 49,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.8876,
+        33.4577
+      ],
+      [
+        -80.86,
+        33.49
+      ]
+    ],
+    "peakWindMph": 49,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.36,
+        33.24
+      ],
+      [
+        -81.3489,
+        33.2023
+      ]
+    ],
+    "peakWindMph": 40,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.3489,
+        33.2023
+      ],
+      [
+        -81.3378,
+        33.1645
+      ]
+    ],
+    "peakWindMph": 41,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.3378,
+        33.1645
+      ],
+      [
+        -81.3267,
+        33.1268
+      ]
+    ],
+    "peakWindMph": 43,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.3267,
+        33.1268
+      ],
+      [
+        -81.3211,
+        33.0879
+      ]
+    ],
+    "peakWindMph": 44,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.3211,
+        33.0879
+      ],
+      [
+        -81.3156,
+        33.0489
+      ]
+    ],
+    "peakWindMph": 46,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.3156,
+        33.0489
+      ],
+      [
+        -81.31,
+        33.01
+      ]
+    ],
+    "peakWindMph": 47,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.31,
+        33.01
+      ],
+      [
+        -81.2634,
+        32.9702
+      ]
+    ],
+    "peakWindMph": 50,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.2634,
+        32.9702
+      ],
+      [
+        -81.2167,
+        32.9304
+      ]
+    ],
+    "peakWindMph": 53,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.2167,
+        32.9304
+      ],
+      [
+        -81.1634,
+        32.9002
+      ]
+    ],
+    "peakWindMph": 57,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.1634,
+        32.9002
+      ],
+      [
+        -81.11,
+        32.87
+      ]
+    ],
+    "peakWindMph": 61,
+    "failureProbability": 0.001
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.11,
+        32.87
+      ],
+      [
+        -81.0667,
+        32.84
+      ]
+    ],
+    "peakWindMph": 65,
+    "failureProbability": 0.003
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0667,
+        32.84
+      ],
+      [
+        -81.0233,
+        32.81
+      ]
+    ],
+    "peakWindMph": 69,
+    "failureProbability": 0.007
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0233,
+        32.81
+      ],
+      [
+        -80.98,
+        32.78
+      ]
+    ],
+    "peakWindMph": 73,
+    "failureProbability": 0.014
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.98,
+        32.78
+      ],
+      [
+        -80.9367,
+        32.75
+      ]
+    ],
+    "peakWindMph": 77,
+    "failureProbability": 0.026
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9367,
+        32.75
+      ],
+      [
+        -80.8933,
+        32.72
+      ]
+    ],
+    "peakWindMph": 82,
+    "failureProbability": 0.047
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.8933,
+        32.72
+      ],
+      [
+        -80.85,
+        32.69
+      ]
+    ],
+    "peakWindMph": 87,
+    "failureProbability": 0.079
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.85,
+        32.69
+      ],
+      [
+        -80.8234,
+        32.7279
+      ]
+    ],
+    "peakWindMph": 89,
+    "failureProbability": 0.098
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.8234,
+        32.7279
+      ],
+      [
+        -80.7967,
+        32.7658
+      ]
+    ],
+    "peakWindMph": 88,
+    "failureProbability": 0.094
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.7967,
+        32.7658
+      ],
+      [
+        -80.7701,
+        32.8036
+      ]
+    ],
+    "peakWindMph": 88,
+    "failureProbability": 0.09
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.7701,
+        32.8036
+      ],
+      [
+        -80.7367,
+        32.8358
+      ]
+    ],
+    "peakWindMph": 88,
+    "failureProbability": 0.09
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.7367,
+        32.8358
+      ],
+      [
+        -80.7034,
+        32.8679
+      ]
+    ],
+    "peakWindMph": 88,
+    "failureProbability": 0.093
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.7034,
+        32.8679
+      ],
+      [
+        -80.67,
+        32.9
+      ]
+    ],
+    "peakWindMph": 89,
+    "failureProbability": 0.097
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.85,
+        32.69
+      ],
+      [
+        -80.8742,
+        32.6566
+      ]
+    ],
+    "peakWindMph": 89,
+    "failureProbability": 0.102
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.8742,
+        32.6566
+      ],
+      [
+        -80.8984,
+        32.6231
+      ]
+    ],
+    "peakWindMph": 90,
+    "failureProbability": 0.106
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.8984,
+        32.6231
+      ],
+      [
+        -80.9226,
+        32.5897
+      ]
+    ],
+    "peakWindMph": 90,
+    "failureProbability": 0.109
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9226,
+        32.5897
+      ],
+      [
+        -80.9417,
+        32.5531
+      ]
+    ],
+    "peakWindMph": 91,
+    "failureProbability": 0.115
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9417,
+        32.5531
+      ],
+      [
+        -80.9609,
+        32.5166
+      ]
+    ],
+    "peakWindMph": 92,
+    "failureProbability": 0.125
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9609,
+        32.5166
+      ],
+      [
+        -80.98,
+        32.48
+      ]
+    ],
+    "peakWindMph": 93,
+    "failureProbability": 0.135
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.98,
+        32.48
+      ],
+      [
+        -80.9888,
+        32.4298
+      ]
+    ],
+    "peakWindMph": 94,
+    "failureProbability": 0.153
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9888,
+        32.4298
+      ],
+      [
+        -81,
+        32.38
+      ]
+    ],
+    "peakWindMph": 96,
+    "failureProbability": 0.177
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81,
+        32.38
+      ],
+      [
+        -80.9602,
+        32.3442
+      ]
+    ],
+    "peakWindMph": 100,
+    "failureProbability": 0.223
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9602,
+        32.3442
+      ],
+      [
+        -80.93,
+        32.3
+      ]
+    ],
+    "peakWindMph": 105,
+    "failureProbability": 0.301
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.93,
+        32.3
+      ],
+      [
+        -80.8964,
+        32.2683
+      ]
+    ],
+    "peakWindMph": 110,
+    "failureProbability": 0.379
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.8964,
+        32.2683
+      ],
+      [
+        -80.86,
+        32.24
+      ]
+    ],
+    "peakWindMph": 116,
+    "failureProbability": 0.464
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.11,
+        32.87
+      ],
+      [
+        -81.0989,
+        32.8296
+      ]
+    ],
+    "peakWindMph": 64,
+    "failureProbability": 0.003
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0989,
+        32.8296
+      ],
+      [
+        -81.0877,
+        32.7892
+      ]
+    ],
+    "peakWindMph": 67,
+    "failureProbability": 0.005
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0877,
+        32.7892
+      ],
+      [
+        -81.0766,
+        32.7488
+      ]
+    ],
+    "peakWindMph": 69,
+    "failureProbability": 0.008
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0766,
+        32.7488
+      ],
+      [
+        -81.0655,
+        32.7084
+      ]
+    ],
+    "peakWindMph": 72,
+    "failureProbability": 0.012
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0655,
+        32.7084
+      ],
+      [
+        -81.0544,
+        32.668
+      ]
+    ],
+    "peakWindMph": 75,
+    "failureProbability": 0.019
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0544,
+        32.668
+      ],
+      [
+        -81.0432,
+        32.6276
+      ]
+    ],
+    "peakWindMph": 78,
+    "failureProbability": 0.029
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0432,
+        32.6276
+      ],
+      [
+        -81.036,
+        32.5864
+      ]
+    ],
+    "peakWindMph": 81,
+    "failureProbability": 0.042
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.036,
+        32.5864
+      ],
+      [
+        -81.0288,
+        32.5451
+      ]
+    ],
+    "peakWindMph": 84,
+    "failureProbability": 0.059
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0288,
+        32.5451
+      ],
+      [
+        -81.0216,
+        32.5038
+      ]
+    ],
+    "peakWindMph": 87,
+    "failureProbability": 0.081
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0216,
+        32.5038
+      ],
+      [
+        -81.0144,
+        32.4625
+      ]
+    ],
+    "peakWindMph": 90,
+    "failureProbability": 0.107
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0144,
+        32.4625
+      ],
+      [
+        -81.0072,
+        32.4213
+      ]
+    ],
+    "peakWindMph": 93,
+    "failureProbability": 0.137
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0072,
+        32.4213
+      ],
+      [
+        -81,
+        32.38
+      ]
+    ],
+    "peakWindMph": 96,
+    "failureProbability": 0.169
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.67,
+        32.9
+      ],
+      [
+        -80.6785,
+        32.9438
+      ]
+    ],
+    "peakWindMph": 87,
+    "failureProbability": 0.084
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.6785,
+        32.9438
+      ],
+      [
+        -80.687,
+        32.9875
+      ]
+    ],
+    "peakWindMph": 84,
+    "failureProbability": 0.06
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.687,
+        32.9875
+      ],
+      [
+        -80.6955,
+        33.0313
+      ]
+    ],
+    "peakWindMph": 81,
+    "failureProbability": 0.042
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.6955,
+        33.0313
+      ],
+      [
+        -80.7041,
+        33.0751
+      ]
+    ],
+    "peakWindMph": 77,
+    "failureProbability": 0.028
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.7041,
+        33.0751
+      ],
+      [
+        -80.7126,
+        33.1189
+      ]
+    ],
+    "peakWindMph": 75,
+    "failureProbability": 0.018
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.7126,
+        33.1189
+      ],
+      [
+        -80.7211,
+        33.1626
+      ]
+    ],
+    "peakWindMph": 72,
+    "failureProbability": 0.012
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.7211,
+        33.1626
+      ],
+      [
+        -80.7296,
+        33.2064
+      ]
+    ],
+    "peakWindMph": 69,
+    "failureProbability": 0.007
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.7296,
+        33.2064
+      ],
+      [
+        -80.7482,
+        33.2469
+      ]
+    ],
+    "peakWindMph": 66,
+    "failureProbability": 0.004
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.7482,
+        33.2469
+      ],
+      [
+        -80.7669,
+        33.2874
+      ]
+    ],
+    "peakWindMph": 63,
+    "failureProbability": 0.002
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.7669,
+        33.2874
+      ],
+      [
+        -80.7855,
+        33.3279
+      ]
+    ],
+    "peakWindMph": 60,
+    "failureProbability": 0.001
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.7855,
+        33.3279
+      ],
+      [
+        -80.8041,
+        33.3685
+      ]
+    ],
+    "peakWindMph": 58,
+    "failureProbability": 0.001
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.8041,
+        33.3685
+      ],
+      [
+        -80.8227,
+        33.409
+      ]
+    ],
+    "peakWindMph": 55,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.8227,
+        33.409
+      ],
+      [
+        -80.8414,
+        33.4495
+      ]
+    ],
+    "peakWindMph": 53,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.8414,
+        33.4495
+      ],
+      [
+        -80.86,
+        33.49
+      ]
+    ],
+    "peakWindMph": 50,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -81.8767,
+        33.4612
+      ]
+    ],
+    "peakWindMph": 21,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.8767,
+        33.4612
+      ],
+      [
+        -81.8234,
+        33.4925
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.8234,
+        33.4925
+      ],
+      [
+        -81.7717,
+        33.5262
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.7717,
+        33.5262
+      ],
+      [
+        -81.72,
+        33.56
+      ]
+    ],
+    "peakWindMph": 23,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -81.9514,
+        33.4486
+      ]
+    ],
+    "peakWindMph": 21,
+    "failureProbability": 0
+  },
+  {
+    "utility": "GPC",
+    "coordinates": [
+      [
+        -81.9514,
+        33.4486
+      ],
+      [
+        -81.97,
+        33.47
+      ]
+    ],
+    "peakWindMph": 20,
+    "failureProbability": 0
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.93,
+        32.3
+      ],
+      [
+        -80.9911,
+        32.321
+      ]
+    ],
+    "peakWindMph": 104,
+    "failureProbability": 0.285
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -80.9911,
+        32.321
+      ],
+      [
+        -81.0521,
+        32.342
+      ]
+    ],
+    "peakWindMph": 97,
+    "failureProbability": 0.19
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.0521,
+        32.342
+      ],
+      [
+        -81.1161,
+        32.351
+      ]
+    ],
+    "peakWindMph": 91,
+    "failureProbability": 0.118
+  },
+  {
+    "utility": "DESC",
+    "coordinates": [
+      [
+        -81.1161,
+        32.351
+      ],
+      [
+        -81.18,
+        32.36
+      ]
+    ],
+    "peakWindMph": 85,
+    "failureProbability": 0.069
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.76,
+        33.14
+      ],
+      [
+        -81.735,
+        33.175
+      ]
+    ],
+    "peakWindMph": 30,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.735,
+        33.175
+      ],
+      [
+        -81.71,
+        33.21
+      ]
+    ],
+    "peakWindMph": 30,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.71,
+        33.21
+      ],
+      [
+        -81.685,
+        33.245
+      ]
+    ],
+    "peakWindMph": 30,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.685,
+        33.245
+      ],
+      [
+        -81.66,
+        33.28
+      ]
+    ],
+    "peakWindMph": 30,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.66,
+        33.28
+      ],
+      [
+        -81.6094,
+        33.2781
+      ]
+    ],
+    "peakWindMph": 30,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.6094,
+        33.2781
+      ],
+      [
+        -81.5587,
+        33.2763
+      ]
+    ],
+    "peakWindMph": 31,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.5587,
+        33.2763
+      ],
+      [
+        -81.5081,
+        33.2744
+      ]
+    ],
+    "peakWindMph": 33,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.5081,
+        33.2744
+      ],
+      [
+        -81.4587,
+        33.2629
+      ]
+    ],
+    "peakWindMph": 34,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.4587,
+        33.2629
+      ],
+      [
+        -81.4094,
+        33.2515
+      ]
+    ],
+    "peakWindMph": 36,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.4094,
+        33.2515
+      ],
+      [
+        -81.36,
+        33.24
+      ]
+    ],
+    "peakWindMph": 38,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.93,
+        33.43
+      ],
+      [
+        -81.8868,
+        33.4018
+      ]
+    ],
+    "peakWindMph": 22,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.8868,
+        33.4018
+      ],
+      [
+        -81.8436,
+        33.3735
+      ]
+    ],
+    "peakWindMph": 23,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.8436,
+        33.3735
+      ],
+      [
+        -81.8004,
+        33.3453
+      ]
+    ],
+    "peakWindMph": 24,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.8004,
+        33.3453
+      ],
+      [
+        -81.7536,
+        33.3235
+      ]
+    ],
+    "peakWindMph": 26,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.7536,
+        33.3235
+      ],
+      [
+        -81.7068,
+        33.3018
+      ]
+    ],
+    "peakWindMph": 27,
+    "failureProbability": 0
+  },
+  {
+    "utility": "OTHER",
+    "coordinates": [
+      [
+        -81.7068,
+        33.3018
+      ],
+      [
+        -81.66,
+        33.28
+      ]
+    ],
+    "peakWindMph": 29,
+    "failureProbability": 0
+  }
+]

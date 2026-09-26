@@ -88,6 +88,11 @@ export function stormCategory(kt: number): string {
   return "Depression";
 }
 
+export function stormCategoryShort(kt: number): string {
+  const c = stormCategory(kt);
+  return c === "Tropical storm" ? "TS" : c === "Depression" ? "TD" : c;
+}
+
 export const ACTION_LABEL = {
   new: "New construction",
   rebuild: "Rebuild",

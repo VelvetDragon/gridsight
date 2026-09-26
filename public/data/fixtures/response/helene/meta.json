@@ -1,0 +1,33 @@
+{
+  "generatedAt": "fixture",
+  "simulations": 10000,
+  "device": "cpu",
+  "validation": {
+    "countyMaePredicted": 0.052,
+    "countyMaeBaseline": 0.212,
+    "reportedDescTransmissionPoles": 31,
+    "predictedDescTransmissionFailures": 27
+  },
+  "crossValidation": [
+    {
+      "storm": "helene",
+      "maePredicted": 0.071,
+      "maeBaseline": 0.188
+    },
+    {
+      "storm": "irma",
+      "maePredicted": 0.064,
+      "maeBaseline": 0.121
+    },
+    {
+      "storm": "idalia",
+      "maePredicted": 0.039,
+      "maeBaseline": 0.072
+    },
+    {
+      "storm": "debby",
+      "maePredicted": 0.052,
+      "maeBaseline": 0.069
+    }
+  ]
+}

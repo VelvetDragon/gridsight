@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { PanelLeftOpen } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { PanelLeftOpen, PanelRightOpen } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { loadPlan } from "@/lib/data";
 import { boundsOf, circleBounds, geometryPoints, midpoint, type Bounds } from "@/lib/geo";
 import { DEFAULT_WEIGHTS, rankOverlaps, type RankWeights } from "@/lib/ranking";
@@ -18,6 +18,10 @@ import { MatchDrawer } from "./plan/MatchDrawer";
 import { OpportunityList } from "./plan/OpportunityList";
 import { ProjectPopover } from "./plan/ProjectPopover";
 import { RadarBar } from "./plan/RadarBar";
+import { LayersPanel } from "./response/LayersPanel";
+import { ResponsePanel } from "./response/ResponsePanel";
+import { StormScrubber } from "./response/StormScrubber";
+import { useResponseMode } from "./response/useResponseMode";
 import { TopBar } from "./TopBar";
 import { ErrorCard } from "./ui/states";
 
@@ -33,11 +37,15 @@ const DRAWER_W = 408;
 const BOTTOM_BAR = 76;
 /** Space kept clear under bottom-anchored panels so map attribution stays visible. */
 const ATTRIBUTION_CLEARANCE = 36;
+const LAYERS_W = 300;
+const RESPONSE_W = 372;
 
 function readParam(name: string): string | null {
   if (typeof window === "undefined") return null;
   return new URLSearchParams(window.location.search).get(name);
 }
+
+const noSubscribe = () => () => {};
 
 /** Camera bounds for a match: both projects, the staging yard and the inner tier rings. */
 function overlapBounds(o: Overlap, projectsById: Map<string, Project>): Bounds | null {
@@ -53,7 +61,10 @@ function overlapBounds(o: Overlap, projectsById: Map<string, Project>): Bounds |
 }
 
 export default function App() {
-  const [mode, setMode] = useState<Mode>("plan");
+  // ?mode=response opens Response mode. Read hydration-safely (server renders Plan).
+  const urlMode = useSyncExternalStore(noSubscribe, () => readParam("mode"), () => null);
+  const [modeChoice, setMode] = useState<Mode | null>(null);
+  const mode: Mode = modeChoice ?? (urlMode === "response" ? "response" : "plan");
   const [planState, retryPlan] = useDataset(loadPlan);
   const plan = planState.status === "ready" ? planState.data : null;
 
@@ -107,15 +118,22 @@ export default function App() {
     });
   }, []);
 
+  // ---------- Response state ----------
+  const response = useResponseMode(readParam("storm"), readParam("t"));
+  const [layersOpen, setLayersOpen] = useState(true);
+  const [respPanelOpen, setRespPanelOpen] = useState(true);
+  const { clearZone } = response;
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      if (popup) setPopup(null);
+      if (mode === "response") clearZone();
+      else if (popup) setPopup(null);
       else if (selectedId) setSelectedId(null);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [popup, selectedId]);
+  }, [mode, popup, selectedId, clearZone]);
 
   const radarMonth = radarOn ? radar.value : null;
 
@@ -150,29 +168,56 @@ export default function App() {
   );
 
   const drawerOpen = mode === "plan" && !!selected;
-  const padding = useMemo<MapPadding>(
-    () => ({
-      top: GUTTER + TOP_BAR + 32,
-      bottom: BOTTOM_BAR + ATTRIBUTION_CLEARANCE + 32,
+  const padding = useMemo<MapPadding>(() => {
+    const base = { top: GUTTER + TOP_BAR + 32, bottom: BOTTOM_BAR + ATTRIBUTION_CLEARANCE + 32 };
+    if (mode === "response") {
+      return {
+        ...base,
+        left: layersOpen ? GUTTER + LAYERS_W + 32 : 48,
+        right: respPanelOpen ? GUTTER + RESPONSE_W + 32 : 48,
+      };
+    }
+    return {
+      ...base,
       left: leftOpen ? GUTTER + LEFT_W + 32 : 48,
       right: drawerOpen ? GUTTER + DRAWER_W + 32 : 48,
-    }),
-    [leftOpen, drawerOpen],
-  );
+    };
+  }, [mode, leftOpen, drawerOpen, layersOpen, respPanelOpen]);
 
-  const status = {
-    loading: planState.status === "loading",
-    files: planState.status === "ready" ? planState.files : null,
-    generatedAt: plan?.meta.generatedAt ?? null,
-  };
+  const status =
+    mode === "plan"
+      ? {
+          loading: planState.status === "loading",
+          files: planState.status === "ready" ? planState.files : null,
+          generatedAt: plan?.meta.generatedAt ?? null,
+        }
+      : {
+          loading: !response.files && !response.error,
+          files: response.files,
+          generatedAt: response.data?.meta.generatedAt ?? null,
+        };
+
+  const subtitle =
+    mode === "plan"
+      ? "Where DESC and Georgia Power construction plans meet"
+      : response.data
+        ? `Hurricane ${response.data.storm.name} (${response.data.storm.year}), replayed`
+        : "Storm replay";
 
   return (
     <main className="relative h-dvh w-full overflow-hidden bg-paper">
-      <MapStage mode={mode} plan={planScene} popup={mapPopup} view={effectiveView} padding={padding} />
+      <MapStage
+        mode={mode}
+        plan={planScene}
+        response={response.scene}
+        popup={mapPopup}
+        view={mode === "plan" ? effectiveView : response.view}
+        padding={padding}
+      />
 
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute" style={{ top: GUTTER, left: GUTTER, right: GUTTER }}>
-          <TopBar mode={mode} onMode={setMode} status={status} />
+          <TopBar mode={mode} onMode={setMode} status={status} subtitle={subtitle} />
         </div>
 
         {mode === "plan" ? (
@@ -255,7 +300,84 @@ export default function App() {
 
             {planState.status === "error" ? <ErrorCard message={planState.error} onRetry={retryPlan} /> : null}
           </>
-        ) : null}
+        ) : (
+          <>
+            {layersOpen ? (
+              <div className="gs-in-left pointer-events-auto absolute" style={{ top: GUTTER * 2 + TOP_BAR, left: GUTTER }}>
+                <LayersPanel
+                  visible={response.visible}
+                  onToggle={response.toggleLayer}
+                  onCollapse={() => setLayersOpen(false)}
+                  hasActuals={!!response.data?.counties.some((c) => c.actualPeakOut != null)}
+                />
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setLayersOpen(true)}
+                className="glass gs-fade pointer-events-auto absolute flex h-9 items-center gap-2 rounded-[10px] px-3 text-[13px] font-medium text-ink"
+                style={{ top: GUTTER * 2 + TOP_BAR, left: GUTTER }}
+              >
+                <PanelLeftOpen size={16} aria-hidden className="text-ink-2" />
+                Layers
+              </button>
+            )}
+
+            {respPanelOpen ? (
+              <div
+                className="gs-in-right pointer-events-auto absolute"
+                style={{ top: GUTTER * 2 + TOP_BAR, right: GUTTER, bottom: ATTRIBUTION_CLEARANCE }}
+              >
+                <ResponsePanel
+                  storms={response.storms}
+                  stormId={response.stormId}
+                  onStorm={response.pickStorm}
+                  data={response.data}
+                  loading={response.loading}
+                  selectedZoneId={response.selectedZoneId}
+                  onZone={response.selectZone}
+                  onYard={response.flyToYard}
+                  onCollapse={() => setRespPanelOpen(false)}
+                />
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setRespPanelOpen(true)}
+                className="glass gs-fade pointer-events-auto absolute flex h-9 items-center gap-2 rounded-[10px] px-3 text-[13px] font-medium text-ink"
+                style={{ top: GUTTER * 2 + TOP_BAR, right: GUTTER }}
+              >
+                <PanelRightOpen size={16} aria-hidden className="text-ink-2" />
+                Storm details
+              </button>
+            )}
+
+            {response.data && response.times.length > 1 ? (
+              <div
+                className="pointer-events-auto absolute"
+                style={{
+                  left: layersOpen ? GUTTER * 2 + LAYERS_W : GUTTER,
+                  right: respPanelOpen ? GUTTER * 2 + RESPONSE_W : GUTTER,
+                  bottom: ATTRIBUTION_CLEARANCE,
+                  transition: "left 220ms ease, right 220ms ease",
+                }}
+              >
+                <div className="mx-auto max-w-[880px]">
+                  <StormScrubber
+                    storm={response.data.storm}
+                    times={response.times}
+                    value={response.replay.value}
+                    playing={response.replay.playing}
+                    onSeek={response.replay.seek}
+                    onToggle={response.replay.toggle}
+                  />
+                </div>
+              </div>
+            ) : null}
+
+            {response.error ? <ErrorCard message={response.error.message} onRetry={response.error.retry} /> : null}
+          </>
+        )}
       </div>
     </main>
   );

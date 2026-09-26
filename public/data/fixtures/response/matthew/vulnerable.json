@@ -1,0 +1,282 @@
+[
+  {
+    "zip": "30901",
+    "position": [
+      -81.97,
+      33.46
+    ],
+    "electricityDependent": 410
+  },
+  {
+    "zip": "30904",
+    "position": [
+      -82.01,
+      33.48
+    ],
+    "electricityDependent": 520
+  },
+  {
+    "zip": "30906",
+    "position": [
+      -82.03,
+      33.37
+    ],
+    "electricityDependent": 820
+  },
+  {
+    "zip": "30907",
+    "position": [
+      -82.1,
+      33.52
+    ],
+    "electricityDependent": 530
+  },
+  {
+    "zip": "30909",
+    "position": [
+      -82.08,
+      33.47
+    ],
+    "electricityDependent": 610
+  },
+  {
+    "zip": "30815",
+    "position": [
+      -82.08,
+      33.3
+    ],
+    "electricityDependent": 300
+  },
+  {
+    "zip": "30813",
+    "position": [
+      -82.2,
+      33.45
+    ],
+    "electricityDependent": 260
+  },
+  {
+    "zip": "30809",
+    "position": [
+      -82.15,
+      33.56
+    ],
+    "electricityDependent": 340
+  },
+  {
+    "zip": "29801",
+    "position": [
+      -81.72,
+      33.56
+    ],
+    "electricityDependent": 480
+  },
+  {
+    "zip": "29803",
+    "position": [
+      -81.7,
+      33.49
+    ],
+    "electricityDependent": 390
+  },
+  {
+    "zip": "29841",
+    "position": [
+      -81.95,
+      33.52
+    ],
+    "electricityDependent": 420
+  },
+  {
+    "zip": "29842",
+    "position": [
+      -81.88,
+      33.43
+    ],
+    "electricityDependent": 90
+  },
+  {
+    "zip": "29860",
+    "position": [
+      -81.99,
+      33.62
+    ],
+    "electricityDependent": 150
+  },
+  {
+    "zip": "29824",
+    "position": [
+      -81.93,
+      33.79
+    ],
+    "electricityDependent": 120
+  },
+  {
+    "zip": "30830",
+    "position": [
+      -82.02,
+      33.09
+    ],
+    "electricityDependent": 170
+  },
+  {
+    "zip": "30824",
+    "position": [
+      -82.5,
+      33.47
+    ],
+    "electricityDependent": 190
+  },
+  {
+    "zip": "30434",
+    "position": [
+      -82.4,
+      33
+    ],
+    "electricityDependent": 110
+  },
+  {
+    "zip": "29812",
+    "position": [
+      -81.36,
+      33.24
+    ],
+    "electricityDependent": 150
+  },
+  {
+    "zip": "29810",
+    "position": [
+      -81.31,
+      33.01
+    ],
+    "electricityDependent": 80
+  },
+  {
+    "zip": "30467",
+    "position": [
+      -81.64,
+      32.75
+    ],
+    "electricityDependent": 110
+  },
+  {
+    "zip": "30442",
+    "position": [
+      -81.95,
+      32.8
+    ],
+    "electricityDependent": 70
+  },
+  {
+    "zip": "29936",
+    "position": [
+      -80.98,
+      32.48
+    ],
+    "electricityDependent": 95
+  },
+  {
+    "zip": "29910",
+    "position": [
+      -80.86,
+      32.24
+    ],
+    "electricityDependent": 210
+  },
+  {
+    "zip": "31401",
+    "position": [
+      -81.09,
+      32.08
+    ],
+    "electricityDependent": 380
+  },
+  {
+    "zip": "31326",
+    "position": [
+      -81.23,
+      32.3
+    ],
+    "electricityDependent": 140
+  },
+  {
+    "zip": "29115",
+    "position": [
+      -80.86,
+      33.49
+    ],
+    "electricityDependent": 260
+  },
+  {
+    "zip": "31405",
+    "position": [
+      -81.12,
+      32.03
+    ],
+    "electricityDependent": 450
+  },
+  {
+    "zip": "31406",
+    "position": [
+      -81.08,
+      31.99
+    ],
+    "electricityDependent": 390
+  },
+  {
+    "zip": "31322",
+    "position": [
+      -81.25,
+      32.1
+    ],
+    "electricityDependent": 230
+  },
+  {
+    "zip": "31324",
+    "position": [
+      -81.3,
+      31.94
+    ],
+    "electricityDependent": 170
+  },
+  {
+    "zip": "31328",
+    "position": [
+      -80.85,
+      32
+    ],
+    "electricityDependent": 60
+  },
+  {
+    "zip": "29902",
+    "position": [
+      -80.69,
+      32.43
+    ],
+    "electricityDependent": 310
+  },
+  {
+    "zip": "29926",
+    "position": [
+      -80.75,
+      32.22
+    ],
+    "electricityDependent": 280
+  },
+  {
+    "zip": "29928",
+    "position": [
+      -80.75,
+      32.15
+    ],
+    "electricityDependent": 240
+  },
+  {
+    "zip": "29488",
+    "position": [
+      -80.67,
+      32.9
+    ],
+    "electricityDependent": 160
+  }
+]

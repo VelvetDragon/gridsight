@@ -1,0 +1,78 @@
+{
+  "id": "AL092024",
+  "name": "Helene",
+  "year": 2024,
+  "track": [
+    {
+      "time": "2024-09-26T12:00:00Z",
+      "position": [
+        -85.1,
+        26.3
+      ],
+      "windKt": 95,
+      "pressureMb": 960,
+      "rmwKm": 30
+    },
+    {
+      "time": "2024-09-26T18:00:00Z",
+      "position": [
+        -84.6,
+        27.9
+      ],
+      "windKt": 110,
+      "pressureMb": 950,
+      "rmwKm": 32
+    },
+    {
+      "time": "2024-09-27T00:00:00Z",
+      "position": [
+        -83.9,
+        29.9
+      ],
+      "windKt": 120,
+      "pressureMb": 938,
+      "rmwKm": 35
+    },
+    {
+      "time": "2024-09-27T06:00:00Z",
+      "position": [
+        -83.3,
+        31.2
+      ],
+      "windKt": 80,
+      "pressureMb": 962,
+      "rmwKm": 60
+    },
+    {
+      "time": "2024-09-27T12:00:00Z",
+      "position": [
+        -82.2,
+        33.6
+      ],
+      "windKt": 55,
+      "pressureMb": 978,
+      "rmwKm": 90
+    },
+    {
+      "time": "2024-09-27T18:00:00Z",
+      "position": [
+        -82.5,
+        35.2
+      ],
+      "windKt": 40,
+      "pressureMb": 986,
+      "rmwKm": null
+    },
+    {
+      "time": "2024-09-28T00:00:00Z",
+      "position": [
+        -83.2,
+        36.4
+      ],
+      "windKt": 30,
+      "pressureMb": 992,
+      "rmwKm": null
+    }
+  ],
+  "replayStart": "2024-09-26T18:00:00Z"
+}

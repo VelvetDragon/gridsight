@@ -1,0 +1,81 @@
+[
+  {
+    "id": "z-savannah",
+    "centroid": [
+      -81.1,
+      32.05
+    ],
+    "utilities": [
+      "GPC"
+    ],
+    "expectedDamagedSegments": 1.8,
+    "vulnerablePeople": 1450,
+    "priority": 1
+  },
+  {
+    "id": "z-port-hardeeville",
+    "centroid": [
+      -81.08,
+      32.22
+    ],
+    "utilities": [
+      "DESC",
+      "GPC"
+    ],
+    "expectedDamagedSegments": 3.8,
+    "vulnerablePeople": 520,
+    "priority": 2
+  },
+  {
+    "id": "z-okatie-jasper",
+    "centroid": [
+      -80.96,
+      32.33
+    ],
+    "utilities": [
+      "DESC"
+    ],
+    "expectedDamagedSegments": 2.9,
+    "vulnerablePeople": 305,
+    "priority": 3
+  },
+  {
+    "id": "z-hilton-head",
+    "centroid": [
+      -80.76,
+      32.2
+    ],
+    "utilities": [
+      "DESC"
+    ],
+    "expectedDamagedSegments": 0.8,
+    "vulnerablePeople": 730,
+    "priority": 4
+  },
+  {
+    "id": "z-richmond-hill",
+    "centroid": [
+      -81.3,
+      31.95
+    ],
+    "utilities": [
+      "GPC"
+    ],
+    "expectedDamagedSegments": 0.5,
+    "vulnerablePeople": 400,
+    "priority": 5
+  },
+  {
+    "id": "z-walterboro",
+    "centroid": [
+      -80.67,
+      32.9
+    ],
+    "utilities": [
+      "DESC"
+    ],
+    "expectedDamagedSegments": 0.6,
+    "vulnerablePeople": 160,
+    "priority": 6
+  }
+]

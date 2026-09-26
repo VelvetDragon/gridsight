@@ -17,6 +17,7 @@ import type {
   RepairZone,
   ResponseMeta,
   Storm,
+  StormIndexEntry,
   VulnerableArea,
 } from "./types";
 
@@ -116,15 +117,21 @@ export const PLAN_FILES = {
   river: "context/savannah-river.geojson",
 } as const;
 
-export const RESPONSE_FILES = {
-  meta: "response/helene/meta.json",
-  storm: "response/helene/storm.json",
-  segments: "response/helene/segments.json",
-  counties: "response/helene/counties.json",
-  zones: "response/helene/zones.json",
-  yards: "response/helene/yards.json",
-  vulnerable: "response/helene/vulnerable.json",
-} as const;
+export const STORM_INDEX_FILE = "response/storms.json";
+
+/** Per-storm files live in /data/response/<id>/ (Helene: /data/response/helene/). */
+export function responseFiles(stormId: string) {
+  const dir = `response/${encodeURIComponent(stormId)}`;
+  return {
+    meta: `${dir}/meta.json`,
+    storm: `${dir}/storm.json`,
+    segments: `${dir}/segments.json`,
+    counties: `${dir}/counties.json`,
+    zones: `${dir}/zones.json`,
+    yards: `${dir}/yards.json`,
+    vulnerable: `${dir}/vulnerable.json`,
+  } as const;
+}
 
 export interface PlanData {
   meta: PlanMeta;
@@ -174,15 +181,21 @@ export async function loadPlan(signal?: AbortSignal): Promise<Bundle<PlanData>> 
   };
 }
 
-export async function loadResponse(signal?: AbortSignal): Promise<Bundle<ResponseData>> {
+export async function loadStormIndex(signal?: AbortSignal): Promise<Bundle<StormIndexEntry[]>> {
+  const index = await loadDataFile<StormIndexEntry[]>(STORM_INDEX_FILE, "array", signal);
+  return { data: index.data, files: [strip(index)] };
+}
+
+export async function loadResponse(stormId: string, signal?: AbortSignal): Promise<Bundle<ResponseData>> {
+  const f = responseFiles(stormId);
   const [meta, storm, segments, counties, zones, yards, vulnerable, river] = await Promise.all([
-    loadDataFile<ResponseMeta>(RESPONSE_FILES.meta, "object", signal),
-    loadDataFile<Storm>(RESPONSE_FILES.storm, "object", signal),
-    loadDataFile<LineSegmentRisk[]>(RESPONSE_FILES.segments, "array", signal),
-    loadDataFile<CountyOutage[]>(RESPONSE_FILES.counties, "array", signal),
-    loadDataFile<RepairZone[]>(RESPONSE_FILES.zones, "array", signal),
-    loadDataFile<JointYard[]>(RESPONSE_FILES.yards, "array", signal),
-    loadDataFile<VulnerableArea[]>(RESPONSE_FILES.vulnerable, "array", signal),
+    loadDataFile<ResponseMeta>(f.meta, "object", signal),
+    loadDataFile<Storm>(f.storm, "object", signal),
+    loadDataFile<LineSegmentRisk[]>(f.segments, "array", signal),
+    loadDataFile<CountyOutage[]>(f.counties, "array", signal),
+    loadDataFile<RepairZone[]>(f.zones, "array", signal),
+    loadDataFile<JointYard[]>(f.yards, "array", signal),
+    loadDataFile<VulnerableArea[]>(f.vulnerable, "array", signal),
     loadOptionalLines(PLAN_FILES.river, signal),
   ]);
   return {
