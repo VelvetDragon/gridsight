@@ -139,6 +139,25 @@ export interface PlanMeta {
 
 /* ---------------- Response mode ---------------- */
 
+/**
+ * One replayable storm. Files for a storm live in /data/response/<id>/
+ * (storm.json, segments.json, counties.json, zones.json, yards.json,
+ * vulnerable.json, meta.json). The list of storms is /data/response/storms.json.
+ */
+export interface StormIndexEntry {
+  /** Folder name, e.g. "helene", "matthew". */
+  id: string;
+  name: string;
+  year: number;
+  /** One line shown in the picker, e.g. "Inland: Augusta and Aiken". */
+  headline: string;
+  focus: "inland" | "coastal";
+  /** true when EAGLE-I actual outages are available to compare against. */
+  validated: boolean;
+  /** The storm opened by default. */
+  featured: boolean;
+}
+
 export interface StormTrackPoint {
   time: string;
   position: Position;
@@ -208,4 +227,13 @@ export interface ResponseMeta {
     reportedDescTransmissionPoles: number;
     predictedDescTransmissionFailures: number | null;
   };
+  /**
+   * Leave-one-storm-out test: the outage model is trained on every other storm
+   * and scored on this one. Optional; omitted when outage data is unavailable.
+   */
+  crossValidation?: {
+    storm: string;
+    maePredicted: number;
+    maeBaseline: number;
+  }[];
 }
