@@ -58,7 +58,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Okatie – McIntosh 115kV Tie and Georgia Power's McIntosh – Effingham 230 kV touch or cross, so the two utilities must coordinate crossing design and outages. Their build windows overlap by about 13 months."
+    "summary": "Dominion Energy's Okatie – McIntosh 115kV Tie and Georgia Power's McIntosh – Effingham 230 kV touch or cross, so the two utilities must coordinate crossing design and outages. Their build windows overlap by about 13 months."
   },
   {
     "id": "ov-okatie-mcintosh-reactor--mcintosh-substation",
@@ -118,7 +118,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Okatie – McIntosh 115kV Tie and Georgia Power's Plant McIntosh 230/115 kV Substation touch or cross, so the two utilities must coordinate crossing design and outages. Their build windows overlap by about 11 months."
+    "summary": "Dominion Energy's Okatie – McIntosh 115kV Tie and Georgia Power's Plant McIntosh 230/115 kV Substation touch or cross, so the two utilities must coordinate crossing design and outages. Their build windows overlap by about 11 months."
   },
   {
     "id": "ov-urquhart-aiken-psa--augusta-beech-island-tie",
@@ -177,7 +177,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Urquhart – Aiken PSA 46 kV and Georgia Power's Augusta – Beech Island 115 kV Tie (GA portion) run within 1.1 km of each other, close enough to share right-of-way, land and permits. Their build windows overlap by about 4 months."
+    "summary": "Dominion Energy's Urquhart – Aiken PSA 46 kV and Georgia Power's Augusta – Beech Island 115 kV Tie (GA portion) run within 1.1 km of each other, close enough to share right-of-way, land and permits. Their build windows overlap by about 4 months."
   },
   {
     "id": "ov-urquhart-aiken-psa--goshen-augusta",
@@ -233,7 +233,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Urquhart – Aiken PSA 46 kV and Georgia Power's Goshen – Augusta 230 kV come within 5.3 km, close enough to share a laydown yard and material deliveries. Their build windows overlap by about 9 months. The Savannah River sits between them: the drive is about 12 km."
+    "summary": "Dominion Energy's Urquhart – Aiken PSA 46 kV and Georgia Power's Goshen – Augusta 230 kV come within 5.3 km, close enough to share a laydown yard and material deliveries. Their build windows overlap by about 9 months. The Savannah River sits between them: the drive is about 12 km."
   },
   {
     "id": "ov-urquhart-toolebeck--augusta-beech-island-tie",
@@ -292,7 +292,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Urquhart – Toolebeck 115kV line and Georgia Power's Augusta – Beech Island 115 kV Tie (GA portion) run within 1.1 km of each other, close enough to share right-of-way, land and permits. Their build windows do not overlap, so sharing would mean sequencing the work."
+    "summary": "Dominion Energy's Urquhart – Toolebeck 115kV line and Georgia Power's Augusta – Beech Island 115 kV Tie (GA portion) run within 1.1 km of each other, close enough to share right-of-way, land and permits. Their build windows do not overlap, so sharing would mean sequencing the work."
   },
   {
     "id": "ov-urquhart-toolebeck--goshen-augusta",
@@ -348,7 +348,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Urquhart – Toolebeck 115kV line and Georgia Power's Goshen – Augusta 230 kV come within 5.3 km, close enough to share a laydown yard and material deliveries. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 12 km."
+    "summary": "Dominion Energy's Urquhart – Toolebeck 115kV line and Georgia Power's Goshen – Augusta 230 kV come within 5.3 km, close enough to share a laydown yard and material deliveries. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 12 km."
   },
   {
     "id": "ov-okatie-mcintosh-reactor--rincon-substation",
@@ -401,7 +401,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Okatie – McIntosh 115kV Tie and Georgia Power's Rincon 115 kV Substation are 8 km apart, close enough to share line crews and heavy equipment. Their build windows overlap by about 3 months."
+    "summary": "Dominion Energy's Okatie – McIntosh 115kV Tie and Georgia Power's Rincon 115 kV Substation are 8 km apart, close enough to share line crews and heavy equipment. Their build windows overlap by about 3 months."
   },
   {
     "id": "ov-jasper-okatie-230-2--mcintosh-substation",
@@ -454,7 +454,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Jasper – Okatie 230 kV #2 and Georgia Power's Plant McIntosh 230/115 kV Substation are 17 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
+    "summary": "Dominion Energy's Jasper – Okatie 230 kV #2 and Georgia Power's Plant McIntosh 230/115 kV Substation are 17 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
   },
   {
     "id": "ov-jasper-okatie-230-2--mcintosh-effingham",
@@ -508,7 +508,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Jasper – Okatie 230 kV #2 and Georgia Power's McIntosh – Effingham 230 kV are 17 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
+    "summary": "Dominion Energy's Jasper – Okatie 230 kV #2 and Georgia Power's McIntosh – Effingham 230 kV are 17 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
   },
   {
     "id": "ov-okatie-mcintosh-reactor--port-wentworth-substation",
@@ -561,7 +561,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Okatie – McIntosh 115kV Tie and Georgia Power's Port Wentworth 230 kV Substation are 19 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 23 km."
+    "summary": "Dominion Energy's Okatie – McIntosh 115kV Tie and Georgia Power's Port Wentworth 230 kV Substation are 19 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 23 km."
   },
   {
     "id": "ov-urquhart-toolebeck--vogtle-thomson-500",
@@ -615,7 +615,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Urquhart – Toolebeck 115kV line and Georgia Power's Vogtle – Thomson 500 kV are 20 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 37 km."
+    "summary": "Dominion Energy's Urquhart – Toolebeck 115kV line and Georgia Power's Vogtle – Thomson 500 kV are 20 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 37 km."
   },
   {
     "id": "ov-urquhart-aiken-psa--vogtle-thomson-500",
@@ -669,7 +669,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Urquhart – Aiken PSA 46 kV and Georgia Power's Vogtle – Thomson 500 kV are 20 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 37 km."
+    "summary": "Dominion Energy's Urquhart – Aiken PSA 46 kV and Georgia Power's Vogtle – Thomson 500 kV are 20 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 37 km."
   },
   {
     "id": "ov-jasper-okatie-230-2--rincon-substation",
@@ -722,7 +722,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Jasper – Okatie 230 kV #2 and Georgia Power's Rincon 115 kV Substation are 23 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 40 km."
+    "summary": "Dominion Energy's Jasper – Okatie 230 kV #2 and Georgia Power's Rincon 115 kV Substation are 23 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 40 km."
   },
   {
     "id": "ov-okatie-substation--dean-forest-savannah",
@@ -775,7 +775,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Okatie 230-115kV Substation and Georgia Power's Dean Forest – Savannah 115 kV are 29 km apart, close enough to share line crews and heavy equipment. Their build windows overlap by about 7 months. The Savannah River sits between them: the drive is about 36 km."
+    "summary": "Dominion Energy's Okatie 230-115kV Substation and Georgia Power's Dean Forest – Savannah 115 kV are 29 km apart, close enough to share line crews and heavy equipment. Their build windows overlap by about 7 months. The Savannah River sits between them: the drive is about 36 km."
   },
   {
     "id": "ov-okatie-substation--mcintosh-substation",
@@ -828,7 +828,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Okatie 230-115kV Substation and Georgia Power's Plant McIntosh 230/115 kV Substation are 24 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
+    "summary": "Dominion Energy's Okatie 230-115kV Substation and Georgia Power's Plant McIntosh 230/115 kV Substation are 24 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
   },
   {
     "id": "ov-okatie-substation--mcintosh-effingham",
@@ -882,7 +882,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Okatie 230-115kV Substation and Georgia Power's McIntosh – Effingham 230 kV are 24 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
+    "summary": "Dominion Energy's Okatie 230-115kV Substation and Georgia Power's McIntosh – Effingham 230 kV are 24 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 44 km."
   },
   {
     "id": "ov-jasper-okatie-230-2--dean-forest-savannah",
@@ -935,7 +935,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Jasper – Okatie 230 kV #2 and Georgia Power's Dean Forest – Savannah 115 kV are 29 km apart, close enough to share line crews and heavy equipment. Their build windows overlap by about 6 months. The Savannah River sits between them: the drive is about 36 km."
+    "summary": "Dominion Energy's Jasper – Okatie 230 kV #2 and Georgia Power's Dean Forest – Savannah 115 kV are 29 km apart, close enough to share line crews and heavy equipment. Their build windows overlap by about 6 months. The Savannah River sits between them: the drive is about 36 km."
   },
   {
     "id": "ov-okatie-mcintosh-reactor--dean-forest-savannah",
@@ -988,7 +988,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Okatie – McIntosh 115kV Tie and Georgia Power's Dean Forest – Savannah 115 kV are 25 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 31 km."
+    "summary": "Dominion Energy's Okatie – McIntosh 115kV Tie and Georgia Power's Dean Forest – Savannah 115 kV are 25 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 31 km."
   },
   {
     "id": "ov-jasper-okatie-230-2--port-wentworth-substation",
@@ -1041,7 +1041,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Jasper – Okatie 230 kV #2 and Georgia Power's Port Wentworth 230 kV Substation are 27 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 36 km."
+    "summary": "Dominion Energy's Jasper – Okatie 230 kV #2 and Georgia Power's Port Wentworth 230 kV Substation are 27 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 36 km."
   },
   {
     "id": "ov-okatie-substation--port-wentworth-substation",
@@ -1094,7 +1094,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Okatie 230-115kV Substation and Georgia Power's Port Wentworth 230 kV Substation are 27 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 37 km."
+    "summary": "Dominion Energy's Okatie 230-115kV Substation and Georgia Power's Port Wentworth 230 kV Substation are 27 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 37 km."
   },
   {
     "id": "ov-okatie-substation--rincon-substation",
@@ -1147,7 +1147,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Okatie 230-115kV Substation and Georgia Power's Rincon 115 kV Substation are 28 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 40 km."
+    "summary": "Dominion Energy's Okatie 230-115kV Substation and Georgia Power's Rincon 115 kV Substation are 28 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 40 km."
   },
   {
     "id": "ov-urquhart-toolebeck--vogtle-switchyard",
@@ -1201,7 +1201,7 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Urquhart – Toolebeck 115kV line and Georgia Power's Vogtle 500/230 kV Switchyard are 36 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 60 km."
+    "summary": "Dominion Energy's Urquhart – Toolebeck 115kV line and Georgia Power's Vogtle 500/230 kV Switchyard are 36 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 60 km."
   },
   {
     "id": "ov-urquhart-aiken-psa--vogtle-switchyard",
@@ -1255,6 +1255,6 @@
         "Order-of-magnitude planning estimate, not an engineering cost."
       ]
     },
-    "summary": "DESC's Urquhart – Aiken PSA 46 kV and Georgia Power's Vogtle 500/230 kV Switchyard are 36 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 60 km."
+    "summary": "Dominion Energy's Urquhart – Aiken PSA 46 kV and Georgia Power's Vogtle 500/230 kV Switchyard are 36 km apart, close enough to share line crews and heavy equipment. Their build windows do not overlap, so sharing would mean sequencing the work. The Savannah River sits between them: the drive is about 60 km."
   }
 ]

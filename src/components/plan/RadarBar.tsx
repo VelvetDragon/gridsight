@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import type { RankedOverlap } from "@/lib/ranking";
 import { monthLabel, phaseAt, RADAR_END_YEAR, RADAR_MONTHS, RADAR_START_YEAR } from "@/lib/timeline";
 import type { Project } from "@/lib/types";
-import { Panel, cx } from "../ui/primitives";
+import { Panel } from "../ui/primitives";
 import { Scrubber } from "../ui/Scrubber";
 
 export interface RadarBarProps {
@@ -46,7 +46,7 @@ export function RadarBar(props: RadarBarProps) {
   }
 
   return (
-    <Panel className="h-[76px]" aria-label="Construction radar">
+    <Panel className="h-[72px]" aria-label="When they build">
       <Scrubber
         label="Construction radar month"
         min={0}
@@ -68,18 +68,24 @@ export function RadarBar(props: RadarBarProps) {
         dimmed={!enabled}
         current={
           <div className="flex flex-col">
-            <span className="eyebrow">Construction radar</span>
-            <span className={cx("text-[15px] leading-5 font-medium text-ink", enabled && "num")}>
-              {enabled ? monthLabel(month) : "All years"}
+            <span className="display text-[16px] leading-5 font-medium text-ink">
+              {enabled ? monthLabel(month) : "When they build"}
             </span>
             <span className="text-[12px] leading-4 text-ink-3">
               {enabled ? (
                 <>
-                  <span className="num">{building}</span> building ·{" "}
-                  <span className={cx("num", activePairs > 0 && "font-medium text-ink")}>{activePairs}</span> pairs live
+                  <span className="num">{building}</span> projects under way
+                  {activePairs > 0 ? (
+                    <>
+                      {", "}
+                      <span className="font-medium text-ink">
+                        <span className="num">{activePairs}</span> pairs at once
+                      </span>
+                    </>
+                  ) : null}
                 </>
               ) : (
-                "press play to scan"
+                "Press play to watch 2026–2035"
               )}
             </span>
           </div>

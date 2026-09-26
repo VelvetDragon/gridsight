@@ -20,27 +20,39 @@ export const UTILITY_RGB: Record<UtilityId, RGB> = {
   GPC: [194, 65, 12],
 };
 
-export const UTILITY_SHORT: Record<UtilityId, string> = {
-  DESC: "DESC",
+/** Company names in words, used everywhere a colour appears. */
+export const UTILITY_NAME: Record<UtilityId, string> = {
+  DESC: "Dominion Energy",
   GPC: "Georgia Power",
+};
+
+export const UTILITY_STATE: Record<UtilityId, string> = {
+  DESC: "South Carolina",
+  GPC: "Georgia",
 };
 
 /** Ordered tiers, strongest first. */
 export const TIERS: OverlapTier[] = ["crossing", "row", "logistics", "crew"];
 
+/** Plain-language tier names. */
 export const TIER_LABEL: Record<OverlapTier, string> = {
-  crossing: "Crossing",
-  row: "Right-of-way",
-  logistics: "Logistics",
-  crew: "Crews",
+  crossing: "They cross",
+  row: "Share land",
+  logistics: "Share yards",
+  crew: "Share crews",
 };
 
 export const TIER_RANGE: Record<OverlapTier, string> = {
-  crossing: "lines cross",
-  row: "< 1.6 km",
-  logistics: "< 8 km",
-  crew: "< 40 km",
+  crossing: "lines touch",
+  row: "under 1.6 km",
+  logistics: "under 8 km",
+  crew: "under 40 km",
 };
+
+/** "Share land · under 1.6 km" (crossing stays "They cross"). */
+export function tierFull(t: OverlapTier): string {
+  return t === "crossing" ? TIER_LABEL[t] : `${TIER_LABEL[t]} · ${TIER_RANGE[t]}`;
+}
 
 /** Single ordered scale: crossing darkest, crew lightest. */
 export const TIER_HEX: Record<OverlapTier, string> = {
@@ -60,19 +72,19 @@ export const TIER_RGB: Record<OverlapTier, RGB> = {
 /** What each tier unlocks (cumulative: a crossing can share everything below it). */
 export const TIER_SHARES: Record<OverlapTier, { title: string; items: string[] }> = {
   crossing: {
-    title: "Must coordinate",
+    title: "Coordinate the crossing",
     items: ["Crossing design and clearances", "Joint outage scheduling"],
   },
   row: {
-    title: "Share land",
+    title: "Share land and permits",
     items: ["Right-of-way and easements", "Land acquisition", "Permits and environmental surveys"],
   },
   logistics: {
-    title: "Share logistics",
+    title: "Share yards and deliveries",
     items: ["Laydown yards", "Material deliveries"],
   },
   crew: {
-    title: "Share people",
+    title: "Share crews and equipment",
     items: ["Line crews", "Heavy equipment"],
   },
 };
