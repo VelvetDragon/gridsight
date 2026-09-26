@@ -16,7 +16,7 @@ const TOP = 18;
  */
 export function MiniGantt({ desc, gpc, cursorMonth }: { desc: Project; gpc: Project; cursorMonth: number | null }) {
   const rows = [
-    { p: desc, color: UTILITY_HEX.DESC, label: "DESC" },
+    { p: desc, color: UTILITY_HEX.DESC, label: "Dominion Energy" },
     { p: gpc, color: UTILITY_HEX.GPC, label: "Georgia Power" },
   ];
   const windows = rows.map((r) => r.p.buildWindow).filter((w): w is [string, string] => !!w);
@@ -80,7 +80,7 @@ export function MiniGantt({ desc, gpc, cursorMonth }: { desc: Project; gpc: Proj
                 fontSize="11"
                 fontWeight={500}
                 fill="#fff"
-                style={{ display: b - a > 60 ? undefined : "none" }}
+                style={{ display: b - a > 104 ? undefined : "none" }}
               >
                 {r.label}
               </text>
@@ -95,7 +95,7 @@ export function MiniGantt({ desc, gpc, cursorMonth }: { desc: Project; gpc: Proj
         {rows.map((r) => (
           <span key={r.label} className="flex items-center gap-2">
             <span className="inline-block h-2 w-2 rounded-[2px]" style={{ background: r.color }} aria-hidden />
-            <span className="w-[92px] text-ink-2">{r.label}</span>
+            <span className="w-[118px] text-ink-2">{r.label}</span>
             <span className="num">
               {r.p.buildWindow
                 ? `${fmtMonthYear(r.p.buildWindow[0])} – ${fmtMonthYear(r.p.buildWindow[1])}`
@@ -105,8 +105,11 @@ export function MiniGantt({ desc, gpc, cursorMonth }: { desc: Project; gpc: Proj
         ))}
         {shared ? (
           <span className="flex items-center gap-2">
-            <span className="inline-block h-2 w-2 rounded-[2px] border border-dashed border-ink-3 bg-wash-2" aria-hidden />
-            <span className="w-[92px] text-ink-2">Both building</span>
+            <span
+              className="inline-block h-2 w-2 rounded-[2px] border border-dashed border-ink-3 bg-wash-2"
+              aria-hidden
+            />
+            <span className="w-[118px] text-ink-2">Both building</span>
             <span className="num">
               {fmtMonthYear(shared[0])} – {fmtMonthYear(shared[1])}
             </span>

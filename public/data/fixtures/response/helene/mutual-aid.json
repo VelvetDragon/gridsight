@@ -1,0 +1,329 @@
+{
+ "scenarios": {
+  "separate": {
+   "hoursTo50pct": 50,
+   "hoursTo90pct": 102,
+   "hoursTo100pct": 166,
+   "vulnerableHoursTo90pct": 117,
+   "restorationCurve": [
+    {
+     "hour": 0,
+     "pctRestored": 0.0
+    },
+    {
+     "hour": 6,
+     "pctRestored": 1.9
+    },
+    {
+     "hour": 12,
+     "pctRestored": 5.9
+    },
+    {
+     "hour": 18,
+     "pctRestored": 11.5
+    },
+    {
+     "hour": 24,
+     "pctRestored": 18.1
+    },
+    {
+     "hour": 30,
+     "pctRestored": 25.3
+    },
+    {
+     "hour": 36,
+     "pctRestored": 32.8
+    },
+    {
+     "hour": 42,
+     "pctRestored": 40.3
+    },
+    {
+     "hour": 48,
+     "pctRestored": 47.6
+    },
+    {
+     "hour": 54,
+     "pctRestored": 54.6
+    },
+    {
+     "hour": 60,
+     "pctRestored": 61.2
+    },
+    {
+     "hour": 66,
+     "pctRestored": 67.1
+    },
+    {
+     "hour": 72,
+     "pctRestored": 72.5
+    },
+    {
+     "hour": 78,
+     "pctRestored": 77.2
+    },
+    {
+     "hour": 84,
+     "pctRestored": 81.3
+    },
+    {
+     "hour": 90,
+     "pctRestored": 84.8
+    },
+    {
+     "hour": 96,
+     "pctRestored": 87.8
+    },
+    {
+     "hour": 102,
+     "pctRestored": 90.3
+    },
+    {
+     "hour": 108,
+     "pctRestored": 92.3
+    },
+    {
+     "hour": 114,
+     "pctRestored": 94.0
+    },
+    {
+     "hour": 120,
+     "pctRestored": 95.4
+    },
+    {
+     "hour": 126,
+     "pctRestored": 96.5
+    },
+    {
+     "hour": 132,
+     "pctRestored": 97.3
+    },
+    {
+     "hour": 138,
+     "pctRestored": 98.0
+    },
+    {
+     "hour": 144,
+     "pctRestored": 98.5
+    },
+    {
+     "hour": 150,
+     "pctRestored": 98.9
+    },
+    {
+     "hour": 156,
+     "pctRestored": 99.2
+    },
+    {
+     "hour": 162,
+     "pctRestored": 99.4
+    },
+    {
+     "hour": 168,
+     "pctRestored": 99.6
+    },
+    {
+     "hour": 174,
+     "pctRestored": 99.7
+    },
+    {
+     "hour": 180,
+     "pctRestored": 99.8
+    },
+    {
+     "hour": 186,
+     "pctRestored": 99.8
+    },
+    {
+     "hour": 192,
+     "pctRestored": 99.9
+    },
+    {
+     "hour": 198,
+     "pctRestored": 99.9
+    },
+    {
+     "hour": 204,
+     "pctRestored": 99.9
+    },
+    {
+     "hour": 210,
+     "pctRestored": 100.0
+    },
+    {
+     "hour": 216,
+     "pctRestored": 100.0
+    }
+   ]
+  },
+  "coordinated": {
+   "hoursTo50pct": 40,
+   "hoursTo90pct": 81,
+   "hoursTo100pct": 131,
+   "vulnerableHoursTo90pct": 65,
+   "restorationCurve": [
+    {
+     "hour": 0,
+     "pctRestored": 0.0
+    },
+    {
+     "hour": 6,
+     "pctRestored": 2.8
+    },
+    {
+     "hour": 12,
+     "pctRestored": 8.7
+    },
+    {
+     "hour": 18,
+     "pctRestored": 16.7
+    },
+    {
+     "hour": 24,
+     "pctRestored": 25.7
+    },
+    {
+     "hour": 30,
+     "pctRestored": 35.2
+    },
+    {
+     "hour": 36,
+     "pctRestored": 44.7
+    },
+    {
+     "hour": 42,
+     "pctRestored": 53.7
+    },
+    {
+     "hour": 48,
+     "pctRestored": 61.9
+    },
+    {
+     "hour": 54,
+     "pctRestored": 69.3
+    },
+    {
+     "hour": 60,
+     "pctRestored": 75.6
+    },
+    {
+     "hour": 66,
+     "pctRestored": 81.0
+    },
+    {
+     "hour": 72,
+     "pctRestored": 85.4
+    },
+    {
+     "hour": 78,
+     "pctRestored": 89.0
+    },
+    {
+     "hour": 84,
+     "pctRestored": 91.8
+    },
+    {
+     "hour": 90,
+     "pctRestored": 94.0
+    },
+    {
+     "hour": 96,
+     "pctRestored": 95.7
+    },
+    {
+     "hour": 102,
+     "pctRestored": 96.9
+    },
+    {
+     "hour": 108,
+     "pctRestored": 97.8
+    },
+    {
+     "hour": 114,
+     "pctRestored": 98.5
+    },
+    {
+     "hour": 120,
+     "pctRestored": 99.0
+    },
+    {
+     "hour": 126,
+     "pctRestored": 99.3
+    },
+    {
+     "hour": 132,
+     "pctRestored": 99.5
+    },
+    {
+     "hour": 138,
+     "pctRestored": 99.7
+    },
+    {
+     "hour": 144,
+     "pctRestored": 99.8
+    },
+    {
+     "hour": 150,
+     "pctRestored": 99.9
+    },
+    {
+     "hour": 156,
+     "pctRestored": 99.9
+    },
+    {
+     "hour": 162,
+     "pctRestored": 100.0
+    },
+    {
+     "hour": 168,
+     "pctRestored": 100.0
+    },
+    {
+     "hour": 174,
+     "pctRestored": 100.0
+    },
+    {
+     "hour": 180,
+     "pctRestored": 100.0
+    },
+    {
+     "hour": 186,
+     "pctRestored": 100.0
+    },
+    {
+     "hour": 192,
+     "pctRestored": 100.0
+    },
+    {
+     "hour": 198,
+     "pctRestored": 100.0
+    },
+    {
+     "hour": 204,
+     "pctRestored": 100.0
+    },
+    {
+     "hour": 210,
+     "pctRestored": 100.0
+    },
+    {
+     "hour": 216,
+     "pctRestored": 100.0
+    }
+   ]
+  }
+ },
+ "savedHours": {
+  "to50pct": 10,
+  "to90pct": 21,
+  "to100pct": 35,
+  "vulnerableTo90pct": 52
+ },
+ "assumptions": [
+  "Sample scenario for layout only; the pipeline replaces it with its crew-dispatch simulation.",
+  "Separate: each company restores its own lines with its own crews and yards.",
+  "Coordinated: crews and materials are staged at the shared yards and sent to the nearest repair zone first, whichever company owns it.",
+  "Vulnerable residents (HHS emPOWER) are prioritized in the coordinated plan.",
+  "Hours are counted from landfall; 100% means 99.5% of affected customers restored."
+ ]
+}
