@@ -296,6 +296,56 @@ export function TeamUpPanel({
   );
 }
 
+/** County nearest to a point, for plain-language places ("around Chatham County"). */
+function nearestCounty(p: Position, counties: ResponseData["counties"]): string | null {
+  let best: ResponseData["counties"][number] | null = null;
+  let d = Infinity;
+  for (const c of counties) {
+    const dd = (c.centroid[0] - p[0]) ** 2 + (c.centroid[1] - p[1]) ** 2;
+    if (dd < d) [best, d] = [c, dd];
+  }
+  return best ? `${best.name} County, ${best.state}` : null;
+}
+
+/** What one utility faces in this storm, and what its label means, in plain words. */
+function OwnerExplain({ o, t, data, names }: { o: TeamUpOwner; t: TeamUp; data: ResponseData; names: Map<string, string> }) {
+  const where = nearestCounty(o.damageCenter, data.counties);
+  const gives = t.moves.filter((m): m is LendMove => m.kind === "lend" && m.from === o.id);
+  const gets = t.moves.filter((m): m is LendMove => m.kind === "lend" && m.to === o.id);
+  const spare = Math.max(0, Math.floor(Math.min(o.crews * 0.5, o.crews - o.workHours / 24)));
+  const n = (id: string) => names.get(id) ?? id;
+  let meaning: string;
+  if (o.role === "little on this map") {
+    meaning = `Only ${fmtInt(o.lineKm)} km of its lines are on this map, too little to judge its crews, so MrGridy does not plan loans to or from it.`;
+  } else if (o.role === "needs help") {
+    meaning = `Its ${fmtInt(o.crews)} crews would need ${hours(o.hoursAlone)} for about ${fmtInt(o.workHours)} crew-hours of repairs: more than a day, so it needs outside crews.`;
+  } else if (o.role === "can help") {
+    meaning = `Its ${fmtInt(o.crews)} crews would finish about ${fmtInt(o.workHours)} crew-hours of repairs in ${hours(o.hoursAlone)}, within a day, so it could lend up to ${fmtInt(spare)} crews and still keep half at home.`;
+  } else {
+    meaning = `Its ${fmtInt(o.crews)} crews would need ${hours(o.hoursAlone)}: close to a day, with little to spare.`;
+  }
+  const outcome = gives.length
+    ? `In the plan it lends ${gives.map((m) => `${fmtInt(m.crews)} crews to ${n(m.to)}`).join(" and ")}.`
+    : gets.length
+      ? `In the plan it gets ${gets.map((m) => `${fmtInt(m.crews)} crews from ${n(m.from)}`).join(" and ")}.`
+      : o.role === "can help"
+        ? "No one nearby needs its crews in this storm, so they stay home or join national mutual aid."
+        : o.role === "needs help"
+          ? "No neighbour on the map has enough spare crews close by; this is when to call national mutual aid early."
+          : "";
+  return (
+    <div className="mt-2 flex flex-col gap-1.5 border-t border-hairline pt-2 text-[12.5px] leading-[18px] text-ink-2">
+      <p>
+        About {fmtInt(o.damagedSections)} of its line sections are likely to fail
+        {where ? `, centred around ${where}` : ""}
+        {o.strongWindShare > 0 ? `; ${Math.round(o.strongWindShare * 100)}% of its lines here see gusts of 58 mph or more` : ""}.
+      </p>
+      <p>{meaning}</p>
+      {outcome ? <p className="text-ink">{outcome}</p> : null}
+    </div>
+  );
+}
+
 function TeamUpBody({
   data,
   t,
@@ -356,31 +406,46 @@ function TeamUpBody({
       <Block>
         <h4 className="text-[13px] font-medium text-ink-3">Every utility in the path</h4>
         <ul className="mt-3 flex flex-col gap-2.5">
-          {shown.map((o) => (
-            <li key={o.id}>
-              <button
-                type="button"
-                onClick={() => onFly([o.damageCenter], `owner-${o.id}`)}
-                className="w-full text-left"
-                title="Show where this utility's damage is"
+          {shown.map((o) => {
+            const key = `owner-${o.id}`;
+            const on = selected === key;
+            return (
+              <li
+                key={o.id}
+                className={cx(
+                  "-mx-2 rounded-[10px] px-2 py-1.5 transition-colors",
+                  on ? "bg-white shadow-[0_0_0_1px_rgba(47,111,69,0.35)]" : "hover:bg-white/50",
+                )}
               >
-                <span className="flex items-baseline justify-between gap-2">
-                  <span className="text-[14px] text-ink">{o.name}</span>
-                  <span className={cx("rounded-full px-2 py-0.5 text-[11px] font-medium", ROLE_STYLE[o.role])}>{o.role}</span>
-                </span>
-                <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-wash-2">
-                  <span
-                    className={cx("block h-full rounded-full", o.role === "needs help" ? "bg-alert/70" : "bg-ink/35")}
-                    style={{ width: `${Math.max(3, (o.damagedSections / max) * 100)}%` }}
-                  />
-                </span>
-                <span className="mt-1 block text-[12px] text-ink-3">
-                  about {fmtInt(o.damagedSections)} damaged line sections
-                  {o.role === "little on this map" ? "" : ` · ${hours(o.hoursAlone)} of work for its own crews`}
-                </span>
-              </button>
-            </li>
-          ))}
+                <button
+                  type="button"
+                  aria-expanded={on}
+                  onClick={() => {
+                    if (on) return onSelect(null);
+                    onSelect(key);
+                    onFly([o.damageCenter], key);
+                  }}
+                  className="w-full text-left"
+                >
+                  <span className="flex items-baseline justify-between gap-2">
+                    <span className="text-[14px] text-ink">{o.name}</span>
+                    <span className={cx("rounded-full px-2 py-0.5 text-[11px] font-medium", ROLE_STYLE[o.role])}>{o.role}</span>
+                  </span>
+                  <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-wash-2">
+                    <span
+                      className={cx("block h-full rounded-full", o.role === "needs help" ? "bg-alert/70" : "bg-ink/35")}
+                      style={{ width: `${Math.max(3, (o.damagedSections / max) * 100)}%` }}
+                    />
+                  </span>
+                  <span className="mt-1 block text-[12px] text-ink-3">
+                    about {fmtInt(o.damagedSections)} damaged line sections
+                    {o.role === "little on this map" ? "" : ` · ${hours(o.hoursAlone)} of work for its own crews`}
+                  </span>
+                </button>
+                {on ? <OwnerExplain o={o} t={t} data={data} names={names} /> : null}
+              </li>
+            );
+          })}
         </ul>
       </Block>
 

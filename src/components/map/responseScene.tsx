@@ -301,6 +301,24 @@ function teamUpLayers(data: ResponseData, sel: string | null): Layer[] {
   // Drawn only for the move picked in the Team up panel, so the storm map stays clean.
   if (!t || !sel) return [];
   const alpha = (m: TeamUpMove, on: number, off: number) => (!sel || moveKey(m) === sel ? on : off);
+  const owner = t.owners.find((o) => `owner-${o.id}` === sel);
+  if (owner) {
+    return [
+      new ScatterplotLayer<typeof owner>({
+        id: "r-team-owner",
+        data: [owner],
+        getPosition: (o) => o.damageCenter,
+        getRadius: 26000,
+        radiusUnits: "meters",
+        radiusMinPixels: 18,
+        getFillColor: [...TEAM_RGB, 30],
+        stroked: true,
+        getLineColor: [...TEAM_RGB, 220],
+        lineWidthUnits: "pixels",
+        getLineWidth: 2,
+      }),
+    ];
+  }
   const lends = t.moves.filter((m): m is LendMove => m.kind === "lend" && moveKey(m) === sel);
   const shared = t.moves.filter((m): m is SharedMove => m.kind !== "lend" && moveKey(m) === sel);
   return [
@@ -369,6 +387,18 @@ export function responseMarkers(props: ResponseSceneProps): MapMarker[] {
   const sel = props.selectedTeamMove ?? null;
   if (team) {
     const name = (id: string) => team.owners.find((o) => o.id === id)?.name ?? id;
+    const pickedOwner = team.owners.find((o) => `owner-${o.id}` === sel);
+    if (pickedOwner) {
+      markers.push({
+        id: `team-owner-${pickedOwner.id}`,
+        position: pickedOwner.damageCenter,
+        node: (
+          <div className="gs-passive translate-x-[calc(50%+30px)] rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-medium whitespace-nowrap text-[#2F6F45] shadow-[var(--shadow-float)] ring-1 ring-[#2F6F45]/35">
+            {pickedOwner.name}: damage centred here
+          </div>
+        ),
+      });
+    }
     const picked = team.moves.find((m) => moveKey(m) === sel);
     const shown = picked ? [picked] : [];
     for (const m of shown) {
