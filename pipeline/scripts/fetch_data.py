@@ -26,6 +26,9 @@ SOURCES = {
     # US Census 2023 cartographic state boundaries and county gazetteer (state tagging, county points).
     "cb_2023_us_state_500k.zip": "https://www2.census.gov/geo/tiger/GENZ2023/shp/cb_2023_us_state_500k.zip",
     "2023_Gaz_counties_national.zip": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2023_Gazetteer/2023_Gaz_counties_national.zip",
+    # USGS GNIS Domestic Names (populated places, crossings): place-level fallback for site names.
+    "DomesticNames_SC_Text.zip": "https://prd-tnm.s3.amazonaws.com/StagedProducts/GeographicNames/DomesticNames/DomesticNames_SC_Text.zip",
+    "DomesticNames_GA_Text.zip": "https://prd-tnm.s3.amazonaws.com/StagedProducts/GeographicNames/DomesticNames/DomesticNames_GA_Text.zip",
     # USDA NASS Land Values 2025 Summary (farm real estate $/acre by state, p. 9).
     "nass-land-values-2025.pdf": "https://www.nass.usda.gov/Publications/Todays_Reports/reports/land0825.pdf",
     # Georgia Power project pages used by gridsight/plan/gpc_web.py (kept for traceability).
