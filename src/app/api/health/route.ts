@@ -1,5 +1,5 @@
 /**
- * GET /api/health -> { ok, integrations: { gemini, tiger, narrationClips, narrationAudio } }
+ * GET /api/health -> { ok, integrations: { gemini, elevenlabs, tiger, narrationClips, narrationAudio } }
  * Used by the DigitalOcean App Platform health check. Reports only whether
  * each integration is configured, never the values.
  */
@@ -28,6 +28,7 @@ export async function GET() {
       data: plan?.origin ?? "missing",
       integrations: {
         gemini: Boolean(serverEnv("GEMINI_API_KEY")),
+        elevenlabs: Boolean(serverEnv("ELEVENLABS_API_KEY")),
         tiger: Boolean(serverEnv("TIGER_DATABASE_URL")),
         narrationClips: audio.clips,
         narrationAudio: audio.withAudio,
