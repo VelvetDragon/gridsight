@@ -31,6 +31,7 @@ from gridsight.plan.records import (
     action_from,
     clean_place,
     dedupe,
+    from_to,
     from_to_pairs,
     miles,
     name_places,
@@ -183,6 +184,7 @@ def parse(path: Path | None = None) -> tuple[list[RawProject], dict]:
                 source_document=DOC,
                 source_url=URL,
                 source_page=i + 1,
+                extra_places=[x for x in from_to(desc) if x.upper() not in {p.upper() for p in places}],
                 zone=row["zone"],
             )
         )
