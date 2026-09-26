@@ -61,7 +61,7 @@ def rmax_willoughby(vmax_kt: np.ndarray, lat: np.ndarray) -> np.ndarray:
 class Track:
     storm_id: str
     name: str
-    # Columns: time (UTC), lat, lon, vmax_kt, pmin_mb, rmw_km, status, record
+    # Columns: time (UTC), lat, lon, vmax_kt, pmin_mb, rmw_km, r34_km, status, record
     df: pd.DataFrame
     source: str = "HURDAT2"
     # For forecasts: the cycle (analysis) time; lead time is measured from here.
@@ -83,6 +83,20 @@ def _latlon(tok: str) -> float:
     tok = tok.strip()
     v = float(tok[:-1])
     return -v if tok[-1] in "SW" else v
+
+
+def _r34(quadrants) -> float:
+    """Mean 34-kt wind radius (km) over the four quadrants; NaN when not analysed.
+
+    A zero quadrant means no 34-kt winds there, so it counts as zero in the mean.
+    """
+    try:
+        q = [float(x) for x in quadrants]
+    except ValueError:
+        return math.nan
+    if any(v < 0 for v in q) or max(q) <= 0:
+        return math.nan
+    return sum(q) / 4.0 * NM_TO_KM
 
 
 def parse_hurdat(path=HURDAT_PATH) -> dict[str, Track]:
@@ -113,6 +127,7 @@ def parse_hurdat(path=HURDAT_PATH) -> dict[str, Track]:
                     "vmax_kt": float(t[6]),
                     "pmin_mb": p if p > 0 else math.nan,
                     "rmw_km": rmw * NM_TO_KM if rmw > 0 else math.nan,
+                    "r34_km": _r34([t[8], t[9], t[10], t[11]]),
                 }
             )
         storms[sid] = Track(sid, name, pd.DataFrame(rows))
@@ -171,6 +186,7 @@ def load_ofcl(storm_id: str, cycle: datetime) -> Track:
                 "vmax_kt": float(t[8]),
                 "pmin_mb": p if p > 0 else math.nan,
                 "rmw_km": math.nan,
+                "r34_km": _r34(t[13:17]) if len(t) > 16 and t[11] == "34" else math.nan,
             }
     if not rows:
         raise ValueError(f"no OFCL forecast for {storm_id} at {stamp}")
