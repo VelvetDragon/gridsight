@@ -1,7 +1,7 @@
 /**
- * "Hear the coordination call": Gemini writes a short phone call between a
- * Dominion Energy SC planner and a Georgia Power planner from one overlap's
- * data; ElevenLabs Text to Dialogue voices it with two voices.
+ * "Hear the coordination call": Gemini writes a short phone call between the
+ * two utilities' transmission planners from one overlap's data; ElevenLabs
+ * Text to Dialogue voices it with two voices.
  *
  * Order: pre-generated (public/audio/calls.json) -> disk cache -> generate.
  * Without GEMINI_API_KEY the script comes from a template; without
@@ -11,9 +11,9 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { SPEAKER_LABEL, type CallLine, type CallSpeaker, type CoordinationCall } from "@/lib/integrations/call";
+import type { CallLine, CallSpeaker, CoordinationCall } from "@/lib/integrations/call";
 import { elevenKey, callVoices, renderDialogue } from "./elevenlabs";
-import { facts, list, loadMatch, monthYear, place, savings, shortName, type MatchData } from "./explain";
+import { facts, list, monthYear, place, resolveMatch, savings, shortName, type MatchData, type MatchInput } from "./explain";
 import { geminiJson, geminiKey, geminiModels } from "./gemini";
 
 const CACHE_DIR = path.join(os.tmpdir(), "mrgridy-call");
@@ -30,8 +30,8 @@ export function audioPath(key: string): string {
 
 /* ---------------------------------------------------------------- script */
 
-const SYSTEM = `You write a short, realistic phone call between two electric transmission planners:
-one at Dominion Energy South Carolina (speaker "DESC") and one at Georgia Power (speaker "GPC").
+const system = (names: MatchData["names"]) => `You write a short, realistic phone call between two electric transmission planners:
+one at ${names.a.name} (speaker "DESC") and one at ${names.b.name} (speaker "GPC").
 They have noticed that two of their planned projects are close together and agree on next steps.
 Rules:
 - Use only the facts in the JSON. Do not invent people's names, dates, costs, places, voltages or commitments.
@@ -41,7 +41,7 @@ Rules:
 - 8 to 12 short turns, 120 to 150 words in total: about 50 seconds spoken.
 - Natural spoken American English with contractions and brief acknowledgements. No stage directions,
   no sound effects, no names, no markdown. Say "kilovolt" instead of "kV" and "kilometers" instead of "km".
-- DESC opens the call; the last line closes it politely.`;
+- Speaker "DESC" (${names.a.short}) opens the call; the last line closes it politely.`;
 
 const SCHEMA = {
   type: "OBJECT",
@@ -88,8 +88,13 @@ function spoken(text: string): string {
 }
 
 /** Deterministic call built from the same facts (used without Gemini). */
+function labels(m: MatchData): Record<CallSpeaker, string> {
+  return { DESC: `${m.names.a.short} planner`, GPC: `${m.names.b.short} planner` };
+}
+
 export function templateScript(m: MatchData): CallLine[] {
   const { overlap: o, desc, gpc, range } = m;
+  const label = labels(m);
   const where = place(o.summary);
   const months = Math.round(o.timelineOverlapMonths);
   const close =
@@ -98,7 +103,7 @@ export function templateScript(m: MatchData): CallLine[] {
       : `they're about ${o.distanceKm < 10 ? o.distanceKm.toFixed(1) : Math.round(o.distanceKm)} kilometers apart`;
   const save = savings(o, range);
   const lines: [CallSpeaker, string][] = [
-    ["DESC", "Hi, this is transmission planning at Dominion Energy South Carolina. Got a minute?"],
+    ["DESC", `Hi, this is transmission planning at ${m.names.a.name}. Got a minute?`],
     ["GPC", "Sure, what's up?"],
     [
       "DESC",
@@ -117,7 +122,7 @@ export function templateScript(m: MatchData): CallLine[] {
   if (o.robustness === "uncertain") lines.push(["GPC", "The exact routes aren't public yet, so let's compare them first."]);
   lines.push(["DESC", "Agreed. I'll set up a follow-up and send our route and outage windows."]);
   lines.push(["GPC", "Sounds good. Talk soon."]);
-  return lines.map(([speaker, text]) => ({ speaker, label: SPEAKER_LABEL[speaker], text: spoken(text) }));
+  return lines.map(([speaker, text]) => ({ speaker, label: label[speaker], text: spoken(text) }));
 }
 
 async function writeScript(m: MatchData): Promise<{ lines: CallLine[]; script: "gemini" | "template"; model: string | null }> {
@@ -126,7 +131,7 @@ async function writeScript(m: MatchData): Promise<{ lines: CallLine[]; script: "
     const { data, model } = await geminiJson(
       {
         parts: [{ text: `Write the call. FACTS:\n${JSON.stringify(facts(m), null, 1)}` }],
-        system: SYSTEM,
+        system: system(m.names),
         schema: SCHEMA,
         temperature: 0.7,
         timeoutMs: 30_000,
@@ -134,7 +139,7 @@ async function writeScript(m: MatchData): Promise<{ lines: CallLine[]; script: "
       isScript,
     );
     return {
-      lines: data.lines.map((l) => ({ speaker: l.speaker, label: SPEAKER_LABEL[l.speaker], text: spoken(l.text.trim()) })),
+      lines: data.lines.map((l) => ({ speaker: l.speaker, label: labels(m)[l.speaker], text: spoken(l.text.trim()) })),
       script: "gemini",
       model,
     };
@@ -176,11 +181,12 @@ async function diskPut(key: string, value: CoordinationCall, mp3: Buffer | null)
 
 /* ---------------------------------------------------------------- entry */
 
-export async function coordinationCall(overlapId: string): Promise<CoordinationCall> {
-  const ready = await prebuilt(overlapId);
+export async function coordinationCall(input: string | MatchInput): Promise<CoordinationCall> {
+  const match = await resolveMatch(input);
+  const overlapId = match.overlap.id;
+  const ready = match.names.a.short === "DESC" ? await prebuilt(overlapId) : null;
   if (ready) return ready;
 
-  const match = await loadMatch(overlapId);
   const voices = callVoices();
   const key = createHash("sha1")
     .update(JSON.stringify({ f: facts(match), models: geminiKey() ? geminiModels() : null, voices, audio: !!elevenKey(), v: 1 }))

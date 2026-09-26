@@ -1,28 +1,23 @@
 /**
- * POST /api/explain  { overlapId }
+ * POST /api/explain  { overlapId }  or  { overlap, yours, theirs, you, neighbor }
  * -> { overlapId, source: "gemini" | "template", model, summary,
  *      memo: { subject, to, body }, talkingPoints[], generatedAt, cached, dataOrigin }
  *
+ * An overlapId refers to the DESC / Georgia Power plan in public/data; a full
+ * match (the Crosswire slot props) works for any two catalog utilities.
  * Gemini runs server-side with GEMINI_API_KEY; without it a deterministic
  * template built from the same data is returned (source: "template").
  */
 import { explainOverlap, UnknownOverlapError } from "@/lib/integrations/server/explain";
+import { readMatchBody } from "@/lib/integrations/server/matchBody";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  let overlapId: unknown;
+  const parsed = await readMatchBody(request);
+  if ("error" in parsed) return Response.json({ error: parsed.error }, { status: 400 });
   try {
-    const body = (await request.json()) as { overlapId?: unknown };
-    overlapId = body?.overlapId;
-  } catch {
-    return Response.json({ error: "Send JSON: { \"overlapId\": \"...\" }" }, { status: 400 });
-  }
-  if (typeof overlapId !== "string" || !overlapId || overlapId.length > 300) {
-    return Response.json({ error: "overlapId is required" }, { status: 400 });
-  }
-  try {
-    const result = await explainOverlap(overlapId);
+    const result = await explainOverlap(parsed.match);
     return Response.json(result, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     if (err instanceof UnknownOverlapError) {

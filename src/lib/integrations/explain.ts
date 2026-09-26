@@ -1,4 +1,5 @@
 /** Shared types and the browser helper for POST /api/explain (Gemini). */
+import { matchBody, type MatchRequest } from "./call";
 
 export interface ExplainMemo {
   subject: string;
@@ -20,11 +21,11 @@ export interface ExplainResult {
   dataOrigin: "pipeline" | "sample";
 }
 
-export async function fetchExplanation(overlapId: string, signal?: AbortSignal): Promise<ExplainResult> {
+export async function fetchExplanation(match: MatchRequest, signal?: AbortSignal): Promise<ExplainResult> {
   const res = await fetch("/api/explain", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ overlapId }),
+    body: matchBody(match),
     signal,
   });
   const body = (await res.json().catch(() => null)) as (ExplainResult & { error?: string }) | null;

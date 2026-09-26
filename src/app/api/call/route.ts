@@ -1,5 +1,5 @@
 /**
- * POST /api/call { overlapId }
+ * POST /api/call  { overlapId }  or  { overlap, yours, theirs, you, neighbor }
  * -> CoordinationCall { lines[{speaker, label, text}], audioUrl, durationMs, script, audio, ... }
  *
  * Gemini writes a ~50 s call between the two utilities' planners from the
@@ -8,22 +8,16 @@
  */
 import { UnknownOverlapError } from "@/lib/integrations/server/explain";
 import { coordinationCall } from "@/lib/integrations/server/call";
+import { readMatchBody } from "@/lib/integrations/server/matchBody";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
 export async function POST(request: Request) {
-  let overlapId: unknown;
+  const parsed = await readMatchBody(request);
+  if ("error" in parsed) return Response.json({ error: parsed.error }, { status: 400 });
   try {
-    overlapId = ((await request.json()) as { overlapId?: unknown })?.overlapId;
-  } catch {
-    return Response.json({ error: "Send JSON: { \"overlapId\": \"...\" }" }, { status: 400 });
-  }
-  if (typeof overlapId !== "string" || !overlapId || overlapId.length > 300) {
-    return Response.json({ error: "overlapId is required" }, { status: 400 });
-  }
-  try {
-    return Response.json(await coordinationCall(overlapId), { headers: { "Cache-Control": "no-store" } });
+    return Response.json(await coordinationCall(parsed.match), { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     if (err instanceof UnknownOverlapError) return Response.json({ error: err.message }, { status: 404 });
     console.error("[call]", err);

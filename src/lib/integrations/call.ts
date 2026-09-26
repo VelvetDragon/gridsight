@@ -1,10 +1,11 @@
 /** Shared types and the browser helper for POST /api/call ("Hear the coordination call"). */
+import type { CatalogUtility, Overlap, Project } from "@/lib/types";
 
 export type CallSpeaker = "DESC" | "GPC";
 
 export interface CallLine {
   speaker: CallSpeaker;
-  /** "Dominion Energy SC planner" / "Georgia Power planner". */
+  /** "DESC planner" / "Georgia Power planner" (or the two catalog utilities' short names). */
   label: string;
   text: string;
 }
@@ -24,16 +25,27 @@ export interface CoordinationCall {
   cached: boolean;
 }
 
-export const SPEAKER_LABEL: Record<CallSpeaker, string> = {
-  DESC: "Dominion Energy SC planner",
-  GPC: "Georgia Power planner",
-};
+/** An overlap id from the DESC / Georgia Power plan, or a full match (the Crosswire slot props). */
+export type MatchRequest = string | { overlap: Overlap; yours: Project; theirs: Project; you?: CatalogUtility | null; neighbor?: CatalogUtility | null };
 
-export async function fetchCall(overlapId: string, signal?: AbortSignal): Promise<CoordinationCall> {
+/** JSON body for /api/call and /api/explain. */
+export function matchBody(match: MatchRequest): string {
+  if (typeof match === "string") return JSON.stringify({ overlapId: match });
+  const { overlap, yours, theirs, you, neighbor } = match;
+  return JSON.stringify({
+    overlap,
+    yours,
+    theirs,
+    you: you ? { name: you.name, shortName: you.shortName } : null,
+    neighbor: neighbor ? { name: neighbor.name, shortName: neighbor.shortName } : null,
+  });
+}
+
+export async function fetchCall(match: MatchRequest, signal?: AbortSignal): Promise<CoordinationCall> {
   const res = await fetch("/api/call", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ overlapId }),
+    body: matchBody(match),
     signal,
   });
   const body = (await res.json().catch(() => null)) as (CoordinationCall & { error?: string }) | null;
