@@ -11,7 +11,7 @@ import {
   type Catalog,
   type PairBundle,
 } from "@/lib/catalog";
-import { boundsOf, geometryPoints, haversineKm, type Bounds } from "@/lib/geo";
+import { boundsOf, circleBounds, geometryPoints, haversineKm, type Bounds } from "@/lib/geo";
 import { tierFor } from "@/lib/overlaps";
 import { DEFAULT_WEIGHTS, rankOverlaps, type RankWeights } from "@/lib/ranking";
 import { rememberComparison } from "@/lib/recent";
@@ -48,22 +48,14 @@ function centerMeasured(o: Overlap, byId: Map<string, Project>): Overlap | null 
   return { ...o, closestPoints: [ca, cb], distanceKm: tier === "crossing" ? 0 : km, tier };
 }
 
-/** Camera bounds for a pair: both projects and the gap between them. */
-export function pairBounds(o: Overlap, byId: Map<string, Project>): Bounds | null {
-  const pts: Position[] = [...o.closestPoints];
-  for (const id of [o.descId, o.gpcId]) {
-    const p = byId.get(id);
-    if (p) pts.push(...geometryPoints(p.geometry));
-  }
-  if (o.stagingYard) pts.push(o.stagingYard.position);
-  const b = boundsOf(pts);
-  if (!b) return null;
-  // Keep a little air around very small pairs.
-  const pad = 0.03;
-  return [
-    [b[0][0] - pad, b[0][1] - pad],
-    [b[1][0] + pad, b[1][1] + pad],
+/** Camera bounds for a pair: the gap between the two projects with room around it for their labels. */
+export function pairBounds(o: Overlap): Bounds | null {
+  const mid: Position = [
+    (o.closestPoints[0][0] + o.closestPoints[1][0]) / 2,
+    (o.closestPoints[0][1] + o.closestPoints[1][1]) / 2,
   ];
+  const ring = circleBounds(mid, Math.max(4, o.distanceKm * 0.8 + 3));
+  return boundsOf([...o.closestPoints, ring[0], ring[1]]);
 }
 
 function defaultPair(utilities: CatalogUtility[], org: string | null): [string, string] | null {
@@ -186,12 +178,12 @@ export function useCrosswire() {
   const effectiveView = useMemo<ViewRequest | null>(() => {
     if (view && view.key.startsWith(pairKey)) return view;
     if (selected) {
-      const b = pairBounds(selected.overlap, projectsById);
+      const b = pairBounds(selected.overlap);
       return b ? { key: `${pairKey}:init-${selected.overlap.id}`, kind: "bounds", bounds: b, maxZoom: 12.5 } : null;
     }
     const all = boundsOf((plan?.projects ?? []).flatMap((p) => geometryPoints(p.geometry)));
     return all ? { key: `${pairKey}:all`, kind: "bounds", bounds: all, maxZoom: 9 } : null;
-  }, [view, pairKey, selected, projectsById, plan]);
+  }, [view, pairKey, selected, plan]);
 
   /* ---------- Actions (all through the URL, so Back works) ---------- */
   const setPair = useCallback((you: string, neighbor: string) => {
@@ -204,10 +196,10 @@ export function useCrosswire() {
       if (!o) return;
       setTiers((prev) => (prev.has(o.tier) ? prev : new Set([...prev, o.tier])));
       setUrlParams({ match: id }, true);
-      const b = pairBounds(o, projectsById);
+      const b = pairBounds(o);
       if (b) setView({ key: `${pairKey}:sel-${id}-${Date.now()}`, kind: "bounds", bounds: b, maxZoom: 12.5 });
     },
-    [measured, projectsById, pairKey],
+    [measured, pairKey],
   );
 
   const clearMatch = useCallback(() => {

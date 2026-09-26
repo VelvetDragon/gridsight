@@ -74,12 +74,12 @@ export function PairsSection({ cw }: { cw: CrosswireState }) {
         </p>
       )}
 
-      <div className="flex items-center gap-2 border-b border-hairline px-5 py-3">
-        <span className="shrink-0 text-[12px] text-ink-3">Distance from</span>
+      <div className="border-b border-hairline px-5 py-3">
+        <span className="mb-1.5 block text-[12px] text-ink-3">Measure the distance between</span>
         <MeasureToggle value={cw.measure} onChange={cw.setMeasure} />
       </div>
 
-      {savings.count > 0 ? (
+      {savings.count > 0 && savings.total > 0 ? (
         <div className="border-b border-hairline px-5 py-5">
           <SavingsHeadline summary={savings} caption={false} />
           <p className="mt-1.5 text-[14px] leading-[21px] text-ink-2">

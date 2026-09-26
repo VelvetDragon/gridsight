@@ -59,21 +59,33 @@ export function pointAlong(path: Position[], from: Position, share = 0.55): Posi
 }
 
 /** On-map label for one side of the selected pair. */
+/** Screen direction (unit vector, y down) from `from` to `to`, or `fallback` when they coincide. */
+export function screenDir(from: Position, to: Position, fallback: [number, number]): [number, number] {
+  const k = Math.cos((from[1] * Math.PI) / 180);
+  const dx = (to[0] - from[0]) * k;
+  const dy = -(to[1] - from[1]);
+  const len = Math.hypot(dx, dy);
+  return len < 1e-7 ? fallback : [dx / len, dy / len];
+}
+
+/** Push a centred label off its anchor, in screen direction `dir`, clear of what is under the anchor. */
+export function awayTransform(dir: [number, number], gap = 18): string {
+  const [x, y] = dir;
+  return `translate(calc(${(x * 50).toFixed(1)}% + ${(x * gap).toFixed(1)}px), calc(${(y * 50).toFixed(1)}% + ${(y * gap).toFixed(1)}px))`;
+}
+
 export function projectLabel(
   id: string,
   position: Position,
   utility: UtilityId,
   name: string,
-  placement: "above" | "below",
+  dir: [number, number],
 ): MapMarker {
   return {
     id,
     position,
     node: (
-      <div
-        className="gs-passive"
-        style={{ transform: placement === "above" ? "translateY(calc(-50% - 16px))" : "translateY(calc(50% + 16px))" }}
-      >
+      <div className="gs-passive" style={{ transform: awayTransform(dir, 44) }}>
         <div className="flex max-w-[260px] items-stretch gap-2 rounded-[10px] border border-white bg-white/95 py-1.5 pr-2.5 pl-2 text-[12px] leading-4 shadow-[var(--shadow-float)]">
           <span aria-hidden className="w-[3px] shrink-0 rounded-full" style={{ background: UTILITY_HEX[utility] }} />
           <span className="min-w-0">
@@ -88,13 +100,19 @@ export function projectLabel(
   };
 }
 
-export function distanceLabel(id: string, position: Position, km: number, touching: boolean): MapMarker {
+export function distanceLabel(
+  id: string,
+  position: Position,
+  km: number,
+  touching: boolean,
+  dir: [number, number] = [1, 0],
+): MapMarker {
   const text = touching ? "0 km – they touch" : km < 10 ? `${km.toFixed(1)} km apart` : `${Math.round(km)} km apart`;
   return {
     id,
     position,
     node: (
-      <div className="gs-passive" style={{ transform: "translateX(calc(50% + 12px))" }}>
+      <div className="gs-passive" style={{ transform: awayTransform(dir, 16) }}>
         <span className="rounded-full bg-ink px-2.5 py-1 text-[12px] font-medium whitespace-nowrap text-white shadow-[var(--shadow-float)]">
           {text}
         </span>

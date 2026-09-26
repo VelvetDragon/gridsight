@@ -7,14 +7,22 @@ import type { ReactNode } from "react";
 import { corridorHalfWidth, hatchedCorridor } from "@/lib/corridor";
 import type { LineCollection, PlanData } from "@/lib/data";
 import { fmtKm, fmtKv, fmtMonthYear } from "@/lib/format";
-import { midpoint } from "@/lib/geo";
+import { haversineKm, midpoint } from "@/lib/geo";
 import { ICON_CHEVRON, ICON_STATION, ICON_STATION_HALO, ICON_STATION_HOLLOW } from "@/lib/glyphs";
 import type { RankedOverlap } from "@/lib/ranking";
 import { INK, RIVER, TIER_HEX, TIER_RGB, tierFull, UTILITY_HEX, UTILITY_NAME, UTILITY_RGB } from "@/lib/theme";
 import { phaseAt } from "@/lib/timeline";
 import type { Overlap, Position, Project } from "@/lib/types";
 import type { MapMarker } from "./MapCanvas";
-import { distanceLabel, pointAlong, projectLabel, selectionLabel, stateLabelMarkers, yardMarker } from "./mapLabels";
+import {
+  distanceLabel,
+  pointAlong,
+  projectLabel,
+  screenDir,
+  selectionLabel,
+  stateLabelMarkers,
+  yardMarker,
+} from "./mapLabels";
 
 /** Drive-time shapes for the selected pair (isochrones), when the data teammate provides them. */
 export interface ReachCollection {
@@ -357,24 +365,44 @@ export function planMarkers(props: PlanSceneProps): MapMarker[] {
   const selected = ranked.find((r) => r.overlap.id === selectedId)?.overlap;
 
   if (selected) {
+    // Every label is pushed away from the pair, so nothing sits on top of it.
     const mid = midpoint(selected.closestPoints[0], selected.closestPoints[1]);
-    const sides: ["DESC" | "GPC", string, number, "above" | "below"][] = [
-      ["DESC", selected.descId, 0, "above"],
-      ["GPC", selected.gpcId, 1, "below"],
+    const [pa, pb] = selected.closestPoints;
+    const axis = screenDir(pa, pb, [1, 0]);
+    const sides: ["DESC" | "GPC", string, number, [number, number]][] = [
+      ["DESC", selected.descId, 0, [-axis[0] * 0.6 - 0.4, -axis[1] * 0.6 - 0.8]],
+      ["GPC", selected.gpcId, 1, [axis[0] * 0.6 + 0.4, axis[1] * 0.6 + 0.8]],
     ];
-    for (const [utility, pid, idx, placement] of sides) {
+    for (const [utility, pid, idx, fallback] of sides) {
       const p = projectsById.get(pid);
       if (!p) continue;
       const at =
         p.geometry.type === "Point"
           ? p.geometry.coordinates
-          : pointAlong(p.geometry.coordinates, selected.closestPoints[idx]);
-      markers.push(projectLabel(`label-${utility}`, at, utility, p.name, placement));
+          : selected.closestPoints[idx];
+      const f = Math.hypot(fallback[0], fallback[1]) || 1;
+      const dir = screenDir(mid, at, [fallback[0] / f, fallback[1] / f]);
+      markers.push(projectLabel(`label-${utility}`, at, utility, p.name, dir));
     }
-    markers.push(distanceLabel("distance", mid, selected.distanceKm, selected.distanceKm === 0));
+    // The distance sits beside the link, not on it.
+    markers.push(
+      distanceLabel(
+        "distance",
+        mid,
+        selected.distanceKm,
+        selected.distanceKm === 0,
+        selected.distanceKm === 0 ? [0.87, -0.5] : [-axis[1], axis[0]],
+      ),
+    );
     if (selected.stagingYard) {
+      const near = haversineKm(selected.stagingYard.position, mid) < 1.5;
       markers.push(
-        yardMarker(`yard-${selected.id}`, selected.stagingYard.position, "Shared yard", selected.stagingYard.label),
+        yardMarker(
+          `yard-${selected.id}`,
+          selected.stagingYard.position,
+          near ? null : "Shared yard",
+          selected.stagingYard.label,
+        ),
       );
     }
     // Drive-time labels on the reach shapes.
