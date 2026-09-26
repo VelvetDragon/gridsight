@@ -157,6 +157,11 @@ export function Stormline() {
               setOpen(true);
               setActive(id);
             },
+            times: response.times,
+            replay: response.replay,
+            visible: response.visible,
+            toggleLayer: response.toggleLayer,
+            reveal: response.scene?.reveal ?? null,
           }}
         />
         <TeamUpPanel

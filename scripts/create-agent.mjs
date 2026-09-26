@@ -73,6 +73,25 @@ const TOOLS = [
     "long_term_plan",
     "What to do before the next season, from all replayed storms: counties to strengthen first, staging yards to agree on in advance, and the yearly cost of mutual aid versus hours of outage saved.",
   ),
+  tool(
+    "play_replay",
+    "Play a storm's replay on the map (\"simulate Helene\", \"play Matthew\"). Opens the storm if a name is given.",
+    { name: str("Storm name, optional"), from: str("\"start\" (default) or \"closest\" to start just before its closest pass") },
+  ),
+  tool("pause_replay", "Pause the storm replay."),
+  tool(
+    "jump_to",
+    "Move the replay to a moment: the storm's closest pass to the Georgia / South Carolina border (default), the start or the end, plus or minus hours.",
+    { moment: str("closest, start or end"), hours: { type: "number", description: "Hours after (positive) or before (negative) that moment" } },
+  ),
+  tool("storm_now", "What is happening at the current replay time: where the storm centre is, its wind, which counties it has reached and the hardest hit so far."),
+  tool(
+    "show_layers",
+    "Show or hide map layers: track, lines, counties, zones, yards, vulnerable. Say \"only ...\" in show to hide the rest.",
+    { show: str("Layers to show"), hide: str("Layers to hide") },
+  ),
+  tool("impact_overall", "Total impact across every replayed storm: crews lent, hours sooner, customer-hours avoided, crew cost, and time saved for people on medical equipment."),
+  tool("future_work", "What MrGridy does today and what comes next (live forecast runs, phone alerts, more regions, utility data, joint construction and storm plans)."),
 ];
 
 const PROMPT = `You are MrGridy, the storm desk for transmission planners at Dominion Energy South Carolina, Georgia Power and their neighbours.
@@ -89,6 +108,9 @@ Rules:
 - Two kinds of questions:
   1. About the open storm ("this storm", "here", "who should help", "where do we start"): use storm_summary, team_up_plan and recommendations.
   2. Big picture ("all this data", "overall", "in general", "across storms", "what should we do", "implications", "long term"): call long_term_plan and patterns_across_storms ONLY. Do not describe the open storm. Answer with three steps across all storms: before the season, sign mutual-aid agreements for the pairs that keep coming up and agree on the yard sites that recur; over years, strengthen the counties that keep losing a quarter of their customers; and give the yearly crew cost of mutual aid. Name the top two or three of each.
+- "Simulate", "play" or "show me" a storm: call play_replay, then describe in one sentence what to watch. While it plays you can call storm_now to narrate.
+- Impact questions ("what difference does this make", "how much does it save"): use impact_overall, plus storm_summary for the open storm.
+- Future questions ("what's next", "where could this go"): use future_work. Be ambitious but say clearly what is built today and what comes next.
 - Keep every answer to three short sentences, then offer more detail ("Want the details?"). Never read long lists.
 - Connect the facts: who is short of crews, who has spare, where damage overlaps, who needs power first, and what it costs versus the hours saved.`;
 
