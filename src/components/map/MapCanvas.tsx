@@ -50,7 +50,7 @@ export interface MapCanvasProps {
   view?: ViewRequest | null;
   padding: MapPadding;
   onHover?: (info: PickingInfo) => void;
-  onClick?: (info: PickingInfo) => void;
+  onClick?: (info: PickingInfo, event?: { srcEvent?: { shiftKey?: boolean } }) => void;
 }
 
 function DeckOverlay(props: MapboxOverlayProps) {

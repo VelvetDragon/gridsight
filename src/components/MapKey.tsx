@@ -140,31 +140,93 @@ export function MapKey({
   );
 }
 
-export const PLAN_KEY: KeyRow[] = [
-  {
-    symbol: SYMBOLS.river,
-    label: "Savannah River",
-    note: "The border: Georgia to the west, South Carolina to the east.",
-  },
-  { symbol: SYMBOLS.existing, label: "Existing power lines", note: "Thin grey lines, for context." },
-  { symbol: SYMBOLS.desc, label: "Dominion Energy planned work", note: "South Carolina side." },
-  { symbol: SYMBOLS.gpc, label: "Georgia Power planned work", note: "Georgia side." },
-  {
-    symbol: SYMBOLS.solidDashed,
-    label: "Solid: route known · Dashed: approximate",
-    note: "Dashed lines are new routes that are not public yet, drawn straight.",
-  },
-  { symbol: SYMBOLS.substation, label: "Substation work", note: "A dot in the company's colour." },
-  {
-    symbol: SYMBOLS.connector,
-    label: "Closest points of a matching pair",
-    note: "A dotted link between the two projects.",
-  },
-  {
-    symbol: SYMBOLS.rings,
-    label: "Rings around a selected pair",
-    note: "1.6 km: share land · 8 km: share yards · 40 km: share crews.",
-  },
-  { symbol: SYMBOLS.yard, label: "Suggested shared staging yard", note: "Where both crews could keep materials." },
-  { symbol: SYMBOLS.pulse, label: "Pulsing dot", note: "During playback: both companies building at once." },
-];
+const EXTRA_SYMBOLS = {
+  stations: (
+    <Sym>
+      <rect x="5" y="3" width="10" height="10" rx="1.5" fill={DESC} stroke="#fff" strokeWidth="1.5" />
+      <rect x="18.5" y="4.5" width="8" height="8" rx="1" fill="none" stroke={GPC} strokeWidth="2" />
+    </Sym>
+  ),
+  built: (
+    <Sym>
+      <path d="M2 8 L30 8" stroke={DESC} strokeWidth="4.2" strokeLinecap="round" />
+      <path d="M2 8 L30 8" stroke="#FAF8F4" strokeWidth="1.6" strokeLinecap="round" />
+    </Sym>
+  ),
+  direction: (
+    <Sym>
+      <path d="M2 8 L30 8" stroke={GPC} strokeWidth="3.2" strokeLinecap="round" />
+      <path
+        d="M13 3.5 L19 8 L13 12.5"
+        fill="none"
+        stroke="#FAF8F4"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Sym>
+  ),
+  corridor: (
+    <Sym>
+      <path d="M5 3 C12 1 24 2 28 6 C31 10 26 14 16 14 C7 14 2 11 3 7 Z" fill="none" stroke={INK} strokeWidth="1.2" />
+      {[8, 12, 16, 20, 24].map((x) => (
+        <line key={x} x1={x - 3} y1="12" x2={x + 2} y2="4" stroke={INK} strokeOpacity="0.55" strokeWidth="1" />
+      ))}
+    </Sym>
+  ),
+  reach: (
+    <Sym>
+      <path
+        d="M3 9 C5 3 14 1 22 3 C30 5 31 12 24 14 C16 16 5 15 3 9 Z"
+        fill="none"
+        stroke={INK}
+        strokeOpacity="0.6"
+        strokeWidth="1.2"
+        strokeDasharray="4 2.5"
+      />
+    </Sym>
+  ),
+};
+
+/** Crosswire's key, in the names of whichever two utilities are open. */
+export function planKeyRows(names: { you: string; neighbor: string }, showRiver: boolean): KeyRow[] {
+  return [
+    ...(showRiver
+      ? [
+          {
+            symbol: SYMBOLS.river,
+            label: "Savannah River",
+            note: "The border: Georgia to the west, South Carolina to the east.",
+          },
+        ]
+      : []),
+    { symbol: SYMBOLS.existing, label: "Existing power lines", note: "Hairlines in the background, for context." },
+    { symbol: SYMBOLS.desc, label: `${names.you} planned work`, note: "Your utility." },
+    { symbol: SYMBOLS.gpc, label: `${names.neighbor} planned work`, note: "The neighbour." },
+    {
+      symbol: EXTRA_SYMBOLS.direction,
+      label: "Arrow on a line",
+      note: "Direction of build, from the first place named to the last.",
+    },
+    {
+      symbol: SYMBOLS.solidDashed,
+      label: "Solid: route known · Dashed: approximate",
+      note: "Dashed lines are new routes that are not public yet, drawn straight.",
+    },
+    { symbol: EXTRA_SYMBOLS.built, label: "Hollow line or square", note: "Already built; shown for reference." },
+    { symbol: EXTRA_SYMBOLS.stations, label: "Squares", note: "Substation work, in the company's colour." },
+    { symbol: SYMBOLS.connector, label: "Dotted link", note: "Where two projects come closest." },
+    {
+      symbol: EXTRA_SYMBOLS.corridor,
+      label: "Hatched corridor",
+      note: "The shared zone between the two projects of a pair.",
+    },
+    {
+      symbol: EXTRA_SYMBOLS.reach,
+      label: "Dashed outline",
+      note: "How far crews can drive from the pair, when known.",
+    },
+    { symbol: SYMBOLS.yard, label: "Suggested shared staging yard", note: "Where both crews could keep materials." },
+    { symbol: SYMBOLS.pulse, label: "Pulsing dot", note: "During playback: both utilities building at once." },
+  ];
+}
