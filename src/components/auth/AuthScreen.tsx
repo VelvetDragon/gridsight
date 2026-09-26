@@ -27,10 +27,10 @@ export const ORGANIZATIONS = [
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function nextUrl(): string {
-  if (typeof window === "undefined") return "/home";
+  if (typeof window === "undefined") return "/";
   const n = new URLSearchParams(window.location.search).get("next");
   // Only same-site paths.
-  return n && n.startsWith("/") && !n.startsWith("//") ? n : "/home";
+  return n && n.startsWith("/") && !n.startsWith("//") ? n : "/";
 }
 
 function Field({

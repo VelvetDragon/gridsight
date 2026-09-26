@@ -8,10 +8,10 @@ export function MeasureToggle({ value, onChange }: { value: Measure; onChange: (
   const opts: { v: Measure; label: string; hint: string }[] = [
     {
       v: "closest",
-      label: "Closest points (official)",
-      hint: "Measured between the nearest points of the two projects.",
+      label: "Closest points",
+      hint: "Official rule: measured between the nearest points of the two projects.",
     },
-    { v: "center", label: "Center points", hint: "Measured between the middle of each project." },
+    { v: "center", label: "Centers", hint: "Measured between the middle of each project." },
   ];
   return (
     <div role="radiogroup" aria-label="Measure distance between" className="flex rounded-[10px] bg-wash-2 p-[3px]">
@@ -24,7 +24,7 @@ export function MeasureToggle({ value, onChange }: { value: Measure; onChange: (
           title={o.hint}
           onClick={() => onChange(o.v)}
           className={cx(
-            "h-7 flex-1 rounded-[8px] px-2 text-[12px] font-medium transition-colors",
+            "h-7 flex-1 whitespace-nowrap rounded-[8px] px-2 text-[12px] font-medium transition-colors",
             value === o.v ? "bg-white text-ink shadow-[0_0_0_1px_rgba(20,24,30,0.08)]" : "text-ink-3 hover:text-ink",
           )}
         >
