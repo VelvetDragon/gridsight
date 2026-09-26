@@ -115,8 +115,12 @@ async function fromTiger(q: OutageQuery): Promise<OutagePoint[] | null> {
     const db = await pool(url);
     const { rows } = q.fips
       ? await db.query<{ bucket: Date; out: string }>(
-          `SELECT bucket, customers_out_max AS out FROM outages_hourly
-           WHERE storm = $1 AND fips = $2 ORDER BY bucket`,
+          // Every hour with any report from the county's state; a county absent from it had no outage.
+          `WITH hours AS (SELECT DISTINCT bucket FROM outages_hourly WHERE storm = $1 AND left(fips, 2) = left($2, 2))
+           SELECT h.bucket, COALESCE(o.customers_out_max, 0) AS out
+           FROM hours h
+           LEFT JOIN outages_hourly o ON o.storm = $1 AND o.fips = $2 AND o.bucket = h.bucket
+           ORDER BY h.bucket`,
           [q.storm, q.fips],
         )
       : await db.query<{ bucket: Date; out: string }>(
@@ -134,14 +138,18 @@ async function fromTiger(q: OutageQuery): Promise<OutagePoint[] | null> {
   }
 }
 
-/** Continuous hourly axis (EAGLE-I omits hours with no outages). */
+/** Continuous hourly axis; hours with no report at all are collection gaps, so carry the last value. */
 function fillHours(points: OutagePoint[]): OutagePoint[] {
   if (points.length < 2) return points;
   const byTime = new Map(points.map((p) => [Date.parse(p.t), p.out]));
   const start = Date.parse(points[0].t);
   const end = Date.parse(points[points.length - 1].t);
   const out: OutagePoint[] = [];
-  for (let t = start; t <= end; t += HOUR) out.push({ t: new Date(t).toISOString(), out: byTime.get(t) ?? 0 });
+  let last = 0;
+  for (let t = start; t <= end; t += HOUR) {
+    last = byTime.get(t) ?? last;
+    out.push({ t: new Date(t).toISOString(), out: last });
+  }
   return out;
 }
 

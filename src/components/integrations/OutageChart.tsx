@@ -78,6 +78,9 @@ export function OutageChart({ storm, fips, state, height = 160, className }: Out
 
   const current = load?.key === key ? load : null;
   const curve = current?.curve ?? null;
+  // Only quote "of N customers" when the customer count covers the area (sample data may not).
+  const customers =
+    curve?.customers && curve.peak && curve.peak.out <= curve.customers ? curve.customers : null;
 
   const geom = useMemo(() => {
     if (!curve || curve.points.length < 2) return null;
@@ -244,8 +247,8 @@ export function OutageChart({ storm, fips, state, height = 160, className }: Out
                 <div className="text-white/70">{timeFmt.format(new Date(hovered.t))}</div>
                 <div className="font-medium tabular-nums">
                   {hovered.out.toLocaleString("en-US")} out
-                  {curve!.customers ? (
-                    <span className="text-white/70"> · {((hovered.out / curve!.customers) * 100).toFixed(1)}%</span>
+                  {customers ? (
+                    <span className="text-white/70"> · {((hovered.out / customers) * 100).toFixed(1)}%</span>
                   ) : null}
                 </div>
               </div>
@@ -256,7 +259,7 @@ export function OutageChart({ storm, fips, state, height = 160, className }: Out
       {curve?.peak ? (
         <p className="text-[11px] text-ink-3">
           Peak {curve.peak.out.toLocaleString("en-US")}
-          {curve.customers ? ` of ${curve.customers.toLocaleString("en-US")} customers` : ""} on{" "}
+          {customers ? ` of ${customers.toLocaleString("en-US")} customers` : ""} on{" "}
           {timeFmt.format(new Date(curve.peak.t))} (Eastern).
         </p>
       ) : null}
