@@ -20,11 +20,23 @@ export const UTILITY_RGB: Record<UtilityId, RGB> = {
   GPC: [194, 65, 12],
 };
 
-/** Company names in words, used everywhere a colour appears. */
-export const UTILITY_NAME: Record<UtilityId, string> = {
+/** The two companies of the original study (Stormline data is always this pair). */
+export const DEFAULT_UTILITY_NAME: Record<UtilityId, string> = {
   DESC: "Dominion Energy",
   GPC: "Georgia Power",
 };
+
+/**
+ * Names in words for the two map slots, used everywhere a colour appears.
+ * Slot "DESC" is always *your* utility (teal) and slot "GPC" the neighbour
+ * (orange); Crosswire renames them for whichever pair is open.
+ */
+export const UTILITY_NAME: Record<UtilityId, string> = { ...DEFAULT_UTILITY_NAME };
+
+export function setSlotNames(names: Record<UtilityId, string>) {
+  UTILITY_NAME.DESC = names.DESC;
+  UTILITY_NAME.GPC = names.GPC;
+}
 
 export const UTILITY_STATE: Record<UtilityId, string> = {
   DESC: "South Carolina",

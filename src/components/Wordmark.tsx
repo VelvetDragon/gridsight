@@ -2,21 +2,36 @@
 export const PRODUCT_NAME = "MrGridy";
 
 /**
- * Wordmark: "MrGridy" in Fraunces with a small line-and-dot glyph, a power line
- * sagging between two poles whose tops carry the two company colours.
+ * The mark: a power line drawn as one loose, hand-drawn wave (sagging between
+ * two invisible poles), with a small spark resting at its end. The splash
+ * screen animates this same path; everywhere else it is static.
  */
+export const MARK_PATH = "M3 15 C6.5 6.5 10.5 6 13.5 12.5 S21 19.5 24.5 11.5 S30 5.5 33 8";
+
+export const SPARK = { x: 33, y: 8 };
+
+export function LogoMark({ size = 26, spark = true }: { size?: number; spark?: boolean }) {
+  return (
+    <svg width={size * (36 / 22)} height={size} viewBox="0 0 36 22" aria-hidden className="shrink-0">
+      <path d={MARK_PATH} fill="none" stroke="#15181E" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
+      {spark ? (
+        <>
+          <circle cx={SPARK.x} cy={SPARK.y} r="3.4" fill="#F2B544" opacity="0.28" />
+          <circle cx={SPARK.x} cy={SPARK.y} r="1.9" fill="#D98A1A" />
+        </>
+      ) : null}
+    </svg>
+  );
+}
+
+/** Wordmark: the mark plus "MrGridy" in Fraunces. */
 export function Wordmark({ size = 21 }: { size?: number }) {
   return (
-    <div className="flex items-center gap-2 select-none">
-      <svg width="22" height="20" viewBox="0 0 22 20" aria-hidden>
-        <path d="M4 7 V18 M18 7 V18" stroke="#15181E" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M4 7 Q11 13 18 7" fill="none" stroke="#15181E" strokeWidth="1.3" strokeLinecap="round" />
-        <circle cx="4" cy="6" r="2.6" fill="#0E7C7B" stroke="#fff" strokeWidth="1" />
-        <circle cx="18" cy="6" r="2.6" fill="#C2410C" stroke="#fff" strokeWidth="1" />
-      </svg>
+    <span className="flex items-center gap-2 select-none">
+      <LogoMark size={Math.round(size * 0.95)} />
       <span className="display leading-none font-semibold text-ink" style={{ fontSize: size }}>
         <span className="font-normal">Mr</span>Gridy
       </span>
-    </div>
+    </span>
   );
 }

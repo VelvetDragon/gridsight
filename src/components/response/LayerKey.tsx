@@ -1,10 +1,9 @@
 "use client";
 
-import { PanelLeftClose } from "lucide-react";
 import type { ReactNode } from "react";
 import { FAILURE_LEGEND, rgbCss } from "@/lib/theme";
 import type { ResponseLayerId } from "../map/responseScene";
-import { cx, IconButton, Panel, PanelHeader } from "../ui/primitives";
+import { cx } from "../ui/primitives";
 
 const FAILURE_GRADIENT = `linear-gradient(to right, ${FAILURE_LEGEND.map(
   (s) => `${rgbCss(s.c)} ${Math.round((s.t / 0.5) * 100)}%`,
@@ -58,29 +57,22 @@ function KeyToggle({
   );
 }
 
-export function LayersPanel({
+/** Stormline's map key: each row explains a layer and switches it on or off. */
+export function LayerKey({
   visible,
   onToggle,
-  onCollapse,
   hasActuals,
 }: {
   visible: Record<ResponseLayerId, boolean>;
   onToggle: (id: ResponseLayerId, on: boolean) => void;
-  onCollapse: () => void;
   hasActuals: boolean;
 }) {
   return (
-    <Panel className="flex max-h-full w-[320px] flex-col overflow-hidden" aria-label="What you're seeing">
-      <PanelHeader
-        title="What you're seeing"
-        subtitle="Each switch turns a layer on or off. Symbols match the map."
-        actions={
-          <IconButton label="Collapse panel" onClick={onCollapse}>
-            <PanelLeftClose size={16} />
-          </IconButton>
-        }
-      />
-      <div className="scroll-quiet flex min-h-0 flex-col overflow-y-auto border-t border-hairline px-3 py-3">
+    <div>
+      <p className="px-5 pt-4 text-[13px] leading-5 text-ink-3">
+        Each switch turns a layer on or off. Symbols match the map.
+      </p>
+      <div className="flex flex-col px-3 py-3">
         <KeyToggle
           checked={visible.track}
           onChange={(v) => onToggle("track", v)}
@@ -179,6 +171,6 @@ export function LayersPanel({
           People who rely on powered medical equipment, by ZIP code (HHS emPOWER).
         </KeyToggle>
       </div>
-    </Panel>
+    </div>
   );
 }

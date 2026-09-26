@@ -52,7 +52,7 @@ export interface MapCanvasProps {
   view?: ViewRequest | null;
   padding: MapPadding;
   onHover?: (info: PickingInfo) => void;
-  onClick?: (info: PickingInfo) => void;
+  onClick?: (info: PickingInfo, event?: { srcEvent?: { shiftKey?: boolean } }) => void;
   /** Realistic map effects; when set, layers pass through it on their way to the overlay. */
   fx?: FxController | null;
 }
