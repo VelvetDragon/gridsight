@@ -126,7 +126,8 @@ def _cost(cost_text: str) -> float | None:
     m = re.search(r"Estimated cost of \$([\d,]+)", cost_text)
     if m:
         return float(m.group(1).replace(",", ""))
-    tokens = re.findall(r"\$?[\d,]{2,}", cost_text.split("Total", 1)[-1])
+    body = cost_text.split("Total", 1)[-1].split("*Total")[0]  # older editions add a rate-base footnote
+    tokens = re.findall(r"\$\s*[\d,]{2,}", body) or re.findall(r"\$?[\d,]{2,}", body)
     return money(tokens[-1]) if tokens else None
 
 
