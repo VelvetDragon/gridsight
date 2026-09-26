@@ -9,6 +9,7 @@ import { DEFAULT_UTILITY_NAME as UTILITY_NAME } from "@/lib/theme";
 import type { RepairZone, StormIndexEntry } from "@/lib/types";
 import { zoneCrewPlan, type ZoneCrews } from "@/lib/teamup";
 import { TimeSavedCard } from "../response/TimeSaved";
+import { OutageChart } from "../integrations/OutageChart";
 import { cx, UtilityDot } from "../ui/primitives";
 
 /** A short heading line followed by content; details stay folded until asked for. */
@@ -331,5 +332,38 @@ function ZoneRow({
         </span>
       </button>
     </li>
+  );
+}
+
+/** Real customers out, hour by hour (EAGLE-I, served from Tiger Data), for the open storm. */
+export function RealOutages({ stormId }: { stormId: string }) {
+  const [state, setState] = useState<"GA" | "SC" | undefined>(undefined);
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-[13px] font-medium text-ink-3">Real outages, hour by hour</h3>
+        <div role="group" aria-label="Which state" className="inline-flex h-7 items-center rounded-[8px] border border-hairline p-0.5">
+          {([undefined, "GA", "SC"] as const).map((s) => (
+            <button
+              key={s ?? "both"}
+              type="button"
+              aria-pressed={state === s}
+              onClick={() => setState(s)}
+              className={cx(
+                "h-full rounded-[6px] px-2 text-[11px] font-medium",
+                state === s ? "bg-ink text-white" : "text-ink-2 hover:bg-wash-2",
+              )}
+            >
+              {s ?? "Both"}
+            </button>
+          ))}
+        </div>
+      </div>
+      <OutageChart storm={stormId} state={state} height={130} className="mt-2" />
+      <p className="mt-1.5 text-[12px] leading-[17px] text-ink-3">
+        What actually happened: customers without power, from the Department of Energy&apos;s EAGLE-I records, every 15
+        minutes, stored as a time series in Tiger Data.
+      </p>
+    </div>
   );
 }
