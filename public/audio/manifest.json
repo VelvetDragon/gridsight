@@ -1,0 +1,83 @@
+[
+  {
+    "id": "story-1",
+    "kind": "story",
+    "title": "Two neighbors",
+    "text": "Dominion Energy South Carolina and Georgia Power face each other across the Savannah River. Each one plans its own grid, mostly on its own.",
+    "file": null,
+    "durationMs": 9600,
+    "hash": "6e5ea805c942"
+  },
+  {
+    "id": "story-2",
+    "kind": "story",
+    "title": "Their plans",
+    "text": "Between them they have 114 planned transmission projects due in service between 2026 and 2035: 54 in South Carolina and 60 in Georgia. MrGridy put every one of them on one map.",
+    "file": null,
+    "durationMs": 12700,
+    "hash": "0bada546675d"
+  },
+  {
+    "id": "story-3",
+    "kind": "story",
+    "title": "Where they collide",
+    "text": "MrGridy compared all 2,580 pairs and found 50 places where the two plans come within 40 kilometers of each other. Two pairs touch or cross.",
+    "file": null,
+    "durationMs": 10000,
+    "hash": "5b32bbc57f53"
+  },
+  {
+    "id": "story-4",
+    "kind": "story",
+    "title": "The best match",
+    "text": "The strongest match is near Rincon, Georgia: DESC's Okatie to McIntosh 115 kilovolt Tie and Georgia Power's Plant McIntosh expansion. Their build windows overlap by about 7 months.",
+    "file": null,
+    "durationMs": 11200,
+    "hash": "c5a0ddb6ab11"
+  },
+  {
+    "id": "story-5",
+    "kind": "story",
+    "title": "What it saves",
+    "text": "Sharing crews, yards and right-of-way across the top ten matches could save roughly $800,000, somewhere between $350,000 and $1.3 million. That comes from avoided trips and shared land, not from any budget.",
+    "file": null,
+    "durationMs": 12700,
+    "hash": "54a51c1fff60"
+  },
+  {
+    "id": "story-6",
+    "kind": "story",
+    "title": "When a storm comes",
+    "text": "When Hurricane Helene came through in 2024, both utilities were hit at once. MrGridy replays it and expects about 1.2 million customers out at the peak; about 2.8 million actually lost power.",
+    "file": null,
+    "durationMs": 12700,
+    "hash": "dc346e0eaf7a"
+  },
+  {
+    "id": "story-7",
+    "kind": "story",
+    "title": "Fix it together",
+    "text": "One shared staging yard, at Augusta, Georgia, can serve crews from both sides. MrGridy orders 39 repair zones, one shared by both utilities, putting about 14,000 electricity-dependent residents first. Two neighbors, one plan.",
+    "file": null,
+    "durationMs": 13100,
+    "hash": "b1854cb8ed29"
+  },
+  {
+    "id": "flight-1",
+    "kind": "flight",
+    "title": "Corridor fly-through",
+    "text": "This is the number one match, near Rincon, Georgia. In teal, DESC's Okatie to McIntosh 115 kilovolt Tie. In orange, Georgia Power's Plant McIntosh expansion. Here the two projects touch, so their outages have to be planned together. They could share outage coordination, right-of-way, access roads and permits. One staging yard, right beside both jobs, would serve both crews. And for about 7 months, both crews are due to be here at the same time.",
+    "file": null,
+    "durationMs": 29200,
+    "hash": "c1543680aa65"
+  },
+  {
+    "id": "briefing-helene",
+    "kind": "briefing",
+    "title": "Storm crew briefing: Helene",
+    "text": "Storm crew briefing for Hurricane Helene. Here is where to expect damage, and where to start. On the Georgia side, the heaviest outages are expected in Chatham County, Richmond County and Columbia County, with about 772,000 customers out across Georgia at the peak. On the South Carolina side, watch Beaufort County, York County and Aiken County, with about 384,000 customers out statewide. The simulation expects roughly 400 damaged transmission sections on Georgia Power's system and one on DESC's. Both utilities stage jointly at Augusta, Georgia, which reaches two repair zones within 56 minutes. Vulnerable areas first. Start near Pierce County, where about 1,700 residents rely on powered medical equipment, then Lowndes County and Jeff Davis County. Check the MrGridy map for live zone order. Stay safe out there.",
+    "file": null,
+    "durationMs": 49600,
+    "hash": "2a57af95084d"
+  }
+]
