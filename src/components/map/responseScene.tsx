@@ -49,6 +49,8 @@ export function buildResponseLayers(props: ResponseSceneProps): Layer[] {
   const layers: Layer[] = [...riverLayers(data.river, "r-river")];
   const tBucket = Math.round(timeMs / 60000);
 
+  // A utility picked in the Team up panel: show only its likely-to-break lines.
+  const focus = FOCUS_SLOT[props.selectedTeamMove ?? ""] ?? null;
   if (visible.segments) {
     const rows: SegmentRow[] = data.segments
       .map((s, i) => ({ ...s, i }))
@@ -59,12 +61,25 @@ export function buildResponseLayers(props: ResponseSceneProps): Layer[] {
         data: rows,
         getPath: (s) => s.coordinates,
         getColor: (s) =>
-          timeMs >= reveal.segments[s.i] ? [...failureColor(s.failureProbability), 255] : [120, 126, 138, 70],
-        getWidth: (s) => (timeMs >= reveal.segments[s.i] ? 1.6 + 4 * Math.min(1, s.failureProbability * 2) : 1.2),
+          focus
+            ? s.utility === focus && s.failureProbability >= 0.05
+              ? [...failureColor(s.failureProbability), 255]
+              : [120, 126, 138, 35]
+            : timeMs >= reveal.segments[s.i]
+              ? [...failureColor(s.failureProbability), 255]
+              : [120, 126, 138, 70],
+        getWidth: (s) =>
+          focus
+            ? s.utility === focus && s.failureProbability >= 0.05
+              ? 2.5 + 4 * Math.min(1, s.failureProbability * 2)
+              : 1
+            : timeMs >= reveal.segments[s.i]
+              ? 1.6 + 4 * Math.min(1, s.failureProbability * 2)
+              : 1.2,
         widthUnits: "pixels",
         capRounded: true,
         pickable: true,
-        updateTriggers: { getColor: tBucket, getWidth: tBucket },
+        updateTriggers: { getColor: [tBucket, focus], getWidth: [tBucket, focus] },
       }),
     );
   }
@@ -294,6 +309,8 @@ function arc(a: Position, b: Position, n = 32): Position[] {
 }
 
 const TEAM_RGB: [number, number, number] = [47, 111, 69];
+/** Team-up owners whose own line sections are tagged in segments.json. */
+const FOCUS_SLOT: Record<string, "DESC" | "GPC"> = { "owner-desc": "DESC", "owner-georgia-power": "GPC" };
 
 /** Who should team up, drawn on the map: lent crews as arcs, shared yards / crew areas as rings. */
 function teamUpLayers(data: ResponseData, sel: string | null): Layer[] {
@@ -302,6 +319,7 @@ function teamUpLayers(data: ResponseData, sel: string | null): Layer[] {
   if (!t || !sel) return [];
   const alpha = (m: TeamUpMove, on: number, off: number) => (!sel || moveKey(m) === sel ? on : off);
   const owner = t.owners.find((o) => `owner-${o.id}` === sel);
+  if (owner && FOCUS_SLOT[sel]) return []; // its own lines are highlighted instead
   if (owner) {
     return [
       new ScatterplotLayer<typeof owner>({
@@ -394,7 +412,9 @@ export function responseMarkers(props: ResponseSceneProps): MapMarker[] {
         position: pickedOwner.damageCenter,
         node: (
           <div className="gs-passive translate-x-[calc(50%+30px)] rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-medium whitespace-nowrap text-[#2F6F45] shadow-[var(--shadow-float)] ring-1 ring-[#2F6F45]/35">
-            {pickedOwner.name}: damage centred here
+            {FOCUS_SLOT[`owner-${pickedOwner.id}`]
+              ? `${pickedOwner.name}: its likely-to-break lines are highlighted`
+              : `Middle of ${pickedOwner.name}'s likely damage`}
           </div>
         ),
       });

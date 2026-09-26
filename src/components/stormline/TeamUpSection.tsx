@@ -337,7 +337,7 @@ function OwnerExplain({ o, t, data, names }: { o: TeamUpOwner; t: TeamUp; data: 
     <div className="mt-2 flex flex-col gap-1.5 border-t border-hairline pt-2 text-[12.5px] leading-[18px] text-ink-2">
       <p>
         About {fmtInt(o.damagedSections)} of its line sections are likely to fail
-        {where ? `, centred around ${where}` : ""}
+        {where ? `; the middle of that damage is around ${where}` : ""}
         {o.strongWindShare > 0 ? `; ${Math.round(o.strongWindShare * 100)}% of its lines here see gusts of 58 mph or more` : ""}.
       </p>
       <p>{meaning}</p>
