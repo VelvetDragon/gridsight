@@ -3,7 +3,7 @@
 Output shapes (TypeScript-like, for the UI):
 
     // public/data/context/structures.geojson
-    // Tower and pole nodes of OSM power lines within STRUCTURE_BUFFER_KM of the
+    // Tower and pole nodes of OSM power lines in boxes padded ~3 km around the
     // projects that take part in an overlap (not the whole study area), split into
     // structures-<region>.geojson files if one file would exceed 6 MB
     // (public/data/context/structures-index.json then lists them).
@@ -44,16 +44,13 @@ import json
 
 import numpy as np
 from scipy.spatial import cKDTree
-from shapely import contains_xy
 from shapely.geometry import LineString, Point, shape
-from shapely.ops import unary_union
 
 from gridsight import osm
 from gridsight.config import BBOX, CONTEXT_OUT
 from gridsight.plan.context import utility_guess
 from gridsight.plan.geometry import to_metric
 
-STRUCTURE_BUFFER_KM = 2.0
 ON_LINE_M = 30.0
 ON_ROUTE_M = 40.0
 MAX_BYTES = 6_000_000
@@ -169,8 +166,7 @@ def build(projects: list[dict], overlaps: list[dict]) -> tuple[list[dict], dict]
             metric[p["id"]] = LineString(list(zip(cx, cy)))
 
     # Structures near any located project (context layer).
-    area = unary_union([g.buffer(STRUCTURE_BUFFER_KM * 1000) for g in metric.values()])
-    inside = contains_xy(area, pts[:, 0], pts[:, 1])
+    inside = np.ones(len(pts), dtype=bool)  # every fetched box already surrounds an overlapping project
     idx = _line_index()
     features = []
     for i in np.nonzero(inside)[0]:
