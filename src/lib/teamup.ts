@@ -14,11 +14,34 @@ export interface TeamUpOwner {
   role: "needs help" | "can help" | "busy" | "little on this map";
 }
 
+export interface CrewCost {
+  crews: number;
+  workersPerCrew: number;
+  workers: number;
+  workHours: number;
+  driveHoursBothWays: number;
+  paidHours: number;
+  wageUsdH: number;
+  overtime: number;
+  stormWageUsdH: number;
+  days: number;
+  perDiemUsd: number;
+  laborUsd: number;
+  perDiemTotalUsd: number;
+  totalUsd: number;
+}
+
 export interface LendMove {
   kind: "lend";
   from: string;
   to: string;
   crews: number;
+  receiverCrews?: number;
+  receiverWorkHours?: number;
+  efficiency?: number;
+  hoursBefore?: number;
+  hoursAfter?: number;
+  cost?: CrewCost;
   path: [Position, Position];
   driveHours: number;
   hoursSooner: number;
@@ -44,6 +67,11 @@ export interface TeamUp {
   moves: TeamUpMove[];
   assumptions: string[];
   sources: Record<string, unknown>;
+}
+
+/** Stable id for a move, shared by the panel and the map. */
+export function moveKey(m: TeamUpMove): string {
+  return m.kind === "lend" ? `lend-${m.from}-${m.to}` : `${m.kind}-${m.a}-${m.b}`;
 }
 
 /** "A", "A and B", "A, B and C". */

@@ -3,7 +3,7 @@
 import { ArrowRight, Handshake, PanelRightClose, PanelRightOpen, Tent, Truck, Users } from "lucide-react";
 import type { ResponseData } from "@/lib/data";
 import { fmtInt, fmtUsd } from "@/lib/format";
-import { andList, AVERAGE_GAIN, teamUpImpact, type TeamUp, type TeamUpMove, type TeamUpOwner } from "@/lib/teamup";
+import { andList, AVERAGE_GAIN, moveKey, teamUpImpact, type LendMove, type TeamUp, type TeamUpMove, type TeamUpOwner } from "@/lib/teamup";
 import { timeSaved } from "@/lib/savings";
 import { NAV_CLEARANCE } from "../shell/AppShell";
 import { RAIL_GUTTER } from "../shell/Rail";
@@ -41,45 +41,129 @@ function lead(t: TeamUp, storm: string): string {
   return `${needNames} would need more than a day of repairs on their own. ${andList(giverList)} ${many ? "have" : "has"} crews to spare and ${many ? "are" : "is"} close enough to help.`;
 }
 
-function MoveRow({ m, names, onFly }: { m: TeamUpMove; names: Map<string, string>; onFly: (pts: Position[], key: string) => void }) {
+function usd(n: number): string {
+  return fmtUsd(n, { compact: n >= 100000 });
+}
+
+/** The full working for a lend move, step by step, with the numbers the pipeline used. */
+function LendExplain({ m, n }: { m: LendMove; n: (id: string) => string }) {
+  const c = m.cost;
+  if (!c || m.hoursBefore == null || m.hoursAfter == null) return null;
+  const eff = Math.round((m.efficiency ?? 0.85) * 100);
+  return (
+    <div className="mt-3 flex flex-col gap-3 border-t border-hairline pt-3 text-[12.5px] leading-[18px] text-ink-2">
+      <div>
+        <div className="font-medium text-ink">1. How much sooner</div>
+        <p className="mt-0.5">
+          {n(m.to)} has about {fmtInt(m.receiverWorkHours ?? 0)} crew-hours of repairs and {fmtInt(m.receiverCrews ?? 0)} crews
+          of its own: <b className="text-ink">{hours(m.hoursBefore)}</b> of work alone. {n(m.from)} adds {fmtInt(m.crews)} crews,
+          working at {eff}% on unfamiliar equipment, so the work takes <b className="text-ink">{hours(m.hoursAfter)}</b>. Minus{" "}
+          {hours(m.driveHours)} to drive there: power back about <b className="text-ink">{hours(m.hoursSooner)} sooner</b>.
+        </p>
+      </div>
+      <div>
+        <div className="font-medium text-ink">2. What it costs</div>
+        <table className="mt-1 w-full tabular-nums">
+          <tbody>
+            <tr>
+              <td className="py-0.5">Line workers</td>
+              <td className="py-0.5 text-right">
+                {fmtInt(c.crews)} crews x {c.workersPerCrew} = <b className="text-ink">{fmtInt(c.workers)}</b>
+              </td>
+            </tr>
+            <tr>
+              <td className="py-0.5">Paid hours each</td>
+              <td className="py-0.5 text-right">
+                {c.workHours} work + {c.driveHoursBothWays} drive = <b className="text-ink">{c.paidHours} h</b>
+              </td>
+            </tr>
+            <tr>
+              <td className="py-0.5">Storm wage</td>
+              <td className="py-0.5 text-right">
+                ${c.wageUsdH.toFixed(2)} x {c.overtime} = <b className="text-ink">${c.stormWageUsdH.toFixed(2)}/h</b>
+              </td>
+            </tr>
+            <tr>
+              <td className="py-0.5">Labor</td>
+              <td className="py-0.5 text-right">
+                {fmtInt(c.workers)} x {c.paidHours} h x ${c.stormWageUsdH.toFixed(2)} = <b className="text-ink">{usd(c.laborUsd)}</b>
+              </td>
+            </tr>
+            <tr>
+              <td className="py-0.5">Meals and lodging</td>
+              <td className="py-0.5 text-right">
+                {fmtInt(c.workers)} x {c.days} days x ${c.perDiemUsd} = <b className="text-ink">{usd(c.perDiemTotalUsd)}</b>
+              </td>
+            </tr>
+            <tr className="border-t border-hairline">
+              <td className="pt-1 font-medium text-ink">Total</td>
+              <td className="pt-1 text-right font-medium text-ink">{usd(c.totalUsd)}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p className="mt-1 text-[11.5px] text-ink-3">
+          Wage: US median for power-line workers (BLS, May 2024), paid at time and a half in storms. Trucks, fuel and
+          equipment are not included. Days count 16-hour storm shifts.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function MoveRow({
+  m,
+  names,
+  selected,
+  onPick,
+}: {
+  m: TeamUpMove;
+  names: Map<string, string>;
+  selected: boolean;
+  onPick: (m: TeamUpMove) => void;
+}) {
   const n = (id: string) => names.get(id) ?? id;
+  const card = cx(
+    "w-full rounded-[10px] border px-3.5 py-3 text-left transition-colors",
+    selected ? "border-[#2F6F45]/50 bg-white shadow-[0_0_0_3px_rgba(47,111,69,0.12)]" : "border-hairline bg-white/60 hover:bg-white",
+  );
   if (m.kind === "lend") {
     return (
-      <li>
-        <button
-          type="button"
-          onClick={() => onFly(m.path, `lend-${m.from}-${m.to}`)}
-          className="w-full rounded-[10px] border border-hairline bg-white/60 px-3.5 py-3 text-left transition-colors hover:bg-white"
-        >
+      <li className={card}>
+        <button type="button" onClick={() => onPick(m)} aria-expanded={selected} className="w-full text-left">
           <span className="flex items-center gap-1.5 text-[14px] font-medium text-ink">
-            <Truck size={14} aria-hidden className="text-ink-3" />
+            <Truck size={14} aria-hidden className="text-[#2F6F45]" />
             {n(m.from)} <ArrowRight size={13} aria-hidden className="text-ink-3" /> {n(m.to)}
           </span>
           <span className="mt-1 block text-[13px] leading-[19px] text-ink-2">
-            Lend <b className="text-ink">{fmtInt(m.crews)} crews</b>, {hours(m.driveHours)} drive. {n(m.to)} gets power back about{" "}
-            <b className="text-ink">{hours(m.hoursSooner)} sooner</b> for roughly {fmtUsd(m.costUsd, { compact: true })} in crew time.
+            Lend <b className="text-ink">{fmtInt(m.crews)} crews</b> ({fmtInt(m.cost?.workers ?? m.crews * 5)} line workers),{" "}
+            {hours(m.driveHours)} drive. {n(m.to)} gets power back about <b className="text-ink">{hours(m.hoursSooner)} sooner</b>{" "}
+            for about {usd(m.costUsd)} in crew time.
           </span>
-          <span className="mt-1 block text-[12px] leading-[17px] text-ink-3">{m.why}</span>
+          {!selected ? <span className="mt-1 block text-[12px] text-ink-3">Tap to see how this is worked out</span> : null}
         </button>
+        {selected ? <LendExplain m={m} n={n} /> : null}
       </li>
     );
   }
   const Icon = m.kind === "yard" ? Tent : Users;
   return (
-    <li>
-      <button
-        type="button"
-        onClick={() => onFly([m.at], `${m.kind}-${m.a}-${m.b}`)}
-        className="w-full rounded-[10px] border border-hairline bg-white/60 px-3.5 py-3 text-left transition-colors hover:bg-white"
-      >
+    <li className={card}>
+      <button type="button" onClick={() => onPick(m)} aria-expanded={selected} className="w-full text-left">
         <span className="flex items-center gap-1.5 text-[14px] font-medium text-ink">
-          <Icon size={14} aria-hidden className="text-ink-3" />
+          <Icon size={14} aria-hidden className="text-[#2F6F45]" />
           {n(m.a)} + {n(m.b)}: {m.kind === "yard" ? "share a staging yard" : "share crews in the field"}
         </span>
         <span className="mt-1 block text-[13px] leading-[19px] text-ink-2">
           {m.why} {fmtInt(m.sectionsNearby)} damaged sections nearby.
         </span>
       </button>
+      {selected ? (
+        <p className="mt-3 border-t border-hairline pt-3 text-[12.5px] leading-[18px] text-ink-2">
+          {m.kind === "yard"
+            ? `A staging yard is where crews, trucks, poles and wire gather before heading out. Here both utilities' damage is ${m.distanceKm} km apart, so one yard can serve both: one site to set up, secure and supply instead of two, and crews start closer to the work.`
+            : `The two systems' damage is ${Math.round(m.distanceKm)} km apart, within a crew's morning drive. A crew that finishes one utility's repairs can move straight to the other's instead of waiting or driving home.`}
+        </p>
+      ) : null}
     </li>
   );
 }
@@ -146,11 +230,15 @@ export function TeamUpPanel({
   onFly,
   open,
   onOpen,
+  selected,
+  onSelect,
 }: {
   data: ResponseData | null;
   onFly: (pts: Position[], key: string) => void;
   open: boolean;
   onOpen: (open: boolean) => void;
+  selected: string | null;
+  onSelect: (key: string | null) => void;
 }) {
   if (!open) {
     return (
@@ -200,7 +288,7 @@ export function TeamUpPanel({
         ) : (
           <>
             <Impact data={data} t={t} />
-            <TeamUpBody data={data} t={t} onFly={onFly} />
+            <TeamUpBody data={data} t={t} onFly={onFly} selected={selected} onSelect={onSelect} />
           </>
         )}
       </div>
@@ -208,8 +296,26 @@ export function TeamUpPanel({
   );
 }
 
-function TeamUpBody({ data, t, onFly }: { data: ResponseData; t: TeamUp; onFly: (pts: Position[], key: string) => void }) {
+function TeamUpBody({
+  data,
+  t,
+  onFly,
+  selected,
+  onSelect,
+}: {
+  data: ResponseData;
+  t: TeamUp;
+  onFly: (pts: Position[], key: string) => void;
+  selected: string | null;
+  onSelect: (key: string | null) => void;
+}) {
   const names = new Map(t.owners.map((o) => [o.id, o.name]));
+  const pick = (m: TeamUpMove) => {
+    const key = moveKey(m);
+    if (key === selected) return onSelect(null);
+    onSelect(key);
+    onFly(m.kind === "lend" ? m.path : [m.at], key);
+  };
   const shown = t.owners.filter((o) => o.damagedSections >= 1).slice(0, 8);
   const max = Math.max(1, ...shown.map((o) => o.damagedSections));
   const lends = t.moves.filter((m) => m.kind === "lend");
@@ -226,7 +332,7 @@ function TeamUpBody({ data, t, onFly }: { data: ResponseData; t: TeamUp; onFly: 
           <h4 className="text-[13px] font-medium text-ink-3">Lend crews</h4>
           <ul className="mt-3 flex flex-col gap-2">
             {lends.slice(0, 5).map((m, i) => (
-              <MoveRow key={i} m={m} names={names} onFly={onFly} />
+              <MoveRow key={i} m={m} names={names} selected={moveKey(m) === selected} onPick={pick} />
             ))}
           </ul>
         </Block>
@@ -237,7 +343,7 @@ function TeamUpBody({ data, t, onFly }: { data: ResponseData; t: TeamUp; onFly: 
           <h4 className="text-[13px] font-medium text-ink-3">Work side by side</h4>
           <ul className="mt-3 flex flex-col gap-2">
             {shared.slice(0, 5).map((m, i) => (
-              <MoveRow key={i} m={m} names={names} onFly={onFly} />
+              <MoveRow key={i} m={m} names={names} selected={moveKey(m) === selected} onPick={pick} />
             ))}
           </ul>
         </Block>

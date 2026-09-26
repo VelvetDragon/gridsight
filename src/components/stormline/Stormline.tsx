@@ -31,6 +31,11 @@ export function Stormline() {
   const response = useResponseMode(stormParam, timeParam);
   const [open, setOpen] = useState(true);
   const [teamOpen, setTeamOpen] = useState(true);
+  const [teamMove, setTeamMove] = useState<string | null>(null);
+  const scene = useMemo(
+    () => (response.scene ? { ...response.scene, selectedTeamMove: teamMove } : null),
+    [response.scene, teamMove],
+  );
   const [active, setActive] = useState("storm");
   const { clearZone } = response;
 
@@ -117,7 +122,7 @@ export function Stormline() {
         <MapStage
           mode="response"
           plan={null}
-          response={response.scene}
+          response={scene}
           popup={null}
           view={response.view}
           padding={padding}
@@ -131,7 +136,14 @@ export function Stormline() {
           open={open}
           onOpen={setOpen}
         />
-        <TeamUpPanel data={data ?? null} onFly={response.flyToPoints} open={teamOpen} onOpen={setTeamOpen} />
+        <TeamUpPanel
+          data={data ?? null}
+          onFly={response.flyToPoints}
+          open={teamOpen}
+          onOpen={setTeamOpen}
+          selected={teamMove}
+          onSelect={setTeamMove}
+        />
         {data && response.times.length > 1 ? (
           <div
             className="fixed z-20"

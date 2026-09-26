@@ -8,10 +8,12 @@ import type { ResponseData } from "@/lib/data";
 import { fmtInt, fmtPct } from "@/lib/format";
 import { approxWindRadiusKm, stormAt, zoneLabel } from "@/lib/response";
 import { ALERT, failureColor, INK, SLATE, UTILITY_RGB, VULNERABLE_RGB } from "@/lib/theme";
+import { moveKey, type TeamUpMove } from "@/lib/teamup";
 import type { CountyOutage, LineSegmentRisk, Position, RepairZone, VulnerableArea } from "@/lib/types";
 import type { MapMarker } from "./MapCanvas";
 import { stateLabelMarkers, yardMarker } from "./mapLabels";
 import { riverLayers } from "./planScene";
+import { cx } from "../ui/primitives";
 
 export type ResponseLayerId = "track" | "segments" | "counties" | "zones" | "yards" | "vulnerable";
 
@@ -24,6 +26,8 @@ export interface ResponseSceneProps {
   reveal: { segments: Float64Array; counties: Float64Array };
   selectedZoneId: string | null;
   onZoneClick: (id: string) => void;
+  /** Team-up move picked in the right panel (moveKey), highlighted on the map. */
+  selectedTeamMove?: string | null;
 }
 
 const dashes = new PathStyleExtension({ dash: true });
@@ -274,7 +278,7 @@ export function buildResponseLayers(props: ResponseSceneProps): Layer[] {
     }
   }
 
-  layers.push(...teamUpLayers(data));
+  layers.push(...teamUpLayers(data, props.selectedTeamMove ?? null));
   return layers;
 }
 
@@ -292,9 +296,10 @@ function arc(a: Position, b: Position, n = 32): Position[] {
 const TEAM_RGB: [number, number, number] = [47, 111, 69];
 
 /** Who should team up, drawn on the map: lent crews as arcs, shared yards / crew areas as rings. */
-function teamUpLayers(data: ResponseData): Layer[] {
+function teamUpLayers(data: ResponseData, sel: string | null): Layer[] {
   const t = data.teamUp;
   if (!t) return [];
+  const alpha = (m: TeamUpMove, on: number, off: number) => (!sel || moveKey(m) === sel ? on : off);
   const lends = t.moves.filter((m) => m.kind === "lend").slice(0, 5);
   const shared = t.moves.filter((m) => m.kind !== "lend").slice(0, 5);
   return [
@@ -302,8 +307,9 @@ function teamUpLayers(data: ResponseData): Layer[] {
       id: "r-team-arcs",
       data: lends,
       getPath: (m) => arc(m.path[0], m.path[1]),
-      getColor: [...TEAM_RGB, 210],
-      getWidth: (m) => 2 + Math.min(4, m.crews / 15),
+      getColor: (m) => [...TEAM_RGB, alpha(m, 220, 60)],
+      getWidth: (m) => (moveKey(m) === sel ? 6 : 2 + Math.min(3, m.crews / 20)),
+      updateTriggers: { getColor: sel, getWidth: sel },
       widthUnits: "pixels",
       capRounded: true,
       getDashArray: [6, 4],
@@ -314,9 +320,10 @@ function teamUpLayers(data: ResponseData): Layer[] {
       id: "r-team-arc-ends",
       data: lends,
       getPosition: (m) => m.path[1],
-      getRadius: 5,
+      getRadius: (m) => (moveKey(m) === sel ? 8 : 5),
       radiusUnits: "pixels",
-      getFillColor: [...TEAM_RGB, 235],
+      getFillColor: (m) => [...TEAM_RGB, alpha(m, 235, 70)],
+      updateTriggers: { getRadius: sel, getFillColor: sel },
       getLineColor: [255, 255, 255, 255],
       lineWidthUnits: "pixels",
       getLineWidth: 2,
@@ -326,12 +333,13 @@ function teamUpLayers(data: ResponseData): Layer[] {
       id: "r-team-shared",
       data: shared,
       getPosition: (m) => m.at,
-      getRadius: (m) => (m.kind === "yard" ? 9 : 13),
+      getRadius: (m) => (moveKey(m) === sel ? 16 : m.kind === "yard" ? 9 : 13),
       radiusUnits: "pixels",
       filled: true,
-      getFillColor: (m) => (m.kind === "yard" ? [...TEAM_RGB, 70] : [...TEAM_RGB, 25]),
+      getFillColor: (m) => [...TEAM_RGB, alpha(m, m.kind === "yard" ? 80 : 30, 10)],
       stroked: true,
-      getLineColor: [...TEAM_RGB, 230],
+      getLineColor: (m) => [...TEAM_RGB, alpha(m, 230, 70)],
+      updateTriggers: { getRadius: sel, getFillColor: sel, getLineColor: sel },
       lineWidthUnits: "pixels",
       getLineWidth: 2,
     }),
@@ -357,29 +365,26 @@ export function responseMarkers(props: ResponseSceneProps): MapMarker[] {
     }
   }
   const team = data.teamUp;
+  const sel = props.selectedTeamMove ?? null;
   if (team) {
-    const name = new Map(team.owners.map((o) => [o.id, o.name]));
-    for (const [i, m] of team.moves.filter((x) => x.kind === "lend").slice(0, 3).entries()) {
-      if (m.kind !== "lend") continue;
-      const mid = arc(m.path[0], m.path[1])[16];
+    const name = (id: string) => team.owners.find((o) => o.id === id)?.name ?? id;
+    const picked = team.moves.find((m) => moveKey(m) === sel);
+    const shown = picked ? [picked] : team.moves.filter((m) => m.kind === "yard").slice(0, 1);
+    for (const m of shown) {
+      const lend = m.kind === "lend";
       markers.push({
-        id: `team-lend-${i}`,
-        position: mid,
+        id: `team-${moveKey(m)}`,
+        position: lend ? arc(m.path[0], m.path[1])[16] : m.at,
         node: (
-          <div className="gs-passive rounded-full border border-[#2F6F45]/30 bg-white/90 px-2 py-0.5 text-[11px] font-medium whitespace-nowrap text-[#2F6F45] shadow-[var(--shadow-float)]">
-            {fmtInt(m.crews)} crews · {name.get(m.from) ?? m.from} → {name.get(m.to) ?? m.to}
-          </div>
-        ),
-      });
-    }
-    for (const [i, m] of team.moves.filter((x) => x.kind === "yard").slice(0, 2).entries()) {
-      if (m.kind === "lend") continue;
-      markers.push({
-        id: `team-yard-${i}`,
-        position: m.at,
-        node: (
-          <div className="gs-passive translate-y-[-22px] rounded-full bg-[#2F6F45] px-2 py-0.5 text-[11px] font-medium whitespace-nowrap text-white shadow-[var(--shadow-float)]">
-            Share a yard: {name.get(m.a) ?? m.a} + {name.get(m.b) ?? m.b}
+          <div
+            className={cx(
+              "gs-passive rounded-full px-2.5 py-1 text-[12px] font-medium whitespace-nowrap shadow-[var(--shadow-float)]",
+              lend ? "bg-white text-[#2F6F45] ring-1 ring-[#2F6F45]/40" : "translate-y-[-24px] bg-[#2F6F45] text-white",
+            )}
+          >
+            {lend
+              ? `${fmtInt(m.crews)} crews · ${name(m.from)} → ${name(m.to)} · ${Math.round(m.hoursSooner)} h sooner`
+              : `${m.kind === "yard" ? "Share a yard" : "Share crews"}: ${name(m.a)} + ${name(m.b)}`}
           </div>
         ),
       });
