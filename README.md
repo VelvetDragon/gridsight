@@ -31,9 +31,13 @@ npm run dev
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r pipeline/requirements.txt
 python pipeline/scripts/fetch_data.py
+cd pipeline
+python -m gridsight.plan.build          # Plan mode -> public/data/plan, public/data/context
+python -m gridsight.plan.build --no-roads   # same, without OSRM road checks
+python -m pytest tests
 ```
 
-Raw documents are downloaded outside the repo (`../gridsight-data/raw`, override with `GRIDSIGHT_RAW`).
+Raw documents are downloaded outside the repo (`../gridsight-data/raw`, override with `GRIDSIGHT_RAW`). OpenStreetMap (Overpass) and OSRM responses are cached in `../gridsight-data/cache` (`GRIDSIGHT_CACHE`), so a rebuild is offline once the cache is warm.
 
 ## Data sources
 
