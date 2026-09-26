@@ -327,6 +327,10 @@ function TeamUpBody({
         <p className="text-[15px] leading-[23px] text-ink">{lead(t, data.storm.name)}</p>
       </Block>
 
+      {lends.length || shared.length ? (
+        <p className="px-5 pt-4 text-[12px] text-ink-3">Tap a move to draw it on the map.</p>
+      ) : null}
+
       {lends.length ? (
         <Block>
           <h4 className="text-[13px] font-medium text-ink-3">Lend crews</h4>

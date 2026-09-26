@@ -8,7 +8,7 @@ import type { ResponseData } from "@/lib/data";
 import { fmtInt, fmtPct } from "@/lib/format";
 import { approxWindRadiusKm, stormAt, zoneLabel } from "@/lib/response";
 import { ALERT, failureColor, INK, SLATE, UTILITY_RGB, VULNERABLE_RGB } from "@/lib/theme";
-import { moveKey, type TeamUpMove } from "@/lib/teamup";
+import { moveKey, type LendMove, type SharedMove, type TeamUpMove } from "@/lib/teamup";
 import type { CountyOutage, LineSegmentRisk, Position, RepairZone, VulnerableArea } from "@/lib/types";
 import type { MapMarker } from "./MapCanvas";
 import { neighbourStateMarkers, stateLabelMarkers, yardMarker } from "./mapLabels";
@@ -32,7 +32,7 @@ export interface ResponseSceneProps {
 
 const dashes = new PathStyleExtension({ dash: true });
 /** Only the first few priorities get a label; the rest are listed in the panel. */
-export const TOP_ZONES = 10;
+export const TOP_ZONES = 5;
 /** Zone footprint radius drawn on the map, metres. */
 const ZONE_RADIUS_M = 11000;
 
@@ -298,10 +298,11 @@ const TEAM_RGB: [number, number, number] = [47, 111, 69];
 /** Who should team up, drawn on the map: lent crews as arcs, shared yards / crew areas as rings. */
 function teamUpLayers(data: ResponseData, sel: string | null): Layer[] {
   const t = data.teamUp;
-  if (!t) return [];
+  // Drawn only for the move picked in the Team up panel, so the storm map stays clean.
+  if (!t || !sel) return [];
   const alpha = (m: TeamUpMove, on: number, off: number) => (!sel || moveKey(m) === sel ? on : off);
-  const lends = t.moves.filter((m) => m.kind === "lend").slice(0, 5);
-  const shared = t.moves.filter((m) => m.kind !== "lend").slice(0, 5);
+  const lends = t.moves.filter((m): m is LendMove => m.kind === "lend" && moveKey(m) === sel);
+  const shared = t.moves.filter((m): m is SharedMove => m.kind !== "lend" && moveKey(m) === sel);
   return [
     new PathLayer<(typeof lends)[number]>({
       id: "r-team-arcs",
@@ -369,7 +370,7 @@ export function responseMarkers(props: ResponseSceneProps): MapMarker[] {
   if (team) {
     const name = (id: string) => team.owners.find((o) => o.id === id)?.name ?? id;
     const picked = team.moves.find((m) => moveKey(m) === sel);
-    const shown = picked ? [picked] : team.moves.filter((m) => m.kind === "yard").slice(0, 1);
+    const shown = picked ? [picked] : [];
     for (const m of shown) {
       const lend = m.kind === "lend";
       markers.push({
@@ -378,8 +379,8 @@ export function responseMarkers(props: ResponseSceneProps): MapMarker[] {
         node: (
           <div
             className={cx(
-              "gs-passive rounded-full px-2.5 py-1 text-[12px] font-medium whitespace-nowrap shadow-[var(--shadow-float)]",
-              lend ? "bg-white text-[#2F6F45] ring-1 ring-[#2F6F45]/40" : "translate-y-[-24px] bg-[#2F6F45] text-white",
+              "gs-passive rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-medium whitespace-nowrap text-[#2F6F45] shadow-[var(--shadow-float)] ring-1 ring-[#2F6F45]/35",
+              !lend && "translate-x-[calc(50%+22px)]",
             )}
           >
             {lend
