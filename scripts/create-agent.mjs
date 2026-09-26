@@ -69,6 +69,10 @@ const TOOLS = [
     "patterns_across_storms",
     "Lessons across all replayed storms: which utilities most often need help, which most often can lend, and which pairs keep coming up, so utilities can agree on mutual aid before the next storm.",
   ),
+  tool(
+    "long_term_plan",
+    "What to do before the next season, from all replayed storms: counties to strengthen first, staging yards to agree on in advance, and the yearly cost of mutual aid versus hours of outage saved.",
+  ),
 ];
 
 const PROMPT = `You are MrGridy, the storm desk for transmission planners at Dominion Energy South Carolina, Georgia Power and their neighbours.
@@ -82,7 +86,7 @@ Rules:
 - If asked how a number is worked out, use the working the tools return (crews x workers, hours, wage, per diem).
 - Plain language, no jargon. Friendly and calm, like a colleague on the storm desk.
 - You can think ahead and suggest what to do. Build suggestions on the recommendations and patterns_across_storms tools, say they are suggestions, and give the reason and the number behind each.
-- When asked "so what" or "what should we do", connect the facts: who is short of crews, who has spare, where damage overlaps, who needs power first, and what it costs versus the hours saved.`;
+- When asked about implications, "so what", or "what should we do with all this data", combine storm_summary, recommendations, patterns_across_storms and long_term_plan into two or three clear next steps: now (this storm), before the season (agreements, yards), and over years (strengthen counties). Connect the facts: who is short of crews, who has spare, where damage overlaps, who needs power first, and what it costs versus the hours saved.`;
 
 const body = {
   name: "Ask MrGridy",

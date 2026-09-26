@@ -91,6 +91,22 @@ function describeMove(m: TeamUpMove, t: TeamUp) {
   };
 }
 
+type CountyRow = { fips: string; name: string; state: string; customers: number; predictedPeakOut: number };
+type YardRow = { label: string };
+const fileCache = new Map<string, unknown>();
+async function stormFile<T>(id: string, file: string): Promise<T | null> {
+  const key = `${id}/${file}`;
+  if (!fileCache.has(key)) {
+    try {
+      const res = await fetch(`/data/response/${encodeURIComponent(id)}/${file}`);
+      fileCache.set(key, res.ok ? await res.json() : null);
+    } catch {
+      fileCache.set(key, null);
+    }
+  }
+  return (fileCache.get(key) as T | null) ?? null;
+}
+
 const teamUpCache = new Map<string, TeamUp | null>();
 async function teamUpOf(id: string): Promise<TeamUp | null> {
   if (!teamUpCache.has(id)) {
@@ -297,6 +313,54 @@ function useTools(bridge: AgentBridge) {
       }
       if (!out.length) out.push("No outside crews are needed for this storm; keep crews home and share yards only where damage is close.");
       return json({ storm: d.storm.name, suggestions: out });
+    },
+
+    long_term_plan: async () => {
+      const b = ref.current;
+      const storms = b.storms ?? [];
+      const years = storms.length ? Math.max(...storms.map((s) => s.year)) - Math.min(...storms.map((s) => s.year)) + 1 : 1;
+      const hard = new Map<string, { name: string; hits: number }>();
+      const yards = new Map<string, number>();
+      let crewCost = 0;
+      let hoursSooner = 0;
+      for (const s of storms) {
+        const [counties, ys, plan] = await Promise.all([
+          stormFile<CountyRow[]>(s.id, "counties.json"),
+          stormFile<YardRow[]>(s.id, "yards.json"),
+          teamUpOf(s.id),
+        ]);
+        for (const c of counties ?? []) {
+          if (c.customers > 0 && c.predictedPeakOut / c.customers >= 0.25) {
+            const e = hard.get(c.fips) ?? { name: `${c.name} County, ${c.state}`, hits: 0 };
+            hard.set(c.fips, { ...e, hits: e.hits + 1 });
+          }
+        }
+        for (const y of ys ?? []) yards.set(y.label, (yards.get(y.label) ?? 0) + 1);
+        for (const m of plan?.moves ?? []) {
+          if (m.kind !== "lend") continue;
+          crewCost += m.costUsd;
+          hoursSooner += m.hoursSooner;
+        }
+      }
+      return json({
+        stormsLookedAt: storms.length,
+        yearsCovered: years,
+        strengthenFirst: [...hard.values()]
+          .filter((c) => c.hits >= 2)
+          .sort((a, b) => b.hits - a.hits)
+          .slice(0, 6)
+          .map((c) => ({ county: c.name, stormsWithAQuarterOrMoreOut: c.hits })),
+        stagingYardsToAgreeInAdvance: [...yards.entries()]
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 4)
+          .map(([label, n]) => ({ yard: label, storms: n })),
+        mutualAidEconomics: {
+          recommendedCrewCostPerYearUsd: round(crewCost / years, -3),
+          hoursSoonerAcrossStorms: round(hoursSooner),
+          meaning: "Lent crews in the team-up plans, summed over every storm and spread over the years covered.",
+        },
+        note: "Suggestions from simulated storms and public data; utilities would confirm with their own asset records.",
+      });
     },
 
     patterns_across_storms: async () => {
