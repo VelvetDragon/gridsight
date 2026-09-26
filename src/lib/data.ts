@@ -150,7 +150,7 @@ export interface Bundle<T> {
   files: FileStatus[];
 }
 
-function strip<T>({ path, origin }: Loaded<T>): FileStatus {
+function strip({ path, origin }: FileStatus): FileStatus {
   return { path, origin };
 }
 
