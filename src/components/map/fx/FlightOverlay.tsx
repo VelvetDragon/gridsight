@@ -14,6 +14,8 @@ const TONE: Record<string, string> = { desc: "var(--desc)", gpc: "var(--gpc)", i
  * lower-third caption with pause, skip and exit (Space, Right arrow, Esc).
  * Pass `audioUrl` to play narration in sync.
  */
+
+const NARRATED_PAIR = "ov-desc-41-okatie-mcintosh-115kv-tie-add-series-rea--gpc-gen-mcintosh-expansion";
 export function FlightOverlay({
   fx,
   plan,
@@ -34,8 +36,10 @@ export function FlightOverlay({
     if (!map || !plan || !selected) return;
     const ranges = plan.data.costRanges ? new Map(plan.data.costRanges.map((r) => [r.overlapId, r])) : null;
     const s = matchSavings(selected, ranges);
+    // The pre-voiced ElevenLabs narration (public/audio/flight-1.mp3) describes the top Dominion / Georgia Power pair.
+    const narration = audioUrl ?? (selected.id === NARRATED_PAIR ? "/audio/flight-1.mp3" : undefined);
     const handle = startCorridorFlight(map, selected, plan.projectsById, {
-      audioUrl,
+      audioUrl: narration,
       reducedMotion: fx.reducedMotion,
       savings: s ? { low: s.low, high: s.high } : null,
     });
