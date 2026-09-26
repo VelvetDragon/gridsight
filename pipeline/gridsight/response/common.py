@@ -112,13 +112,14 @@ def pos(lon: float, lat: float) -> list[float]:
     return [r5(lon), r5(lat)]
 
 
-def write_json(name: str, obj: Any) -> Path:
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    path = OUT_DIR / name
+def write_json(name: str, obj: Any, out_dir: Path | None = None) -> Path:
+    out_dir = out_dir or OUT_DIR
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / name
     with open(path, "w") as fh:
         json.dump(obj, fh, separators=(",", ":"), allow_nan=False)
     size = path.stat().st_size
-    print(f"wrote {path.relative_to(OUT_DIR.parents[2])} ({size / 1e6:.2f} MB)")
+    print(f"wrote {path.relative_to(RESPONSE_OUT.parents[1])} ({size / 1e6:.2f} MB)")
     return path
 
 
