@@ -34,6 +34,7 @@ from gridsight.plan.records import (
     from_to,
     from_to_pairs,
     miles,
+    display_name,
     name_places,
     parse_date,
     slug,
@@ -166,7 +167,7 @@ def parse(path: Path | None = None) -> tuple[list[RawProject], dict]:
                 id=f"gpc-irp-{teams}",
                 utility="GPC",
                 owner=sponsor,
-                name=name.title().replace("Kv", "kV").replace("Sav:", "SAV:").replace("Cc -", "CC -"),
+                name=display_name(name),
                 kind=kind,
                 action=action,
                 description=(

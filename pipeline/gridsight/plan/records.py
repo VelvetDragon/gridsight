@@ -275,3 +275,26 @@ def money(text: str) -> float | None:
 
 def slug(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:60]
+
+
+KEEP_UPPER = {"SAV", "CC", "GPC", "GTC", "MEAG", "DU", "PS", "SOCO", "APC", "FPL", "USA", "LG&E", "QTS", "SK", "EA",
+              "TS", "SS", "TL", "BESS", "II", "III", "IPO", "ACSS", "ACSR", "RAS"}
+
+
+def display_name(name: str) -> str:
+    """Title-case an ALL CAPS filing name, keeping tags (SAV, CC) and kV/Mc spellings."""
+    if name.upper() != name:
+        return re.sub(r"\bMc([a-z])", lambda m: "Mc" + m.group(1).upper(), name)
+    out = []
+    for tok in re.split(r"(\s+|[-–/(),:])", name):
+        up = tok.upper()
+        if up in KEEP_UPPER:
+            out.append(up)
+        elif re.fullmatch(r"\d+KV", up):
+            out.append(up[:-2] + "kV")
+        elif up == "KV":
+            out.append("kV")
+        else:
+            out.append(tok.capitalize())
+    s = "".join(out)
+    return re.sub(r"\bMc([a-z])", lambda m: "Mc" + m.group(1).upper(), s)

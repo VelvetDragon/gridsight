@@ -64,6 +64,6 @@ def test_sertp_q2_soco_slides():
     from gridsight.plan import parse_sertp
 
     ps, info = parse_sertp.parse_q2()
-    hw = [p for p in ps if "HATCH - WADLEY" in p.name]
+    hw = [p for p in ps if "HATCH - WADLEY" in p.name.upper()]
     assert hw and hw[0].in_service == "2031-06-01" and hw[0].miles == 65 and hw[0].kind == "line"
     assert info["excludedOwners"].get("GTC", 0) > 0
