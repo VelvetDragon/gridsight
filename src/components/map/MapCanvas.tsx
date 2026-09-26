@@ -9,6 +9,8 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import Map, { Marker, Popup, useControl, type MapRef } from "react-map-gl/maplibre";
 import type { Bounds } from "@/lib/geo";
 import type { Position } from "@/lib/types";
+import type { FxController } from "./fx/FxController";
+import { FxMapHost } from "./fx/FxMapHost";
 
 // MapLibre loads its worker by URL; scripts/copy-maplibre-worker.mjs puts it in public/.
 if (typeof window !== "undefined") maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
@@ -52,12 +54,15 @@ export interface MapCanvasProps {
   padding: MapPadding;
   onHover?: (info: PickingInfo) => void;
   onClick?: (info: PickingInfo) => void;
+  /** Realistic map effects; when set, layers pass through it on their way to the overlay. */
+  fx?: FxController | null;
 }
 
-function DeckOverlay(props: MapboxOverlayProps) {
+function DeckOverlay({ fx, ...props }: MapboxOverlayProps & { fx?: FxController | null }) {
   const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay(props));
   useEffect(() => {
-    overlay.setProps(props);
+    if (fx) fx.syncOverlay(overlay, props);
+    else overlay.setProps(props);
   });
   return null;
 }
@@ -72,6 +77,7 @@ export default function MapCanvas({
   padding,
   onHover,
   onClick,
+  fx,
 }: MapCanvasProps) {
   const mapRef = useRef<MapRef>(null);
   const [load, setLoad] = useState<LoadState>("loading");
@@ -132,7 +138,8 @@ export default function MapCanvas({
           console.warn("[map]", e.error?.message ?? e);
         }}
       >
-        <DeckOverlay layers={layers} onHover={handleHover} onClick={onClick} pickingRadius={6} />
+        <DeckOverlay layers={layers} onHover={handleHover} onClick={onClick} pickingRadius={6} fx={fx} />
+        {fx ? <FxMapHost controller={fx} /> : null}
         {markers.map((m) => (
           <Marker
             key={m.id}

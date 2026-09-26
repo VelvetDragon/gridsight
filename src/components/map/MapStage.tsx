@@ -2,6 +2,8 @@
 
 import type { Layer, PickingInfo } from "@deck.gl/core";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { FxControls } from "./fx/FxControls";
+import { useFx } from "./fx/useFx";
 import MapCanvas, { type MapMarker, type MapPadding, type MapPopup, type ViewRequest } from "./MapCanvas";
 import { buildPlanLayers, handlePlanClick, planMarkers, planTooltip, type PlanSceneProps } from "./planScene";
 import {
@@ -37,6 +39,7 @@ interface Hover {
  */
 export default function MapStage({ mode, plan, response, popup, view, padding }: MapStageProps) {
   const [hover, setHover] = useState<Hover | null>(null);
+  const fx = useFx(mode, plan, response);
 
   const layers = useMemo<Layer[]>(() => {
     if (mode === "plan" && plan) return buildPlanLayers(plan);
@@ -81,6 +84,12 @@ export default function MapStage({ mode, plan, response, popup, view, padding }:
         padding={padding}
         onHover={onHover}
         onClick={onClick}
+        fx={fx.controller}
+      />
+      <FxControls
+        fx={fx}
+        className="absolute z-20"
+        style={{ top: padding.top - 16, right: padding.right > 48 ? padding.right - 20 : 16 }}
       />
       {hover ? (
         <div
