@@ -92,10 +92,13 @@ async function tryJson<T>(url: string, signal?: AbortSignal): Promise<T | null> 
 export async function loadCatalog(signal?: AbortSignal): Promise<{ data: Catalog; files: FileStatus[] }> {
   const list = await tryJson<CatalogUtility[]>(`/data/${CATALOG_FILE}`, signal);
   if (Array.isArray(list) && list.length >= 2) {
-    return { data: { utilities: list, origin: "catalog" }, files: [{ path: CATALOG_FILE, origin: "pipeline" }] };
+    return {
+      data: { utilities: withSaved(list), origin: "catalog" },
+      files: [{ path: CATALOG_FILE, origin: "pipeline" }],
+    };
   }
   const meta = await loadDataFile<PlanMeta>(PLAN_FILES.meta, "object", signal);
-  return { data: { utilities: fallbackCatalog(meta.data), origin: "plan" }, files: [] };
+  return { data: { utilities: withSaved(fallbackCatalog(meta.data)), origin: "plan" }, files: [] };
 }
 
 /* ---------------- Slot mapping ---------------- */
@@ -293,11 +296,50 @@ export async function loadPair(
 
 /* ---------------- "Find another utility" ---------------- */
 
-/** Utilities found on demand this session, with their extracted projects. */
+/** Utilities found on demand, with their extracted projects. */
 const found = new Map<string, CatalogProject[]>();
+
+/** Found utilities are kept on this device so they survive a reload. */
+const SAVED_KEY = "mrgridy.found.v1";
+type SavedUtility = { utility: CatalogUtility; projects: CatalogProject[] };
+
+function readSaved(): SavedUtility[] {
+  try {
+    const v = JSON.parse(window.localStorage.getItem(SAVED_KEY) ?? "[]") as unknown;
+    return Array.isArray(v) ? (v as SavedUtility[]).filter((s) => s?.utility?.id && Array.isArray(s.projects)) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** The catalog plus any utilities found earlier on this device. */
+function withSaved(list: CatalogUtility[]): CatalogUtility[] {
+  if (typeof window === "undefined") return list;
+  const ids = new Set(list.map((u) => u.id));
+  const extra: CatalogUtility[] = [];
+  for (const s of readSaved()) {
+    found.set(s.utility.id, s.projects);
+    if (!ids.has(s.utility.id)) {
+      ids.add(s.utility.id);
+      extra.push(s.utility);
+    }
+  }
+  return [...list, ...extra];
+}
 
 export function registerFoundUtility(utility: CatalogUtility, projects: CatalogProject[]) {
   found.set(utility.id, projects);
+  try {
+    const next = [...readSaved().filter((s) => s.utility.id !== utility.id), { utility, projects }];
+    window.localStorage.setItem(SAVED_KEY, JSON.stringify(next));
+  } catch {
+    // Storage full or blocked: the utility still works until the page reloads.
+  }
+}
+
+/** Projects of a utility found on demand, if any. */
+export function foundProjects(id: string): CatalogProject[] | null {
+  return found.get(id) ?? null;
 }
 
 export const FIND_ENDPOINT = "/api/utilities/find";

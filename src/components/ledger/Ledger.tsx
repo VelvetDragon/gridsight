@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useMemo } from "react";
-import { FALLBACK_IDS, loadCatalog, loadPair, type Catalog, type PairBundle } from "@/lib/catalog";
+import { FALLBACK_IDS, foundProjects, loadCatalog, loadPair, type Catalog, type PairBundle } from "@/lib/catalog";
 import { loadPlan, loadStormIndex, responseFiles } from "@/lib/data";
 import { ACTION_LABEL, fmtKv } from "@/lib/format";
 import { sourceHref } from "@/lib/plan";
@@ -53,6 +53,8 @@ async function loadAllProjects(catalog: Catalog, signal: AbortSignal): Promise<P
     : [];
   const lists = await Promise.all(
     catalog.utilities.filter((u) => !fallbackIds.includes(u.id)).map(async (u) => {
+      const saved = foundProjects(u.id);
+      if (saved) return saved.map((p) => ({ utilityId: u.id, utilityName: u.shortName, p }));
       try {
         const res = await fetch(`/data/catalog/projects/${encodeURIComponent(u.id)}.json`, { signal });
         const list = res.ok ? ((await res.json()) as CatalogProject[]) : [];

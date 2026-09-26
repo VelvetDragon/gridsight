@@ -83,7 +83,13 @@ export function useCrosswire() {
   const [catState, retryCatalog] = useDataset(loadCatalog);
   const [found, setFound] = useState<CatalogUtility[]>([]);
   const catalog = useMemo<Catalog | null>(
-    () => (catState.status === "ready" ? { ...catState.data, utilities: [...catState.data.utilities, ...found] } : null),
+    () =>
+      catState.status === "ready"
+        ? {
+            ...catState.data,
+            utilities: [...catState.data.utilities.filter((u) => !found.some((f) => f.id === u.id)), ...found],
+          }
+        : null,
     [catState, found],
   );
 
