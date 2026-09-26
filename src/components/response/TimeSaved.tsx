@@ -40,7 +40,7 @@ export function RestorationChart({
         role="img"
         aria-label="Share of customers with power back over time, separate versus working together"
       >
-        {[0, 50, 90, 100].map((v) => (
+        {[0, 50, 100].map((v) => (
           <g key={v}>
             <line x1={pad.l} x2={width - pad.r} y1={y(v)} y2={y(v)} stroke="rgba(20,24,30,0.08)" />
             <text x={pad.l - 6} y={y(v) + 3} fontSize="9.5" textAnchor="end" fill="#555C6B" className="tabular-nums">
