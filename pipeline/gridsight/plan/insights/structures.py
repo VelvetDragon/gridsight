@@ -3,7 +3,8 @@
 Output shapes (TypeScript-like, for the UI):
 
     // public/data/context/structures.geojson
-    // Points within STRUCTURE_BUFFER_KM of any located project, split into
+    // Tower and pole nodes of OSM power lines within STRUCTURE_BUFFER_KM of the
+    // projects that take part in an overlap (not the whole study area), split into
     // structures-<region>.geojson files if one file would exceed 6 MB
     // (public/data/context/structures-index.json then lists them).
     interface StructureFeature {
@@ -31,7 +32,7 @@ Output shapes (TypeScript-like, for the UI):
     }
     type StructuresFile = ProjectStructures[];
 
-Only rebuild / upgrade projects whose geometry was traced along an existing OSM
+Only rebuild / upgrade projects that take part in an overlap and whose geometry was traced along an existing OSM
 line are counted: for those the structures on the traced path are the ones the
 work will touch. OSM structure mapping is incomplete in places, so counts are a
 lower bound.
@@ -65,22 +66,47 @@ REGIONS = {  # lon_min, lat_min, lon_max, lat_max: used only if one file would b
 }
 
 
-def fetch_structures(bbox=BBOX, tiles: int = 4) -> list[dict]:
-    """All power=tower / power=pole nodes (id, lon, lat, type) in bbox, tiled and cached."""
-    lon_min, lat_min, lon_max, lat_max = bbox
-    dx, dy = (lon_max - lon_min) / tiles, (lat_max - lat_min) / tiles
+def project_boxes(projects: list[dict], pad_deg: float = 0.03) -> list[tuple[float, float, float, float]]:
+    """Padded lon/lat boxes around located projects, merged where they overlap, split if large."""
+    boxes = []
+    for p in projects:
+        if p["locationConfidence"] <= 0.2:
+            continue
+        g = shape(p["geometry"])
+        x0, y0, x1, y1 = g.bounds
+        boxes.append([x0 - pad_deg, y0 - pad_deg, x1 + pad_deg, y1 + pad_deg])
+    merged: list[list[float]] = []
+    for bx in sorted(boxes):
+        for m in merged:
+            if bx[0] <= m[2] and bx[2] >= m[0] and bx[1] <= m[3] and bx[3] >= m[1]:
+                m[:] = [min(m[0], bx[0]), min(m[1], bx[1]), max(m[2], bx[2]), max(m[3], bx[3])]
+                break
+        else:
+            merged.append(list(bx))
+    out = []
+    for x0, y0, x1, y1 in merged:  # keep each query small: at most 0.4 x 0.4 degrees
+        nx, ny = max(1, int((x1 - x0) / 0.4) + 1), max(1, int((y1 - y0) / 0.4) + 1)
+        for i in range(nx):
+            for j in range(ny):
+                out.append((x0 + i * (x1 - x0) / nx, y0 + j * (y1 - y0) / ny,
+                            x0 + (i + 1) * (x1 - x0) / nx, y0 + (j + 1) * (y1 - y0) / ny))
+    return out
+
+
+def fetch_structures(boxes) -> list[dict]:
+    """power=tower / power=pole nodes that belong to power=line ways, in small boxes (cached)."""
     seen: dict[int, dict] = {}
-    for i in range(tiles):
-        for j in range(tiles):
-            tb = (lon_min + i * dx, lat_min + j * dy, lon_min + (i + 1) * dx, lat_min + (j + 1) * dy)
-            for kind in ("tower", "pole"):
-                q = f"""
-[out:json][timeout:300];
-node["power"="{kind}"]{osm.bbox_filter(tb)};
-out skel qt;
+    for tb in boxes:
+        q = f"""
+[out:json][timeout:180];
+way["power"="line"]{osm.bbox_filter(tb)};
+node(w)["power"~"^(tower|pole)$"];
+out qt;
 """
-                for el in osm.overpass(q).get("elements", []):
-                    seen[el["id"]] = {"id": el["id"], "lon": el["lon"], "lat": el["lat"], "type": kind}
+        for el in osm.overpass(q, retries=8).get("elements", []):
+            kind = el.get("tags", {}).get("power")
+            if kind in ("tower", "pole"):
+                seen[el["id"]] = {"id": el["id"], "lon": el["lon"], "lat": el["lat"], "type": kind}
     return list(seen.values())
 
 
@@ -122,7 +148,12 @@ def _feature(s, line) -> dict:
 
 
 def build(projects: list[dict], overlaps: list[dict]) -> tuple[list[dict], dict]:
-    structures = fetch_structures()
+    # Structures are fetched around the projects that take part in an overlap (the
+    # places where crews would share work); the whole study area is too large for
+    # the public Overpass servers.
+    in_overlap = {pid for o in overlaps for pid in (o["descId"], o["gpcId"])}
+    focus = [p for p in projects if p["id"] in in_overlap]
+    structures = fetch_structures(project_boxes(focus))
     xs, ys = to_metric([s["lon"] for s in structures], [s["lat"] for s in structures])
     pts = np.column_stack([xs, ys])
     tree = cKDTree(pts)
@@ -152,6 +183,8 @@ def build(projects: list[dict], overlaps: list[dict]) -> tuple[list[dict], dict]
             by_project.setdefault(pid, []).append(o["id"])
     rows = []
     for p in located:
+        if p["id"] not in in_overlap:
+            continue
         if p["geometryQuality"] != "traced" or p["action"] not in ("rebuild", "upgrade"):
             continue
         line = metric[p["id"]]
