@@ -7,13 +7,12 @@ import { MapboxOverlay, type MapboxOverlayProps } from "@deck.gl/mapbox";
 import * as maplibregl from "maplibre-gl";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Map, { Marker, Popup, useControl, type MapRef } from "react-map-gl/maplibre";
+import { loadNaturalStyle } from "@/lib/basemap";
 import type { Bounds } from "@/lib/geo";
 import type { Position } from "@/lib/types";
 
 // MapLibre loads its worker by URL; scripts/copy-maplibre-worker.mjs puts it in public/.
 if (typeof window !== "undefined") maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
-
-export const BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/positron";
 
 /** Centered on the Savannah River between Savannah and Augusta. */
 export const INITIAL_VIEW = { longitude: -81.5, latitude: 32.8, zoom: 7.2 };
@@ -64,18 +63,20 @@ function DeckOverlay(props: MapboxOverlayProps) {
 
 type LoadState = "loading" | "ready" | "error";
 
-export default function MapCanvas({
-  layers,
-  markers = [],
-  popup,
-  view,
-  padding,
-  onHover,
-  onClick,
-}: MapCanvasProps) {
+export default function MapCanvas({ layers, markers = [], popup, view, padding, onHover, onClick }: MapCanvasProps) {
   const mapRef = useRef<MapRef>(null);
   const [load, setLoad] = useState<LoadState>("loading");
   const lastViewKey = useRef<string | null>(null);
+  // The basemap style is fetched once and re-coloured before the map mounts.
+  const [mapStyle, setMapStyle] = useState<maplibregl.StyleSpecification | string | null>(null);
+
+  useEffect(() => {
+    const ctrl = new AbortController();
+    loadNaturalStyle(ctrl.signal).then((style) => {
+      if (!ctrl.signal.aborted) setMapStyle(style);
+    });
+    return () => ctrl.abort();
+  }, []);
 
   const applyView = useCallback(
     (req: ViewRequest | null | undefined) => {
@@ -111,60 +112,62 @@ export default function MapCanvas({
 
   return (
     <div className="absolute inset-0 isolate bg-paper">
-      <Map
-        ref={mapRef}
-        mapLib={maplibregl}
-        initialViewState={INITIAL_VIEW}
-        mapStyle={BASEMAP_STYLE}
-        style={{ position: "absolute", inset: 0 }}
-        attributionControl={{ compact: false }}
-        dragRotate={false}
-        pitchWithRotate={false}
-        touchPitch={false}
-        minZoom={5}
-        maxZoom={14}
-        onLoad={() => setLoad("ready")}
-        onStyleData={() => {
-          if (load === "loading") setLoad("ready");
-        }}
-        onError={(e) => {
-          if (load === "loading") setLoad("error");
-          console.warn("[map]", e.error?.message ?? e);
-        }}
-      >
-        <DeckOverlay layers={layers} onHover={handleHover} onClick={onClick} pickingRadius={6} />
-        {markers.map((m) => (
-          <Marker
-            key={m.id}
-            longitude={m.position[0]}
-            latitude={m.position[1]}
-            anchor="center"
-            onClick={(e) => {
-              if (!m.onClick) return;
-              e.originalEvent.stopPropagation();
-              m.onClick();
-            }}
-          >
-            {m.node}
-          </Marker>
-        ))}
-        {popup ? (
-          <Popup
-            key={popup.key}
-            longitude={popup.position[0]}
-            latitude={popup.position[1]}
-            anchor="bottom"
-            offset={14}
-            closeButton={false}
-            closeOnClick={false}
-            maxWidth="320px"
-            className="gs-popup"
-            onClose={popup.onClose}
-          >
-            {popup.content}
-          </Popup>
-        ) : null}
-      </Map>
+      {mapStyle ? (
+        <Map
+          ref={mapRef}
+          mapLib={maplibregl}
+          initialViewState={INITIAL_VIEW}
+          mapStyle={mapStyle}
+          style={{ position: "absolute", inset: 0 }}
+          attributionControl={{ compact: false }}
+          dragRotate={false}
+          pitchWithRotate={false}
+          touchPitch={false}
+          minZoom={5}
+          maxZoom={14}
+          onLoad={() => setLoad("ready")}
+          onStyleData={() => {
+            if (load === "loading") setLoad("ready");
+          }}
+          onError={(e) => {
+            if (load === "loading") setLoad("error");
+            console.warn("[map]", e.error?.message ?? e);
+          }}
+        >
+          <DeckOverlay layers={layers} onHover={handleHover} onClick={onClick} pickingRadius={6} />
+          {markers.map((m) => (
+            <Marker
+              key={m.id}
+              longitude={m.position[0]}
+              latitude={m.position[1]}
+              anchor="center"
+              onClick={(e) => {
+                if (!m.onClick) return;
+                e.originalEvent.stopPropagation();
+                m.onClick();
+              }}
+            >
+              {m.node}
+            </Marker>
+          ))}
+          {popup ? (
+            <Popup
+              key={popup.key}
+              longitude={popup.position[0]}
+              latitude={popup.position[1]}
+              anchor="bottom"
+              offset={14}
+              closeButton={false}
+              closeOnClick={false}
+              maxWidth="320px"
+              className="gs-popup"
+              onClose={popup.onClose}
+            >
+              {popup.content}
+            </Popup>
+          ) : null}
+        </Map>
+      ) : null}
       {load === "loading" ? (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <span className="eyebrow rounded-full bg-white/70 px-3 py-1.5">Loading basemap</span>
