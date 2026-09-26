@@ -13,6 +13,7 @@ import { NAV } from "../shell/nav";
 import { Rail, railInset, RAIL_GUTTER, type RailSection } from "../shell/Rail";
 import { ErrorCard } from "../ui/states";
 import { StormBriefingButton } from "../integrations/StormBriefingButton";
+import { StormWatch } from "./StormWatch";
 import { Block, BothGridsLine, CrewsSection, ModelCheck, More, StormPicker, TimeSavedBlock } from "./StormSections";
 
 const MapStage = dynamic(() => import("../map/MapStage"), {
@@ -50,6 +51,9 @@ export function Stormline() {
       icon: <CloudLightning size={15} aria-hidden />,
       content: (
         <>
+          <Block>
+            <StormWatch />
+          </Block>
           <Block>
             <StormPicker storms={response.storms} stormId={response.stormId} onStorm={response.pickStorm} />
           </Block>
