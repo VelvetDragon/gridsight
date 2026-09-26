@@ -99,10 +99,23 @@ def drive_hours(a: tuple[float, float], b: tuple[float, float]) -> float:
     return float(haversine_km(a[0], a[1], b[0], b[1])) * ROAD_FACTOR / DRIVE_KMH
 
 
-def crew_cost(crews: float, hours: float, drive_h: float) -> float:
-    people = crews * mutual_aid.CREW_SIZE
+def crew_cost(crews: float, hours: float, drive_h: float) -> dict:
+    """Line-by-line cost of lent crews: workers x paid hours x storm wage, plus per diem.
+
+    Crews work in 16-hour storm shifts, so one day of per diem covers 16 paid hours.
+    """
+    workers = round(crews) * mutual_aid.CREW_SIZE
     paid = hours + 2 * drive_h
-    return people * (paid * WAGE_USD_H * OVERTIME + max(1.0, paid / 16.0) * PER_DIEM_USD)
+    days = max(1.0, paid / 16.0)
+    labor = workers * paid * WAGE_USD_H * OVERTIME
+    diem = workers * days * PER_DIEM_USD
+    return {
+        "crews": round(crews), "workersPerCrew": mutual_aid.CREW_SIZE, "workers": workers,
+        "workHours": round(hours, 1), "driveHoursBothWays": round(2 * drive_h, 1), "paidHours": round(paid, 1),
+        "wageUsdH": WAGE_USD_H, "overtime": OVERTIME, "stormWageUsdH": round(WAGE_USD_H * OVERTIME, 2),
+        "days": round(days, 1), "perDiemUsd": PER_DIEM_USD,
+        "laborUsd": round(labor, -2), "perDiemTotalUsd": round(diem, -2), "totalUsd": round(labor + diem, -3),
+    }
 
 
 def owners_table(seg: pd.DataFrame) -> pd.DataFrame:
@@ -160,11 +173,17 @@ def lend_moves(t: pd.DataFrame) -> list[dict]:
             t.loc[did, "spare"] -= give
             after = r.workHours / t.loc[rid, "have"]
             dh = drive_hours(t.loc[did, "home"], r["damageCenter"])
+            cost = crew_cost(give, after, dh)
             moves.append({
                 "kind": "lend", "from": did, "to": rid, "crews": round(give),
+                "receiverCrews": round(float(t.loc[rid, "have"] - give * mutual_aid.CROSS_EFFICIENCY)),
+                "receiverWorkHours": round(float(r.workHours)),
+                "efficiency": mutual_aid.CROSS_EFFICIENCY,
+                "hoursBefore": round(float(before), 1), "hoursAfter": round(float(after), 1),
+                "cost": cost,
                 "path": [[round(v, 4) for v in t.loc[did, "home"]], [round(v, 4) for v in r["damageCenter"]]],
                 "driveHours": round(dh, 1), "hoursSooner": round(before - after - dh, 1),
-                "costUsd": round(crew_cost(give, after, dh), -3),
+                "costUsd": cost["totalUsd"],
                 "why": f"{NAME[did]} can finish its own repairs within a day and still send {round(give)} crews; "
                        f"{NAME[rid]} would need {before:.0f} hours alone.",
             })
