@@ -486,3 +486,57 @@ input[type="range"].range::-moz-range-thumb {
     --glass-strong: rgba(253, 252, 250, 0.98);
   }
 }
+
+/* ---------- Architecture page ---------- */
+.ab-in {
+  animation: ab-in 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes ab-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.ab-river {
+  stroke-dasharray: 14 26;
+  animation: ab-river 6s linear infinite;
+}
+@keyframes ab-river {
+  to {
+    stroke-dashoffset: -80;
+  }
+}
+.ab-tether {
+  animation: ab-tether 1.2s linear infinite;
+}
+@keyframes ab-tether {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+.ab-blink {
+  animation: ab-blink 1.1s ease-in-out infinite;
+}
+@keyframes ab-blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+.ab-hint {
+  animation: ab-hint 1s ease 10s forwards;
+}
+@keyframes ab-hint {
+  to {
+    opacity: 0;
+  }
+}
+.ab-paused * {
+  animation-play-state: paused !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab-river,
+  .ab-tether,
+  .ab-blink {
+    animation: none;
+  }
+}
