@@ -6,6 +6,7 @@
  * hand-built sample with the same type, and records that it did so. The UI
  * uses those records to show an honest "Sample data" indicator.
  */
+import { isWetlandNoteList, type WetlandNote } from "./opportunities";
 import { isCostRangeList, isMutualAid, type CostRange, type MutualAid } from "./savings";
 import type {
   CountyOutage,
@@ -140,6 +141,7 @@ export const PLAN_FILES = {
   overlaps: "plan/overlaps.json",
   lines: "context/transmission-lines.geojson",
   costRanges: "plan/insights/cost-ranges.json",
+  wetlands: "plan/insights/wetlands.json",
   river: "context/savannah-river.geojson",
 } as const;
 
@@ -168,6 +170,8 @@ export interface PlanData {
   river: LineCollection;
   /** Low / central / high savings per overlap, when the pipeline provides them. */
   costRanges: CostRange[] | null;
+  /** Wetland screening of shared corridors, when the pipeline provides it. */
+  wetlands: WetlandNote[] | null;
 }
 
 export interface ResponseData {
@@ -200,7 +204,11 @@ export async function loadPlan(signal?: AbortSignal): Promise<Bundle<PlanData>> 
     loadOptionalLines(PLAN_FILES.lines, signal),
     loadOptionalLines(PLAN_FILES.river, signal),
   ]);
-  const ranges = await loadOptional(PLAN_FILES.costRanges, overlaps.origin === "sample", isCostRangeList, signal);
+  const sample = overlaps.origin === "sample";
+  const [ranges, wetlands] = await Promise.all([
+    loadOptional(PLAN_FILES.costRanges, sample, isCostRangeList, signal),
+    loadOptional(PLAN_FILES.wetlands, sample, isWetlandNoteList, signal),
+  ]);
   return {
     data: {
       meta: meta.data,
@@ -209,8 +217,11 @@ export async function loadPlan(signal?: AbortSignal): Promise<Bundle<PlanData>> 
       lines: lines.data,
       river: river.data,
       costRanges: ranges?.data ?? null,
+      wetlands: wetlands?.data ?? null,
     },
-    files: [meta, projects, overlaps, lines, river, ...(ranges ? [ranges] : [])].map(strip),
+    files: [meta, projects, overlaps, lines, river, ...(ranges ? [ranges] : []), ...(wetlands ? [wetlands] : [])].map(
+      strip,
+    ),
   };
 }
 

@@ -214,7 +214,7 @@ function PairRow({ cw, rank, id }: { cw: CrosswireState; rank: number; id: strin
         <span className="flex items-center gap-2">
           <span className="display text-[15px] font-medium text-ink">#{rank}</span>
           <span className="text-[12px] font-medium text-ink-2">{TIER_LABEL[o.tier]}</span>
-          {isRightSizingCandidate(desc, gpc) ? <RightSizingChip compact /> : null}
+          {isRightSizingCandidate(o, desc, gpc) ? <RightSizingChip compact /> : null}
         </span>
         <CompanyBlock utility="DESC" size="sm">
           {desc?.name ?? o.descId}

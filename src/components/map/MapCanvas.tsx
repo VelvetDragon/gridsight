@@ -52,7 +52,7 @@ export interface MapCanvasProps {
   view?: ViewRequest | null;
   padding: MapPadding;
   onHover?: (info: PickingInfo) => void;
-  onClick?: (info: PickingInfo, event?: { srcEvent?: { shiftKey?: boolean } }) => void;
+  onClick?: (info: PickingInfo, event?: MapClickEvent) => void;
   /** Realistic map effects; when set, layers pass through it on their way to the overlay. */
   fx?: FxController | null;
 }
@@ -67,6 +67,21 @@ function DeckOverlay({ fx, ...props }: MapboxOverlayProps & { fx?: FxController 
 }
 
 type LoadState = "loading" | "ready" | "error";
+
+/**
+ * deck.gl types `srcEvent` as the DOM event, but over MapLibre it is MapLibre's own event,
+ * which carries the DOM event as `originalEvent`.
+ */
+export interface MapClickEvent {
+  srcEvent?: { shiftKey?: boolean } | { originalEvent?: { shiftKey?: boolean } };
+}
+
+/** True when the click was a shift-click. */
+export function isShiftClick(event?: MapClickEvent): boolean {
+  const src = event?.srcEvent;
+  if (!src) return false;
+  return "originalEvent" in src ? !!src.originalEvent?.shiftKey : !!("shiftKey" in src && src.shiftKey);
+}
 
 export default function MapCanvas({ layers, markers = [], popup, view, padding, onHover, onClick, fx }: MapCanvasProps) {
   const mapRef = useRef<MapRef>(null);
@@ -131,6 +146,8 @@ export default function MapCanvas({ layers, markers = [], popup, view, padding, 
           style={{ position: "absolute", inset: 0 }}
           attributionControl={{ compact: false }}
           dragRotate={false}
+          // Shift-click adds to a selection, so shift-drag must not start a box zoom.
+          boxZoom={false}
           pitchWithRotate={false}
           touchPitch={false}
           minZoom={5}

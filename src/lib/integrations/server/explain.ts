@@ -9,6 +9,13 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import {
+  isWetlandNoteList,
+  pairOpportunities,
+  STRENGTH_LABEL,
+  type Opportunity,
+  type WetlandNote,
+} from "@/lib/opportunities";
 import type { Overlap, Project } from "@/lib/types";
 import type { ExplainMemo, ExplainResult } from "@/lib/integrations/explain";
 import { readDataFile, type DataOrigin } from "./dataFiles";
@@ -57,6 +64,8 @@ export interface MatchData {
   /** The neighbour's project (map slot "GPC"). */
   gpc: Project;
   range: CostRange | null;
+  /** The pair's specific ways to work together (lib/opportunities), strongest first. */
+  opportunities: Opportunity[];
   origin: DataOrigin;
   names: { a: Party; b: Party };
 }
@@ -107,6 +116,7 @@ export async function resolveMatch(input: string | MatchInput): Promise<MatchDat
     desc: input.yours,
     gpc: input.theirs,
     range: null,
+    opportunities: pairOpportunities(input.overlap, input.yours, input.theirs),
     origin: "pipeline",
     names: { a: party(input.you, { name: "Your utility", short: "your utility" }), b: party(input.neighbor, { name: "The neighbor", short: "the neighbor" }) },
   };
@@ -127,8 +137,11 @@ export async function loadMatch(overlapId: string): Promise<MatchData> {
   if (!desc || !gpc) throw new UnknownOverlapError(`Projects for overlap "${overlapId}" are missing`);
   const ranges = await readDataFile<CostRange[]>("plan/insights/cost-ranges.json", { fixtures: false });
   const range = Array.isArray(ranges?.data) ? ranges.data.find((r) => r.overlapId === overlapId) ?? null : null;
+  const wetlands = await readDataFile<WetlandNote[]>("plan/insights/wetlands.json", { fixtures: false });
+  const wetland = isWetlandNoteList(wetlands?.data) ? wetlands.data.find((w) => w.overlapId === overlapId) ?? null : null;
+  const opportunities = pairOpportunities(overlap, desc, gpc, wetland);
   const origin: DataOrigin = overlaps.origin === "pipeline" && projects.origin === "pipeline" ? "pipeline" : "sample";
-  return { overlap, desc, gpc, range, origin, names: CORE_NAMES };
+  return { overlap, desc, gpc, range, opportunities, origin, names: CORE_NAMES };
 }
 
 /* ---------------------------------------------------------------- formatting */
@@ -196,9 +209,14 @@ export function templateExplanation(m: MatchData): Omit<ExplainResult, "cached" 
     months > 0
       ? `Their estimated build windows overlap by about ${months} months (${a.short} ${monthYear(desc.buildWindow?.[0])} to ${monthYear(desc.buildWindow?.[1])}, ${b.short} ${monthYear(gpc.buildWindow?.[0])} to ${monthYear(gpc.buildWindow?.[1])}).`
       : "Their estimated build windows do not overlap, but they sit close enough to plan together.";
-  const share = o.shareable.length ? list(o.shareable) : "crews and equipment";
+  const ops = m.opportunities;
+  const ways = ops.length
+    ? ops.map((op) => `${op.title} (${STRENGTH_LABEL[op.strength].toLowerCase()}): ${op.reason}`).join("\n")
+    : "Nothing specific beyond being close to each other.";
+  const nextStep = ops[0]?.nextStep ?? "A short call between the two project leads to compare routes and build dates.";
   const save = savings(o, range);
-  const yard = o.stagingYard
+  const hasYard = m.opportunities.some((op) => op.kind === "yard");
+  const yard = hasYard && o.stagingYard && o.stagingYard.driveMinutesDesc > 0
     ? `One staging yard at ${o.stagingYard.position[1].toFixed(4)}, ${o.stagingYard.position[0].toFixed(4)} is about ${Math.round(o.stagingYard.driveMinutesDesc)} min from the ${a.short} job and ${Math.round(o.stagingYard.driveMinutesGpc)} min from the ${b.short} job.`
     : null;
   const caveat =
@@ -217,19 +235,19 @@ export function templateExplanation(m: MatchData): Omit<ExplainResult, "cached" 
     `${PRODUCT} compared the two utilities' public transmission plans and flagged a ${TIER_LABEL[o.tier]}-tier match${where ? ` near ${where}` : ""} (rank ${o.rank}).`,
     `${a.short}: ${desc.name} (${describe(desc)}). Source: ${sourceLine(desc)}.\n${b.short}: ${gpc.name} (${describe(gpc)}). Source: ${sourceLine(gpc)}.`,
     `Why it matters: ${distanceText(o)}, so ${TIER_WHY[o.tier]}. ${timing}`,
-    `What we could share: ${share}.${yard ? ` ${yard}` : ""}`,
+    `Ways to work together:\n${ways}${yard ? `\n${yard}` : ""}`,
     save
       ? `Rough savings: ${save}, from shared mobilization, yards and land. These are planning-level figures from public unit costs, not utility budgets.`
       : "Rough savings: not estimated for this pair.",
     `Caveat: ${caveat}`,
-    "Suggested next step: a 30-minute call between the two project leads to compare routes, outage windows and yard needs.",
+    `Suggested next step: ${nextStep}`,
     SIGN_OFF,
   ].join("\n\n");
 
   const talkingPoints = [
     `${distanceText(o)}${where ? ` near ${where}` : ""}.`,
     months > 0 ? `Build windows overlap by about ${months} months.` : "Build windows are close but do not overlap.",
-    `Shareable: ${share}.`,
+    ...(ops.length ? ops.slice(0, 3).map((op) => op.reason) : ["No specific shared work found beyond being close."]),
     save ? `Rough savings: ${save}.` : null,
     caveat,
   ].filter((x): x is string => Boolean(x));
@@ -274,8 +292,13 @@ export function facts(m: MatchData) {
       roadKm: o.roadKm,
       timelineOverlapMonths: o.timelineOverlapMonths,
       robustness: o.robustness,
-      shareable: o.shareable,
-      stagingYard: o.stagingYard,
+      waysToWorkTogether: m.opportunities.map((op) => ({
+        title: op.title,
+        strength: STRENGTH_LABEL[op.strength],
+        reason: op.reason,
+        nextStep: op.nextStep,
+      })),
+      stagingYard: m.opportunities.some((op) => op.kind === "yard") ? o.stagingYard : null,
       savingsUsd: range
         ? { low: range.lowUsd, central: range.centralUsd, high: range.highUsd }
         : o.cost
@@ -295,6 +318,9 @@ Rules:
 - Use only the facts in the JSON you are given. Never invent numbers, dates, names, costs or commitments.
 - Round numbers the way a planner would say them. Use km for distance.
 - Be plain and calm. No hype, no emojis, no markdown headings or bullet symbols in the memo body.
+- What the two teams could do together comes only from overlap.waysToWorkTogether, strongest first. Name each one plainly.
+  If that list is empty, say nothing specific links them beyond being close; do not suggest sharing anything.
+- Suggest the first item's nextStep as the next step when there is one.
 - If the routes are uncertain (robustness "uncertain"), say so once.
 - Savings are planning-level estimates from public unit costs, not utility budgets; say that if you cite them.
 - The memo body is 150 to 250 words, addressed to both teams, and ends with the exact line: "${SIGN_OFF}"`;
@@ -386,7 +412,7 @@ export async function explainOverlap(input: string | MatchInput): Promise<Explai
   }
 
   const f = facts(match);
-  const key = createHash("sha1").update(JSON.stringify({ f, models: geminiModels(), v: 1 })).digest("hex");
+  const key = createHash("sha1").update(JSON.stringify({ f, models: geminiModels(), v: 2 })).digest("hex");
   const hit = memoryCache.get(key) ?? (await diskGet(key));
   if (hit) {
     memoryCache.set(key, hit);

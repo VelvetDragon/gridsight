@@ -2,18 +2,20 @@
 
 import { ArrowLeft } from "lucide-react";
 import { ACTION_LABEL, fmtKv, fmtMonthYear } from "@/lib/format";
-import { isRightSizingCandidate } from "@/lib/plan";
+import { pairOpportunities } from "@/lib/opportunities";
 import { matchSavings } from "@/lib/savings";
-import { pairSentence, shareSentence } from "@/lib/sentences";
+import { pairSentence } from "@/lib/sentences";
 import { TIER_LABEL } from "@/lib/theme";
 import type { Project } from "@/lib/types";
 import { CopyMemo, DistanceBlock, SourceLink, YardBlock } from "../plan/MatchDrawer";
 import { MiniGantt } from "../plan/MiniGantt";
-import { RightSizingChip } from "../plan/RightSizing";
 import { fmtMoney, fmtRange, HONEST_NOTE, HowCalculated, rangeSourceLine, SavingsBar } from "../plan/Savings";
-import { CoordinationCallSlot, ExplainMatchSlot } from "../slots";
+// Call script and voice preview are switched off for now.
+// import { CoordinationCallSlot, ExplainMatchSlot } from "../slots";
+import { ExplainMatchSlot } from "../slots";
 import { More } from "../stormline/StormSections";
 import { CompanyBlock } from "../ui/primitives";
+import { PairOpportunities } from "./PairOpportunities";
 import type { CrosswireState } from "./useCrosswire";
 
 function detail(p: Project | undefined) {
@@ -42,6 +44,8 @@ export function PairDetail({ cw }: { cw: CrosswireState }) {
   const gpc = cw.projectsById.get(o.gpcId);
   const saved = matchSavings(o, cw.costRanges);
   const ranged = saved?.ranged && Math.round(saved.low) !== Math.round(saved.high);
+  const wetland = cw.bundle.plan.wetlands?.find((w) => w.overlapId === o.id) ?? null;
+  const opportunities = desc && gpc ? pairOpportunities(o, desc, gpc, wetland) : null;
   const slotProps =
     desc && gpc ? { overlap: o, yours: desc, theirs: gpc, you: cw.bundle.you, neighbor: cw.bundle.neighbor } : null;
 
@@ -68,24 +72,18 @@ export function PairDetail({ cw }: { cw: CrosswireState }) {
         <CompanyBlock utility="GPC" size="lg" detail={detail(gpc)}>
           {gpc?.name ?? o.gpcId}
         </CompanyBlock>
-        {isRightSizingCandidate(desc, gpc) ? (
-          <div>
-            <RightSizingChip />
-          </div>
-        ) : null}
       </div>
 
       <div className="border-t border-hairline px-5 py-5">
         <p className="text-[16px] leading-[25px] text-ink">{pairSentence(o, desc, gpc)}</p>
-        {o.shareable.length ? (
-          <p className="mt-2 text-[14px] leading-[22px] text-ink-2">{shareSentence(o.shareable)}</p>
-        ) : null}
         {o.robustness === "uncertain" ? (
           <p className="mt-2 text-[13px] leading-5 text-ink-3">
             At least one route is approximate, so the distance could change once exact routes are public.
           </p>
         ) : null}
       </div>
+
+      {opportunities ? <PairOpportunities opportunities={opportunities} /> : null}
 
       {saved && saved.central > 0 ? (
         <div className="border-t border-hairline px-5 py-5">
@@ -110,10 +108,10 @@ export function PairDetail({ cw }: { cw: CrosswireState }) {
         </div>
       ) : null}
 
-      {slotProps && (ExplainMatchSlot || CoordinationCallSlot) ? (
+      {slotProps && ExplainMatchSlot ? (
         <div className="flex flex-col gap-3 border-t border-hairline px-5 py-5">
-          {ExplainMatchSlot ? <ExplainMatchSlot {...slotProps} /> : null}
-          {CoordinationCallSlot ? <CoordinationCallSlot {...slotProps} /> : null}
+          <ExplainMatchSlot {...slotProps} />
+          {/* {CoordinationCallSlot ? <CoordinationCallSlot {...slotProps} /> : null} */}
         </div>
       ) : null}
 
@@ -140,7 +138,7 @@ export function PairDetail({ cw }: { cw: CrosswireState }) {
 
       {desc && gpc ? (
         <div className="border-t border-hairline px-5 py-4">
-          <CopyMemo overlap={o} desc={desc} gpc={gpc} rank={item.rank} />
+          <CopyMemo overlap={o} desc={desc} gpc={gpc} rank={item.rank} opportunities={opportunities ?? undefined} />
         </div>
       ) : null}
     </div>

@@ -7,10 +7,9 @@ import type { Overlap, Project } from "./types";
 export const RIGHT_SIZING_TIP =
   "FERC Order 1920-A: when a line is being replaced anyway, consider building it bigger for future needs.";
 
-/** Either side is a rebuild, so FERC 1920-A right-sizing is worth a look. */
-export function isRightSizingCandidate(desc: Project | undefined, gpc: Project | undefined): boolean {
-  return desc?.action === "rebuild" || gpc?.action === "rebuild";
-}
+import { isRightSizingCandidate, STRENGTH_LABEL, type Opportunity } from "./opportunities";
+
+export { isRightSizingCandidate };
 
 export function isRightSizingItem(item: string): boolean {
   return /right[- ]?siz/i.test(item);
@@ -60,7 +59,13 @@ export function sourceHref(p: Pick<Project, "source">): string {
 }
 
 /** Plain-text coordination memo assembled from the data (no free text generation). */
-export function buildMemo(o: Overlap, desc: Project, gpc: Project, rank: number): string {
+export function buildMemo(
+  o: Overlap,
+  desc: Project,
+  gpc: Project,
+  rank: number,
+  opportunities?: Opportunity[],
+): string {
   const shared = windowOverlap(desc.buildWindow, gpc.buildWindow);
   const road = roadNote(o);
   const lines: string[] = [];
@@ -84,10 +89,16 @@ export function buildMemo(o: Overlap, desc: Project, gpc: Project, rank: number)
   if (o.robustness === "uncertain")
     lines.push("- Location confidence is limited for at least one project; confirm routes before committing.");
   lines.push("");
-  lines.push("WHAT THEY CAN SHARE");
-  for (const s of o.shareable) lines.push(`- ${s}`);
-  if (isRightSizingCandidate(desc, gpc) && !o.shareable.some(isRightSizingItem)) {
-    lines.push("- Right-sizing review (FERC Order 1920-A)");
+  if (opportunities) {
+    lines.push("WAYS TO WORK TOGETHER");
+    if (!opportunities.length) lines.push("- Nothing specific found beyond being close to each other.");
+    for (const op of opportunities) lines.push(`- ${op.title} (${STRENGTH_LABEL[op.strength].toLowerCase()}): ${op.reason}`);
+  } else {
+    lines.push("WHAT THEY CAN SHARE");
+    for (const s of o.shareable) lines.push(`- ${s}`);
+    if (isRightSizingCandidate(o, desc, gpc) && !o.shareable.some(isRightSizingItem)) {
+      lines.push("- Right-sizing review (FERC Order 1920-A)");
+    }
   }
   if (o.stagingYard) {
     const y = o.stagingYard;
@@ -107,7 +118,9 @@ export function buildMemo(o: Overlap, desc: Project, gpc: Project, rank: number)
   }
   lines.push("");
   lines.push("SUGGESTED NEXT STEP");
-  lines.push(
+  const next = opportunities?.[0]?.nextStep;
+  if (next) lines.push(`- ${next}`);
+  else lines.push(
     o.tier === "crossing"
       ? "- Schedule a joint engineering review of the crossing and align outage windows."
       : o.tier === "row"

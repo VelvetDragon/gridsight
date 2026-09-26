@@ -1,5 +1,6 @@
 "use client";
 
+import { fmtKv, fmtMiles, fmtMonthYear, fmtUsd, shortProjectName } from "@/lib/format";
 import { haversineKm } from "@/lib/geo";
 import { UTILITY_HEX, UTILITY_NAME } from "@/lib/theme";
 import type { Position, Project, UtilityId } from "@/lib/types";
@@ -31,10 +32,7 @@ export function stateLabelMarkers(): MapMarker[] {
   }));
 }
 
-/** The name before the colon: "Jasper – Okatie 230 kV #2: Construct" → "Jasper – Okatie 230 kV #2". */
-export function shortName(name: string): string {
-  return name.split(":")[0].trim();
-}
+export const shortName = shortProjectName;
 
 /** A point `share` of the way along a path, starting from the end nearest `from`. */
 export function pointAlong(path: Position[], from: Position, share = 0.55): Position {
@@ -103,21 +101,28 @@ export function distanceLabel(id: string, position: Position, km: number, touchi
   };
 }
 
-/** Typography-led label for a line or station the user picked. */
-export function selectionLabel(id: string, position: Position, p: Project): MapMarker {
+/** Detail card for a line or station the user picked. */
+export function selectionLabel(id: string, position: Position, p: Project, built: boolean): MapMarker {
+  const facts = [
+    fmtKv(p.voltageKv),
+    p.miles != null ? fmtMiles(p.miles) : null,
+    `ready ${fmtMonthYear(p.inService)}`,
+    p.costUsd != null ? fmtUsd(p.costUsd) : null,
+  ].filter(Boolean);
   return {
     id,
     position,
     node: (
       <div className="gs-passive" style={{ transform: "translateY(calc(-50% - 14px))" }}>
-        <div className="max-w-[240px] rounded-[8px] border border-white bg-white/95 px-2 py-1 text-[12px] leading-4 shadow-[var(--shadow-float)]">
-          <span
-            className="block text-[10px] font-semibold tracking-[0.06em] uppercase"
-            style={{ color: UTILITY_HEX[p.utility] }}
-          >
-            Your pick · {UTILITY_NAME[p.utility]}
+        <div className="max-w-[280px] rounded-[10px] border border-white bg-white/95 px-2.5 py-1.5 text-[12px] leading-4 shadow-[var(--shadow-float)]">
+          <span className="mb-0.5 block text-[12px] font-semibold" style={{ color: UTILITY_HEX[p.utility] }}>
+            {UTILITY_NAME[p.utility]} · {p.kind === "line" ? "power line" : "substation"}
+            {built ? " · built" : ""}
           </span>
-          <span className="text-ink">{shortName(p.name)}</span>
+          <span className="block text-[13px] leading-[18px] font-medium text-ink">{p.name}</span>
+          <span className="mt-0.5 block text-ink-3">
+            {facts.join(" · ")}
+          </span>
         </div>
       </div>
     ),

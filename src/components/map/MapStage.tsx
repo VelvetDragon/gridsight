@@ -4,7 +4,7 @@ import type { Layer, PickingInfo } from "@deck.gl/core";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { FxControls } from "./fx/FxControls";
 import { useFx } from "./fx/useFx";
-import MapCanvas, { type MapMarker, type MapPadding, type MapPopup, type ViewRequest } from "./MapCanvas";
+import MapCanvas, { type MapClickEvent, type MapMarker, type MapPadding, type MapPopup, type ViewRequest } from "./MapCanvas";
 import { buildPlanLayers, handlePlanClick, planMarkers, planTooltip, type PlanSceneProps } from "./planScene";
 import {
   buildResponseLayers,
@@ -72,7 +72,7 @@ export default function MapStage({ mode, plan, response, popup, view, padding }:
   );
 
   const onClick = useCallback(
-    (info: PickingInfo, event?: { srcEvent?: { shiftKey?: boolean } }) => {
+    (info: PickingInfo, event?: MapClickEvent) => {
       if (mode === "plan" && plan) handlePlanClick(info, plan, event);
       else if (mode === "response" && response) handleResponseClick(info, response);
     },

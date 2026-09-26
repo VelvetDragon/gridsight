@@ -11,6 +11,7 @@ import {
   roadNote,
   sourceHref,
 } from "@/lib/plan";
+import type { Opportunity } from "@/lib/opportunities";
 import type { RankedOverlap } from "@/lib/ranking";
 import { TIER_LABEL, TIER_RANGE, TIER_SHARES, TIERS, UTILITY_HEX, UTILITY_NAME } from "@/lib/theme";
 import type { Overlap, Project } from "@/lib/types";
@@ -54,7 +55,7 @@ function Section({ title, children, aside }: { title: string; children: ReactNod
 export function MatchDrawer({ item, desc, gpc, radarMonth, ranges, onClose }: MatchDrawerProps) {
   const o = item.overlap;
   const savings = matchSavings(o, ranges);
-  const rightSizing = isRightSizingCandidate(desc, gpc);
+  const rightSizing = isRightSizingCandidate(o, desc, gpc);
 
   return (
     <Panel className="flex h-full w-[408px] flex-col overflow-hidden" aria-label="Selected pair">
@@ -426,11 +427,13 @@ export function CopyMemo({
   desc,
   gpc,
   rank,
+  opportunities,
 }: {
   overlap: Overlap;
   desc: Project;
   gpc: Project;
   rank: number;
+  opportunities?: Opportunity[];
 }) {
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   useEffect(() => {
@@ -440,7 +443,7 @@ export function CopyMemo({
   }, [state]);
 
   async function copy() {
-    const memo = buildMemo(overlap, desc, gpc, rank);
+    const memo = buildMemo(overlap, desc, gpc, rank, opportunities);
     try {
       await navigator.clipboard.writeText(memo);
       setState("copied");
@@ -457,7 +460,7 @@ export function CopyMemo({
       <a
         href={`mailto:?subject=${encodeURIComponent(
           `Coordination opportunity: ${desc.name} and ${gpc.name}`,
-        )}&body=${encodeURIComponent(buildMemo(overlap, desc, gpc, rank))}`}
+        )}&body=${encodeURIComponent(buildMemo(overlap, desc, gpc, rank, opportunities))}`}
         className="inline-flex h-9 items-center rounded-[10px] border border-hairline px-3 text-[13px] font-medium text-ink hover:bg-wash-2"
         title="Opens your email app with the memo ready to send to the other utility's planner"
       >

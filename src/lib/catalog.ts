@@ -288,6 +288,7 @@ export async function loadPair(
       lines: ctx.lines,
       river: ctx.river,
       costRanges: isCostRangeList(ranges) ? ranges : null,
+      wetlands: null,
     },
     files,
     source,
