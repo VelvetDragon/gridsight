@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-26T05:57:45Z",
+  "generatedAt": "2026-09-26T06:08:42Z",
   "utilities": [
     {
       "id": "DESC",
@@ -16,10 +16,10 @@
   ],
   "projectCount": {
     "DESC": 54,
-    "GPC": 160
+    "GPC": 60
   },
-  "pairsCompared": 5547,
-  "overlapsFound": 91,
+  "pairsCompared": 2580,
+  "overlapsFound": 50,
   "knownMatches": [
     {
       "label": "Savannah: DESC Jasper work vs Georgia Power Plant McIntosh expansion",
@@ -49,11 +49,6 @@
       "page": null
     },
     {
-      "document": "Georgia Power 2025 IRP, Technical Appendix Vol. 3 (public disclosure): 2024 GA ITS Ten-Year Transmission Plan 2025-2034 (GA PSC Docket 56002)",
-      "url": "https://services.psc.ga.gov/api/v1/External/Public/Get/Document/DownloadFile/221233/102406",
-      "page": null
-    },
-    {
       "document": "Georgia Power: Callaway Road \u2013 Thomson Primary 500 kV Area Transmission Project",
       "url": "https://www.georgiapower.com/about/grid-reliability/grid-improvements/grid-projects/transmission-projects/callaway-thomson.html",
       "page": null
@@ -71,6 +66,11 @@
     {
       "document": "SERTP 2026 Q2: Southern Company Generation Assumptions (slides 67 and 70)",
       "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": null
+    },
+    {
+      "document": "SERTP 2026 Preliminary Expansion Plan Report (Non-CEII), June 12, 2026",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf",
       "page": null
     },
     {
@@ -94,6 +94,11 @@
       "page": null
     },
     {
+      "document": "USGS GNIS Domestic Names, South Carolina and Georgia (populated places, crossings)",
+      "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/GeographicNames/DomesticNames/",
+      "page": null
+    },
+    {
       "document": "US Census Bureau 2023 Gazetteer, counties (internal points, land area)",
       "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2023_Gazetteer/2023_Gaz_counties_national.zip",
       "page": null
@@ -102,6 +107,16 @@
       "document": "USDA NASS Land Values 2025 Summary (farm real estate value per acre)",
       "url": "https://www.nass.usda.gov/Publications/Todays_Reports/reports/land0825.pdf",
       "page": 9
+    },
+    {
+      "document": "MISO Transmission Cost Estimation Guide for MTEP24 (land, acquisition and permitting per acre)",
+      "url": "https://cdn.misoenergy.org/20240501%20PSC%20Item%2004%20MISO%20Transmission%20Cost%20Estimation%20Guide%20for%20MTEP24632680.pdf",
+      "page": 8
+    },
+    {
+      "document": "MISO Transmission and Substation Project Cost Estimation Guide for MTEP 2018 (mobilization/demobilization)",
+      "url": "https://cdn.misoenergy.org/Transmission-and-Substation-Project-Cost-Estimation-Guide-for-MTEP-2018144804.pdf",
+      "page": 16
     },
     {
       "document": "Georgia Transmission Corp.: Transmission Line Heights and Easement Widths",
