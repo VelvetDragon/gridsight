@@ -1,11 +1,9 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
 import { ACTION_LABEL, fmtKv, fmtMonthYear } from "@/lib/format";
 import { pairOpportunities } from "@/lib/opportunities";
 import { matchSavings } from "@/lib/savings";
 import { pairSentence } from "@/lib/sentences";
-import { TIER_LABEL } from "@/lib/theme";
 import type { Project } from "@/lib/types";
 import { CopyMemo, DistanceBlock, SourceLink, YardBlock } from "../plan/MatchDrawer";
 import { MiniGantt } from "../plan/MiniGantt";
@@ -35,7 +33,10 @@ function detail(p: Project | undefined) {
   );
 }
 
-/** One pair, essential first: who, one sentence, the money; details on request. */
+/**
+ * One pair, essential first: who, one sentence, the money; details on request.
+ * The title, stepping and close live in the panel around it (PairPanelHeader).
+ */
 export function PairDetail({ cw }: { cw: CrosswireState }) {
   const item = cw.selected;
   if (!item || !cw.bundle) return null;
@@ -51,21 +52,7 @@ export function PairDetail({ cw }: { cw: CrosswireState }) {
 
   return (
     <div>
-      <div className="px-5 pt-4">
-        <button
-          type="button"
-          onClick={cw.clearMatch}
-          className="-ml-1.5 flex items-center gap-1 rounded-[8px] px-1.5 py-1 text-[13px] font-medium text-ink-2 hover:bg-white/60 hover:text-ink"
-        >
-          <ArrowLeft size={14} aria-hidden />
-          All pairs
-        </button>
-        <h2 className="display mt-2 text-[22px] leading-7 font-medium text-ink">
-          Pair #{item.rank}: {TIER_LABEL[o.tier].toLowerCase()}
-        </h2>
-      </div>
-
-      <div className="flex flex-col gap-3 px-5 pt-3 pb-4">
+      <div className="flex flex-col gap-3 px-5 pt-4 pb-4">
         <CompanyBlock utility="DESC" size="lg" detail={detail(desc)}>
           {desc?.name ?? o.descId}
         </CompanyBlock>
@@ -115,12 +102,14 @@ export function PairDetail({ cw }: { cw: CrosswireState }) {
         </div>
       ) : null}
 
+      {desc && gpc ? (
+        <div className="border-t border-hairline px-5 py-5">
+          <h3 className="eyebrow mb-3">When each one is built</h3>
+          <MiniGantt desc={desc} gpc={gpc} cursorMonth={cw.radarMonth} />
+        </div>
+      ) : null}
+
       <div className="border-t border-hairline px-5 py-4">
-        {desc && gpc ? (
-          <More label="When each one is built">
-            <MiniGantt desc={desc} gpc={gpc} cursorMonth={cw.radarMonth} />
-          </More>
-        ) : null}
         <More label="How far apart, by road">
           <DistanceBlock overlap={o} />
         </More>

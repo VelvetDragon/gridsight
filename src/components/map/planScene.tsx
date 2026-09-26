@@ -377,13 +377,15 @@ export function planMarkers(props: PlanSceneProps): MapMarker[] {
         p.geometry.type === "Point"
           ? p.geometry.coordinates
           : pointAlong(p.geometry.coordinates, selected.closestPoints[idx]);
-      markers.push(projectLabel(`label-${utility}`, at, utility, p.name, placement));
+      // The yard marks a real site and keeps its place; the cards, then the distance, move aside.
+      markers.push({ ...projectLabel(`label-${utility}`, at, utility, p.name, placement), declutter: 1 + idx });
     }
-    markers.push(distanceLabel("distance", mid, selected.distanceKm, selected.distanceKm === 0));
+    markers.push({ ...distanceLabel("distance", mid, selected.distanceKm, selected.distanceKm === 0), declutter: 3 });
     if (selected.stagingYard) {
-      markers.push(
-        yardMarker(`yard-${selected.id}`, selected.stagingYard.position, "Shared yard", selected.stagingYard.label),
-      );
+      markers.push({
+        ...yardMarker(`yard-${selected.id}`, selected.stagingYard.position, "Shared yard", selected.stagingYard.label),
+        declutter: 0,
+      });
     }
     // Drive-time labels on the reach shapes.
     for (const [i, f] of (reach?.features ?? []).entries()) {

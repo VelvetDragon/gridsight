@@ -23,6 +23,8 @@ export interface MapStageProps {
   popup: MapPopup | null;
   view: ViewRequest | null;
   padding: MapPadding;
+  /** The map sits in a pane that changes size; keep the same area in view. */
+  keepFramedOnResize?: boolean;
 }
 
 interface Hover {
@@ -37,7 +39,7 @@ interface Hover {
  * The one persistent map. Each mode contributes deck.gl layers, DOM markers and
  * a hover tooltip; switching modes swaps the scene without re-creating the map.
  */
-export default function MapStage({ mode, plan, response, popup, view, padding }: MapStageProps) {
+export default function MapStage({ mode, plan, response, popup, view, padding, keepFramedOnResize }: MapStageProps) {
   const [hover, setHover] = useState<Hover | null>(null);
   const fx = useFx(mode, plan, response);
   const fxControlsStyle = {
@@ -90,6 +92,7 @@ export default function MapStage({ mode, plan, response, popup, view, padding }:
         onHover={onHover}
         onClick={onClick}
         fx={fx.controller}
+        keepFramedOnResize={keepFramedOnResize}
       />
       <FxControls fx={fx} className="absolute z-20" style={fxControlsStyle} />
       {hover ? (

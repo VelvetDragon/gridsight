@@ -1,12 +1,12 @@
 "use client";
 
-import { ArrowLeftRight, Check, ChevronDown, Search } from "lucide-react";
+import { Check, ChevronDown, Search } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { CatalogUtility } from "@/lib/types";
 import { cx } from "../ui/primitives";
 
 /** Searchable dropdown of catalog utilities, with an optional "Find another utility…" row. */
-function UtilityCombo({
+export function UtilityCombo({
   label,
   swatch,
   value,
@@ -15,8 +15,11 @@ function UtilityCombo({
   onChange,
   onFind,
   trailing,
+  compact = false,
 }: {
   trailing?: React.ReactNode;
+  /** No label row above and a shorter button; the label moves to the button's accessible name. */
+  compact?: boolean;
   label: string;
   swatch: string;
   value: CatalogUtility | null;
@@ -61,19 +64,26 @@ function UtilityCombo({
 
   return (
     <div ref={root} className="relative">
-      <div className="mb-1 flex h-5 items-center justify-between">
-        <span className="text-[12px] text-ink-3">{label}</span>
-        {trailing}
-      </div>
+      {compact ? null : (
+        <div className="mb-1 flex h-5 items-center justify-between">
+          <span className="text-[12px] text-ink-3">{label}</span>
+          {trailing}
+        </div>
+      )}
       <button
         type="button"
+        aria-label={compact ? `${label}: ${value?.name ?? "not chosen"}` : undefined}
+        title={compact ? label : undefined}
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => {
           setOpen((v) => !v);
           setCursor(0);
         }}
-        className="flex h-10 w-full items-center gap-2 rounded-[10px] border border-hairline-strong bg-white/75 px-3 text-left transition-colors hover:bg-white"
+        className={cx(
+          "flex w-full items-center gap-2 rounded-[10px] border border-hairline-strong bg-white/75 px-3 text-left transition-colors hover:bg-white",
+          compact ? "h-9" : "h-10",
+        )}
       >
         <span aria-hidden className="h-4 w-[3px] shrink-0 rounded-full" style={{ background: swatch }} />
         <span className="min-w-0 flex-1 truncate text-[14px] font-medium text-ink">
@@ -152,53 +162,6 @@ function UtilityCombo({
           </ul>
         </div>
       ) : null}
-    </div>
-  );
-}
-
-export function UtilityPicker({
-  utilities,
-  you,
-  neighbor,
-  onChange,
-  onFind,
-}: {
-  utilities: CatalogUtility[];
-  you: CatalogUtility | null;
-  neighbor: CatalogUtility | null;
-  onChange: (you: string, neighbor: string) => void;
-  onFind: (() => void) | null;
-}) {
-  return (
-    <div className="flex flex-col gap-2.5">
-      <UtilityCombo
-        label="Your utility"
-        swatch="#0E7C7B"
-        value={you}
-        options={utilities}
-        exclude={neighbor?.id ?? null}
-        onChange={(id) => neighbor && onChange(id, neighbor.id)}
-        onFind={null}
-      />
-      <UtilityCombo
-        label="Neighbour"
-        swatch="#C2410C"
-        value={neighbor}
-        options={utilities}
-        exclude={you?.id ?? null}
-        onChange={(id) => you && onChange(you.id, id)}
-        onFind={onFind}
-        trailing={
-          <button
-            type="button"
-            onClick={() => you && neighbor && onChange(neighbor.id, you.id)}
-            className="flex items-center gap-1 rounded-[6px] px-1.5 text-[12px] text-ink-3 hover:bg-white/70 hover:text-ink"
-          >
-            <ArrowLeftRight size={12} aria-hidden />
-            Swap
-          </button>
-        }
-      />
     </div>
   );
 }

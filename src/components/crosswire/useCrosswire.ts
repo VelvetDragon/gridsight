@@ -295,6 +295,8 @@ export function useCrosswire() {
     selectedProjects,
     toggleProject,
     clearSelection,
+    /** Pairs before the kind filter, for counting each kind. */
+    candidates: relevant,
     tiers,
     toggleTier,
     weights,
