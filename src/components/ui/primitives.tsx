@@ -1,7 +1,8 @@
 "use client";
 
 import type { ComponentProps, ReactNode } from "react";
-import { useId } from "react";
+import { useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { OverlapTier, UtilityId } from "@/lib/types";
 import { TIER_HEX, TIER_LABEL, UTILITY_HEX } from "@/lib/theme";
 
@@ -85,8 +86,9 @@ export function Chip({
 }
 
 /**
- * Accessible hover/focus tooltip. The trigger is focusable so keyboard users
- * get the same text; the text is also exposed via aria-describedby.
+ * Hover/focus tooltip rendered in a portal, so it is never clipped by a
+ * scrolling glass panel. The text is also always available to assistive tech
+ * through a visually hidden description.
  */
 export function Tooltip({
   content,
@@ -94,31 +96,62 @@ export function Tooltip({
   side = "top",
   className,
   width = 240,
+  focusable = true,
 }: {
   content: ReactNode;
   children: ReactNode;
   side?: "top" | "bottom";
   className?: string;
   width?: number;
+  /** Set false when the trigger already sits inside a focusable control. */
+  focusable?: boolean;
 }) {
   const id = useId();
+  const ref = useRef<HTMLSpanElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const show = () => setRect(ref.current?.getBoundingClientRect() ?? null);
+  const hide = () => setRect(null);
+
+  let left = 0;
+  if (rect) {
+    const vw = typeof window === "undefined" ? 1440 : window.innerWidth;
+    left = Math.max(8, Math.min(vw - width - 8, rect.left + rect.width / 2 - width / 2));
+  }
+
   return (
-    <span className={cx("group/tt relative inline-flex", className)}>
-      <span tabIndex={0} aria-describedby={id} className="inline-flex rounded-full focus-ring">
-        {children}
-      </span>
-      <span
-        role="tooltip"
-        id={id}
-        style={{ width }}
-        className={cx(
-          "pointer-events-none absolute left-1/2 z-50 -translate-x-1/2 rounded-[8px] bg-ink px-2.5 py-2 text-[12px] leading-[17px] font-normal text-white/90 opacity-0 shadow-[var(--shadow-float)] transition-opacity duration-150",
-          "group-hover/tt:opacity-100 group-focus-within/tt:opacity-100",
-          side === "top" ? "bottom-[calc(100%+6px)]" : "top-[calc(100%+6px)]",
-        )}
-      >
+    <span
+      ref={ref}
+      className={cx("inline-flex rounded-full", className)}
+      tabIndex={focusable ? 0 : undefined}
+      aria-describedby={id}
+      onMouseEnter={show}
+      onMouseLeave={hide}
+      onFocus={focusable ? show : undefined}
+      onBlur={focusable ? hide : undefined}
+    >
+      {children}
+      <span id={id} className="sr-only">
         {content}
       </span>
+      {rect
+        ? createPortal(
+            <span
+              role="tooltip"
+              aria-hidden
+              style={{
+                position: "fixed",
+                left,
+                top: side === "top" ? rect.top - 8 : rect.bottom + 8,
+                transform: side === "top" ? "translateY(-100%)" : undefined,
+                width,
+              }}
+              className="pointer-events-none z-[100] rounded-[8px] bg-ink px-2.5 py-2 text-[12px] leading-[17px] font-normal text-white/90 shadow-[var(--shadow-float)]"
+            >
+              {content}
+            </span>,
+            document.body,
+          )
+        : null}
     </span>
   );
 }
@@ -171,6 +204,8 @@ export function Button({
 export interface SegmentOption<T extends string> {
   value: T;
   label: string;
+  disabled?: boolean;
+  hint?: string;
 }
 
 export function SegmentedControl<T extends string>({
@@ -194,9 +229,11 @@ export function SegmentedControl<T extends string>({
             type="button"
             role="radio"
             aria-checked={active}
+            disabled={o.disabled}
+            title={o.hint}
             onClick={() => onChange(o.value)}
             className={cx(
-              "h-[26px] rounded-[7px] px-3 text-[13px] font-medium transition-all duration-200",
+              "h-[26px] rounded-[7px] px-3 text-[13px] font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-45",
               active
                 ? "bg-white text-ink shadow-[0_1px_2px_rgba(20,22,28,0.12),0_0_0_1px_rgba(20,22,28,0.06)]"
                 : "text-ink-3 hover:text-ink",

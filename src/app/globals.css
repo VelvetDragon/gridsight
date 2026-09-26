@@ -7,7 +7,7 @@
  */
 :root {
   --paper: #f4f1eb;
-  --glass: rgba(250, 248, 244, 0.8);
+  --glass: rgba(250, 248, 244, 0.84);
   --glass-strong: rgba(252, 251, 248, 0.92);
   --hairline: rgba(20, 22, 28, 0.08);
   --hairline-strong: rgba(20, 22, 28, 0.14);
@@ -247,6 +247,51 @@ input[type="range"].range::-moz-range-thumb {
 @media (prefers-reduced-motion: reduce) {
   .gs-pulse,
   .gs-skeleton {
+    animation: none;
+  }
+}
+
+@keyframes gs-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes gs-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes gs-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.gs-in-right {
+  animation: gs-in-right 220ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.gs-in-left {
+  animation: gs-in-left 220ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.gs-fade {
+  animation: gs-fade 200ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gs-in-right,
+  .gs-in-left,
+  .gs-fade {
     animation: none;
   }
 }
