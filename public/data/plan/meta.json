@@ -1,0 +1,127 @@
+{
+  "generatedAt": "2026-09-26T05:54:18Z",
+  "utilities": [
+    {
+      "id": "DESC",
+      "name": "Dominion Energy South Carolina",
+      "state": "SC",
+      "color": "#0E7C7B"
+    },
+    {
+      "id": "GPC",
+      "name": "Georgia Power",
+      "state": "GA",
+      "color": "#C2410C"
+    }
+  ],
+  "projectCount": {
+    "DESC": 54,
+    "GPC": 160
+  },
+  "pairsCompared": 5547,
+  "overlapsFound": 91,
+  "knownMatches": [
+    {
+      "label": "Savannah: DESC Jasper work vs Georgia Power Plant McIntosh expansion",
+      "found": true,
+      "overlapId": "ov-desc-12-jasper-okatie-230-kv-2-construct--gpc-gen-mcintosh-expansion"
+    },
+    {
+      "label": "Savannah: DESC Okatie work vs Georgia Power Plant McIntosh expansion",
+      "found": true,
+      "overlapId": "ov-desc-41-okatie-mcintosh-115kv-tie-add-series-rea--gpc-gen-mcintosh-expansion"
+    },
+    {
+      "label": "Savannah: DESC Bluffton work vs Georgia Power Plant McIntosh expansion",
+      "found": false,
+      "overlapId": null
+    },
+    {
+      "label": "Augusta: DESC Urquhart work vs Georgia Power Thomson-Vogtle transmission line",
+      "found": true,
+      "overlapId": "ov-desc-07-urquhart-toolebeck-115kv-line-rebuild--gpc-web-thomson-vogtle"
+    }
+  ],
+  "sources": [
+    {
+      "document": "DESC Planned Transmission Projects $2M and above, 2026-2030 (SCRTP)",
+      "url": "https://www.scrtp.com/assets/pdfs/home/2026-2030-2million-and-above-project-descriptions.pdf",
+      "page": null
+    },
+    {
+      "document": "Georgia Power 2025 IRP, Technical Appendix Vol. 3 (public disclosure): 2024 GA ITS Ten-Year Transmission Plan 2025-2034 (GA PSC Docket 56002)",
+      "url": "https://services.psc.ga.gov/api/v1/External/Public/Get/Document/DownloadFile/221233/102406",
+      "page": null
+    },
+    {
+      "document": "Georgia Power: Callaway Road \u2013 Thomson Primary 500 kV Area Transmission Project",
+      "url": "https://www.georgiapower.com/about/grid-reliability/grid-improvements/grid-projects/transmission-projects/callaway-thomson.html",
+      "page": null
+    },
+    {
+      "document": "Georgia Power: Effingham County 500 kV Area Transmission Project",
+      "url": "https://www.georgiapower.com/about/grid-reliability/grid-improvements/grid-projects/transmission-projects/effingham-county.html",
+      "page": null
+    },
+    {
+      "document": "Georgia Power: Thomson-Vogtle Reliability Project",
+      "url": "https://www.georgiapower.com/about/grid-reliability/grid-improvements/grid-projects/thomson-vogtle.html",
+      "page": null
+    },
+    {
+      "document": "SERTP 2026 Q2: Southern Company Generation Assumptions (slides 67 and 70)",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": null
+    },
+    {
+      "document": "SERTP 2026 2nd Quarter Meeting: Preliminary 10-Year Transmission Expansion Plan",
+      "url": "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_2nd_Qtr_Presentation.pdf",
+      "page": null
+    },
+    {
+      "document": "SERTP 2025 Regional Transmission Plan & Input Assumptions Overview",
+      "url": "https://www.southeasternrtp.com/docs/general/2025/2025%20Regional%20Transmission%20Plan%20and%20Input%20Assumptions.pdf",
+      "page": null
+    },
+    {
+      "document": "OpenStreetMap power infrastructure via Overpass API (substations, plants, power lines)",
+      "url": "https://www.openstreetmap.org/copyright",
+      "page": null
+    },
+    {
+      "document": "US Census Bureau 2023 cartographic state boundaries (cb_2023_us_state_500k)",
+      "url": "https://www2.census.gov/geo/tiger/GENZ2023/shp/cb_2023_us_state_500k.zip",
+      "page": null
+    },
+    {
+      "document": "US Census Bureau 2023 Gazetteer, counties (internal points, land area)",
+      "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2023_Gazetteer/2023_Gaz_counties_national.zip",
+      "page": null
+    },
+    {
+      "document": "USDA NASS Land Values 2025 Summary (farm real estate value per acre)",
+      "url": "https://www.nass.usda.gov/Publications/Todays_Reports/reports/land0825.pdf",
+      "page": 9
+    },
+    {
+      "document": "Georgia Transmission Corp.: Transmission Line Heights and Easement Widths",
+      "url": "https://www.gatransmission.com/wp-content/uploads/2017/09/GTC_PoleHeightsFactSheet.pdf",
+      "page": 1
+    },
+    {
+      "document": "Georgia Power: certification request for ~9,900 MW of new resources (July 31, 2025)",
+      "url": "https://www.georgiapower.com/news-hub/press-releases/georgia-power-requests-certification-of-approximately-9900-mw-of-new-resources-from-the-georgia-psc.html",
+      "page": null
+    },
+    {
+      "document": "OSRM public demo server (road distances and drive times)",
+      "url": "https://router.project-osrm.org",
+      "page": null
+    },
+    {
+      "document": "FERC Order No. 1920-A news release",
+      "url": "https://www.ferc.gov/news-events/news/ferc-strengthens-order-no-1920-expanded-state-provisions",
+      "page": null
+    }
+  ]
+}
