@@ -20,7 +20,9 @@ export async function tigerPool(): Promise<Pool | null> {
   if (!g.__mrgridyPool) {
     const { Pool } = await import("pg");
     g.__mrgridyPool = new Pool({
-      connectionString: url,
+      // node-postgres reads sslmode=require as verify-full; libpq (and Tiger's docs) mean
+      // "encrypted, not verified", which also works behind networks that re-sign TLS.
+      connectionString: /sslmode=require/.test(url) && !/uselibpqcompat/.test(url) ? `${url}&uselibpqcompat=true` : url,
       max: 4,
       connectionTimeoutMillis: 5000,
       idleTimeoutMillis: 30_000,
