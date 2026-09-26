@@ -40,7 +40,7 @@ out center tags;
 
 TOWN_QUERY = """[out:json][timeout:300];
 node["place"~"^(city|town)$"]({s},{w},{n},{e});
-out tags;
+out body;
 """
 
 

@@ -26,8 +26,8 @@ from gridsight.config import BBOX
 from gridsight.response.common import RESP_CACHE, haversine_km, http_get
 
 OVERPASS_URLS = [
-    "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass-api.de/api/interpreter",
 ]
 SEGMENT_KM = 1.0
 TILES = (4, 2)  # lon x lat tiles so each Overpass response stays small
