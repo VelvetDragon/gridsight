@@ -10,7 +10,7 @@ from typing import Any
 from gridsight.config import CACHE_DIR, OUT_DIR, REPO_ROOT
 
 # Values copied straight from .env.example are treated as "not set".
-_PLACEHOLDER_MARKERS = ("your-", "your_", "changeme", "placeholder")
+_PLACEHOLDER_MARKERS = ("your-", "your_", "changeme", "placeholder", "replace_in_console")
 
 
 def env(name: str) -> str | None:

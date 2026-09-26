@@ -55,6 +55,6 @@ export function serverEnv(name: string): string | null {
   const value = process.env[name]?.trim();
   if (!value) return null;
   const lower = value.toLowerCase();
-  if (["your-", "your_", "changeme", "placeholder"].some((m) => lower.includes(m))) return null;
+  if (["your-", "your_", "changeme", "placeholder", "replace_in_console"].some((m) => lower.includes(m))) return null;
   return value;
 }
