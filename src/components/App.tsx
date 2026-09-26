@@ -7,7 +7,8 @@ import { loadPlan } from "@/lib/data";
 import { boundsOf, circleBounds, geometryPoints, midpoint, type Bounds } from "@/lib/geo";
 import { DEFAULT_WEIGHTS, rankOverlaps, type RankWeights } from "@/lib/ranking";
 import { TIERS } from "@/lib/theme";
-import { RADAR_MONTHS } from "@/lib/timeline";
+import { savingsByYear, summarizeSavings } from "@/lib/savings";
+import { RADAR_MONTHS, RADAR_START_YEAR } from "@/lib/timeline";
 import type { Overlap, OverlapTier, Position, Project } from "@/lib/types";
 import { useDataset } from "@/lib/useDataset";
 import { usePlayback } from "@/lib/usePlayback";
@@ -16,6 +17,7 @@ import type { Mode } from "./map/MapStage";
 import type { PlanSceneProps } from "./map/planScene";
 import { MatchDrawer } from "./plan/MatchDrawer";
 import { OpportunityList } from "./plan/OpportunityList";
+import { SavingsCard } from "./plan/Savings";
 import { ProjectPopover } from "./plan/ProjectPopover";
 import { RadarBar } from "./plan/RadarBar";
 import { LayersPanel } from "./response/LayersPanel";
@@ -154,6 +156,23 @@ export default function App() {
 
   const radarMonth = radarOn ? radar.value : null;
 
+  // Savings follow exactly the matches shown in the list (tier filters apply).
+  const shownOverlaps = useMemo(() => ranked.map((r) => r.overlap), [ranked]);
+  const costRanges = useMemo(
+    () => (plan?.costRanges ? new Map(plan.costRanges.map((r) => [r.overlapId, r])) : null),
+    [plan],
+  );
+  const savings = useMemo(() => summarizeSavings(shownOverlaps, costRanges), [shownOverlaps, costRanges]);
+  const savingsYears = useMemo(
+    () => savingsByYear(shownOverlaps, projectsById, costRanges),
+    [shownOverlaps, projectsById, costRanges],
+  );
+  const savingsAssumptions = useMemo(() => {
+    const seen = new Set<string>();
+    for (const o of shownOverlaps) for (const a of o.cost?.assumptions ?? []) seen.add(a);
+    return [...seen].slice(0, 6);
+  }, [shownOverlaps]);
+
   const planScene = useMemo<PlanSceneProps | null>(
     () =>
       plan
@@ -250,7 +269,7 @@ export default function App() {
           <>
             {leftOpen ? (
               <div
-                className="gs-in-left pointer-events-auto absolute flex flex-col"
+                className="gs-in-left pointer-events-auto absolute flex flex-col gap-3"
                 style={{ top: GUTTER * 2 + TOP_BAR, left: GUTTER, bottom: GUTTER, width: LEFT_W }}
               >
                 <div className="min-h-0 flex-1">
@@ -265,6 +284,7 @@ export default function App() {
                     selectedId={selectedId}
                     onSelect={selectOverlap}
                     onCollapse={() => setLeftOpen(false)}
+                    ranges={costRanges}
                   />
                 </div>
               </div>
@@ -282,7 +302,7 @@ export default function App() {
             )}
 
             <div
-              className="pointer-events-none absolute flex flex-col"
+              className="pointer-events-none absolute flex flex-col gap-3"
               style={{
                 top: GUTTER * 2 + TOP_BAR,
                 right: drawerOpen ? GUTTER * 2 + DRAWER_W : GUTTER,
@@ -290,6 +310,17 @@ export default function App() {
                 width: KEY_W,
               }}
             >
+              {/* The pair drawer shows its own savings; the overall card returns when it closes. */}
+              {plan && !drawerOpen ? (
+                <div className="pointer-events-auto shrink-0">
+                  <SavingsCard
+                    summary={savings}
+                    byYear={savingsYears}
+                    radarYear={radarMonth == null ? null : RADAR_START_YEAR + Math.floor(radarMonth / 12)}
+                    assumptions={savingsAssumptions}
+                  />
+                </div>
+              ) : null}
               {/* Mounted with the data so its URL-dependent open state never differs from the server render. */}
               {plan ? (
                 <MapKey
@@ -312,6 +343,7 @@ export default function App() {
                   desc={projectsById.get(selected.overlap.descId)}
                   gpc={projectsById.get(selected.overlap.gpcId)}
                   radarMonth={radarMonth}
+                  ranges={costRanges}
                   onClose={clearSelection}
                 />
               </div>

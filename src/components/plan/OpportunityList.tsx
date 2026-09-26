@@ -3,7 +3,8 @@
 import { ChevronDown, PanelLeftClose } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { PlanData } from "@/lib/data";
-import { fmtKm, fmtUsd } from "@/lib/format";
+import { fmtKm } from "@/lib/format";
+import { matchSavings, type CostRanges } from "@/lib/savings";
 import { isRightSizingCandidate } from "@/lib/plan";
 import { DEFAULT_WEIGHTS, type RankedOverlap, type RankWeights } from "@/lib/ranking";
 import { TIER_LABEL, TIER_RANGE, TIERS } from "@/lib/theme";
@@ -11,6 +12,7 @@ import type { OverlapTier, Project } from "@/lib/types";
 import { EmptyState, SkeletonRows } from "../ui/states";
 import { CompanyBlock, cx, IconButton, Panel, PanelHeader, Slider, TierChip, TierSwatch } from "../ui/primitives";
 import { RightSizingChip } from "./RightSizing";
+import { fmtMoney, fmtRange } from "./Savings";
 
 export interface OpportunityListProps {
   data: PlanData | null;
@@ -23,6 +25,7 @@ export interface OpportunityListProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onCollapse: () => void;
+  ranges: CostRanges | null;
 }
 
 export function OpportunityList(props: OpportunityListProps) {
@@ -151,6 +154,7 @@ export function OpportunityList(props: OpportunityListProps) {
                 gpc={props.projectsById.get(r.overlap.gpcId)}
                 selected={r.overlap.id === selectedId}
                 onSelect={onSelect}
+                ranges={props.ranges}
               />
             ))}
           </ol>
@@ -167,15 +171,18 @@ function OpportunityItem({
   gpc,
   selected,
   onSelect,
+  ranges,
 }: {
   item: RankedOverlap;
   desc: Project | undefined;
   gpc: Project | undefined;
   selected: boolean;
   onSelect: (id: string) => void;
+  ranges: CostRanges | null;
 }) {
   const ref = useRef<HTMLLIElement>(null);
   const o = item.overlap;
+  const saved = matchSavings(o, ranges);
   useEffect(() => {
     if (selected) ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [selected]);
@@ -222,9 +229,12 @@ function OpportunityItem({
               )}
             </span>
           </span>
-          {o.cost ? (
+          {saved ? (
             <span>
-              Could save <span className="num text-ink">{fmtUsd(o.cost.totalUsd)}</span>
+              Could save{" "}
+              <span className="num text-ink">
+                {saved.ranged ? fmtRange(saved.low, saved.high) : fmtMoney(saved.central)}
+              </span>
             </span>
           ) : null}
         </span>

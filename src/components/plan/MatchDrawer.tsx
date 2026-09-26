@@ -28,7 +28,9 @@ import {
   Tooltip,
   UtilityDot,
 } from "../ui/primitives";
+import { matchSavings, type CostRanges } from "@/lib/savings";
 import { MiniGantt } from "./MiniGantt";
+import { MatchSavingsBlock } from "./Savings";
 import { RightSizingChip } from "./RightSizing";
 
 export interface MatchDrawerProps {
@@ -36,6 +38,7 @@ export interface MatchDrawerProps {
   desc: Project | undefined;
   gpc: Project | undefined;
   radarMonth: number | null;
+  ranges: CostRanges | null;
   onClose: () => void;
 }
 
@@ -48,8 +51,9 @@ function Section({ title, children, aside }: { title: string; children: ReactNod
   );
 }
 
-export function MatchDrawer({ item, desc, gpc, radarMonth, onClose }: MatchDrawerProps) {
+export function MatchDrawer({ item, desc, gpc, radarMonth, ranges, onClose }: MatchDrawerProps) {
   const o = item.overlap;
+  const savings = matchSavings(o, ranges);
   const rightSizing = isRightSizingCandidate(desc, gpc);
 
   return (
@@ -86,15 +90,15 @@ export function MatchDrawer({ item, desc, gpc, radarMonth, onClose }: MatchDrawe
 
       <div className="scroll-quiet min-h-0 flex-1 overflow-y-auto">
         <div className="px-5 pt-5 pb-1">
-          <p className="text-[14px] leading-[22px] text-ink">{o.summary}</p>
-          <dl className="mt-4 grid grid-cols-3 gap-3 rounded-[12px] border border-hairline bg-white/50 px-4 py-3">
+          {savings ? <MatchSavingsBlock savings={savings} assumptions={o.cost?.assumptions ?? []} /> : null}
+          <p className={cx("text-[14px] leading-[22px] text-ink", savings && "mt-4")}>{o.summary}</p>
+          <dl className="mt-4 grid grid-cols-2 gap-3 rounded-[12px] border border-hairline bg-white/50 px-4 py-3">
             <BigStat label="Distance apart" value={fmtKm(o.distanceKm)} />
             <BigStat
               label="Both building"
-              value={o.timelineOverlapMonths > 0 ? `${Math.round(o.timelineOverlapMonths)} mo` : "–"}
-              note={o.timelineOverlapMonths > 0 ? undefined : "not at once"}
+              value={o.timelineOverlapMonths > 0 ? `${Math.round(o.timelineOverlapMonths)} months` : "–"}
+              note={o.timelineOverlapMonths > 0 ? undefined : "not at the same time"}
             />
-            <BigStat label="Could save" value={o.cost ? fmtUsd(o.cost.totalUsd) : "–"} />
           </dl>
         </div>
 
@@ -125,7 +129,7 @@ export function MatchDrawer({ item, desc, gpc, radarMonth, onClose }: MatchDrawe
 
         <Divider className="mx-5" />
 
-        <Section title="Rough savings estimate">
+        <Section title="Savings in detail">
           <CostBlock overlap={o} />
         </Section>
 
