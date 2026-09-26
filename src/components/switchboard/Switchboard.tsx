@@ -63,9 +63,6 @@ export function Switchboard() {
                         aria-hidden
                         className="transition-transform duration-200 group-hover:translate-x-0.5"
                       />
-                      <kbd className="ml-auto rounded-[5px] border border-hairline px-1.5 text-[11px] font-normal text-ink-3">
-                        {c.key}
-                      </kbd>
                     </span>
                   </div>
                 </Link>

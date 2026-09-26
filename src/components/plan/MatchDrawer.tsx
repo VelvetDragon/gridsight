@@ -454,6 +454,15 @@ export function CopyMemo({
       <Button variant="primary" onClick={copy} className="h-9 flex-1">
         {state === "copied" ? "Memo copied" : "Copy coordination memo"}
       </Button>
+      <a
+        href={`mailto:?subject=${encodeURIComponent(
+          `Coordination opportunity: ${desc.name} and ${gpc.name}`,
+        )}&body=${encodeURIComponent(buildMemo(overlap, desc, gpc, rank))}`}
+        className="inline-flex h-9 items-center rounded-[10px] border border-hairline px-3 text-[13px] font-medium text-ink hover:bg-wash-2"
+        title="Opens your email app with the memo ready to send to the other utility's planner"
+      >
+        Email it
+      </a>
       <span className="sr-only" aria-live="polite">
         {state === "copied" ? "Coordination memo copied to clipboard" : state === "failed" ? "Copy failed" : ""}
       </span>
