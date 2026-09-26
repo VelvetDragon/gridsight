@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plane } from "lucide-react";
 import { ACTION_LABEL, fmtKv, fmtMonthYear } from "@/lib/format";
 import { isRightSizingCandidate } from "@/lib/plan";
 import { matchSavings } from "@/lib/savings";
@@ -109,6 +109,17 @@ export function PairDetail({ cw }: { cw: CrosswireState }) {
           </More>
         </div>
       ) : null}
+
+      <div className="border-t border-hairline px-5 pt-5">
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("mrgridy:fly"))}
+          className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-hairline bg-white text-[14px] font-medium text-ink hover:bg-wash-2"
+        >
+          <Plane size={16} aria-hidden />
+          Fly the corridor
+        </button>
+      </div>
 
       {slotProps && (ExplainMatchSlot || CoordinationCallSlot) ? (
         <div className="flex flex-col gap-3 border-t border-hairline px-5 py-5">

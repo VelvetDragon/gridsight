@@ -53,6 +53,13 @@ export function FlightOverlay({
     });
   }, [fx, plan, selected, audioUrl]);
 
+  // The pair panel's "Fly the corridor" button asks for a flight with this window event.
+  useEffect(() => {
+    const onFly = () => start();
+    window.addEventListener("mrgridy:fly", onFly);
+    return () => window.removeEventListener("mrgridy:fly", onFly);
+  }, [start]);
+
   // A different selection ends a running flight.
   const selectedId = selected?.id ?? null;
   useEffect(() => () => flight.current?.stop(), [selectedId]);
