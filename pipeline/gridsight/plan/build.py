@@ -19,7 +19,7 @@ from datetime import date, datetime, timezone
 from gridsight import osm
 from gridsight.config import PLAN_OUT, UTILITIES
 from gridsight.plan import context, cost, gpc_web, parse_desc, parse_gpc_irp, parse_sertp, roads
-from gridsight.plan.geocode import Gazetteer, county_point, km, locate, normalize, zone_centers
+from gridsight.plan.geocode import Gazetteer, Located, county_point, km, locate, normalize, zone_centers
 from gridsight.plan.geometry import LineNetwork, build as build_geometry, to_metric
 from gridsight.plan.overlap import MIN_CONFIDENCE, build_window, find_overlaps, window_str
 from gridsight.plan.records import RawProject
@@ -60,6 +60,11 @@ def _key(p: RawProject) -> frozenset:
 def geocode_all(gaz: Gazetteer, projects: list[RawProject], zones: dict) -> dict[str, object]:
     out = {}
     for p in projects:
+        if p.county:
+            # Only a county is public (e.g. the new Effingham County substation); an OSM site
+            # that happens to share the county's name is a different, existing facility.
+            out[p.id] = Located()
+            continue
         if p.utility == "DESC":
             home, allowed = "SC", ("SC", "GA")
         elif p.owner in ("SOCO", "GRID") and p.id.startswith("gpc-sertp"):
