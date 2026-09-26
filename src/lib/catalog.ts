@@ -208,7 +208,7 @@ export async function loadPair(
   if (!you || !neighbor) throw new Error("Unknown utility");
 
   const fallbackIds: string[] = [FALLBACK_IDS.DESC, FALLBACK_IDS.GPC];
-  if (catalog.origin === "plan" && fallbackIds.includes(youId) && fallbackIds.includes(neighborId)) {
+  if (fallbackIds.includes(youId) && fallbackIds.includes(neighborId)) {
     const bundle = await loadPlan(signal);
     const plan = youId === FALLBACK_IDS.GPC ? swapSlots(bundle.data) : bundle.data;
     return { you, neighbor, plan, files: bundle.files, source: "plan-files" };
@@ -219,7 +219,7 @@ export async function loadPair(
   const projectsOf = async (id: string): Promise<CatalogProject[] | null> => {
     const extra = found.get(id);
     if (extra) return extra;
-    if (catalog.origin === "plan" && fallbackIds.includes(id)) {
+    if (fallbackIds.includes(id)) {
       const slot: UtilityId = id === FALLBACK_IDS.DESC ? "DESC" : "GPC";
       const bundle = await loadPlan(signal);
       return bundle.data.projects.filter((p) => p.utility === slot).map((p) => ({ ...p, utility: id }));
