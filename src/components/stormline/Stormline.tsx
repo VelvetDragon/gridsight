@@ -15,6 +15,7 @@ import { ErrorCard } from "../ui/states";
 import { StormBriefingButton } from "../integrations/StormBriefingButton";
 import { StormWatch } from "./StormWatch";
 import { panelInset, TeamUpPanel } from "./TeamUpSection";
+import { StormAgent } from "./StormAgent";
 import { Block, BothGridsLine, CrewsSection, ModelCheck, More, RealOutages, StormPicker, TimeSavedBlock } from "./StormSections";
 
 const MapStage = dynamic(() => import("../map/MapStage"), {
@@ -140,6 +141,28 @@ export function Stormline() {
           onActive={setActive}
           open={open}
           onOpen={setOpen}
+        />
+        <StormAgent
+          bridge={{
+            storms: response.storms,
+            stormId: response.stormId,
+            data: data ?? null,
+            loading: response.loading,
+            pickStorm: response.pickStorm,
+            selectZone: response.selectZone,
+            flyToPoints: response.flyToPoints,
+            selectTeamMove: setTeamMove,
+            openTeamPanel: () => setTeamOpen(true),
+            showSection: (id) => {
+              setOpen(true);
+              setActive(id);
+            },
+            times: response.times,
+            replay: response.replay,
+            visible: response.visible,
+            toggleLayer: response.toggleLayer,
+            reveal: response.scene?.reveal ?? null,
+          }}
         />
         <TeamUpPanel
           data={data ?? null}
