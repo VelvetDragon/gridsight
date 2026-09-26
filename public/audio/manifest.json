@@ -3,81 +3,132 @@
     "id": "story-1",
     "kind": "story",
     "title": "Two neighbors",
-    "text": "Dominion Energy South Carolina and Georgia Power face each other across the Savannah River. Each one plans its own grid, mostly on its own.",
-    "file": null,
-    "durationMs": 9600,
-    "hash": "6e5ea805c942"
+    "text": "Two power companies share a river, but plan their work without seeing each other. The Savannah River is the border: Georgia Power builds on the Georgia side, Dominion Energy on the South Carolina side.",
+    "file": "/audio/story-1.mp3",
+    "durationMs": 11574,
+    "hash": "86fcc9f0e38a",
+    "lang": "en",
+    "sourceHash": null
   },
   {
     "id": "story-2",
     "kind": "story",
     "title": "Their plans",
-    "text": "Between them they have 114 planned transmission projects due in service between 2026 and 2035: 54 in South Carolina and 60 in Georgia. MrGridy put every one of them on one map.",
-    "file": null,
-    "durationMs": 12700,
-    "hash": "0bada546675d"
+    "text": "Dominion plans 54 jobs. Georgia Power plans 60. Nobody lines them up. MrGridy put every one of them on one map, from their public filings.",
+    "file": "/audio/story-2.mp3",
+    "durationMs": 9955,
+    "hash": "175cd00dd22b",
+    "lang": "en",
+    "sourceHash": null
   },
   {
     "id": "story-3",
     "kind": "story",
     "title": "Where they collide",
-    "text": "MrGridy compared all 2,580 pairs and found 50 places where the two plans come within 40 kilometers of each other. Two pairs touch or cross.",
-    "file": null,
-    "durationMs": 10000,
-    "hash": "5b32bbc57f53"
+    "text": "Of 2,580 possible pairs, only 50 are within a crew's morning drive, forty kilometers. Two of them touch outright.",
+    "file": "/audio/story-3.mp3",
+    "durationMs": 8518,
+    "hash": "4368faffd9b3",
+    "lang": "en",
+    "sourceHash": null
   },
   {
     "id": "story-4",
     "kind": "story",
     "title": "The best match",
-    "text": "The strongest match is near Rincon, Georgia: DESC's Okatie to McIntosh 115 kilovolt Tie and Georgia Power's Plant McIntosh expansion. Their build windows overlap by about 7 months.",
-    "file": null,
-    "durationMs": 11200,
-    "hash": "c5a0ddb6ab11"
+    "text": "These two jobs touch. One crew, one yard, one permit instead of two. Dominion's Okatie to McIntosh 115 kilovolt Tie, and Georgia Power's Plant McIntosh expansion. Both are under construction at the same time for about 7 months.",
+    "file": "/audio/story-4.mp3",
+    "durationMs": 18001,
+    "hash": "e7643c06983b",
+    "lang": "en",
+    "sourceHash": null
   },
   {
     "id": "story-5",
     "kind": "story",
     "title": "What it saves",
-    "text": "Sharing crews, yards and right-of-way across the top ten matches could save roughly $800,000, somewhere between $350,000 and $1.3 million. That comes from avoided trips and shared land, not from any budget.",
-    "file": null,
-    "durationMs": 12700,
-    "hash": "54a51c1fff60"
+    "text": "What working together could save: roughly $2.1 million across all 50 matches, somewhere between $1 million and $3.1 million. It is an estimate. Georgia Power does not publish its project costs, so real savings could be higher.",
+    "file": "/audio/story-5.mp3",
+    "durationMs": 14735,
+    "hash": "a073d4a80992",
+    "lang": "en",
+    "sourceHash": null
   },
   {
     "id": "story-6",
     "kind": "story",
     "title": "When a storm comes",
-    "text": "When Hurricane Helene came through in 2024, both utilities were hit at once. MrGridy replays it and expects about 1.2 million customers out at the peak; about 2.8 million actually lost power.",
-    "file": null,
-    "durationMs": 12700,
-    "hash": "dc346e0eaf7a"
+    "text": "About 51 hours before Hurricane Helene arrived, MrGridy predicted where lines would break for both companies, and compared it with what happened. It simulated the storm 500 times, with physics.",
+    "file": "/audio/story-6.mp3",
+    "durationMs": 12149,
+    "hash": "e60748c71e8f",
+    "lang": "en",
+    "sourceHash": null
   },
   {
     "id": "story-7",
     "kind": "story",
     "title": "Fix it together",
-    "text": "One shared staging yard, at Augusta, Georgia, can serve crews from both sides. MrGridy orders 39 repair zones, one shared by both utilities, putting about 14,000 electricity-dependent residents first. Two neighbors, one plan.",
-    "file": null,
-    "durationMs": 13100,
-    "hash": "b1854cb8ed29"
+    "text": "Working together, power comes back about 9.7 hours sooner, and 3.2 hours sooner for people who rely on powered medical equipment. Shared staging yards and crews go to the nearest repair zone first, whichever company owns it. Two neighbors, one plan.",
+    "file": "/audio/story-7.mp3",
+    "durationMs": 16590,
+    "hash": "eb8b0241e02f",
+    "lang": "en",
+    "sourceHash": null
   },
   {
     "id": "flight-1",
     "kind": "flight",
     "title": "Corridor fly-through",
     "text": "This is the number one match, near Rincon, Georgia. In teal, DESC's Okatie to McIntosh 115 kilovolt Tie. In orange, Georgia Power's Plant McIntosh expansion. Here the two projects touch, so their outages have to be planned together. They could share outage coordination, right-of-way, access roads and permits. One staging yard, right beside both jobs, would serve both crews. And for about 7 months, both crews are due to be here at the same time.",
-    "file": null,
-    "durationMs": 29200,
-    "hash": "c1543680aa65"
+    "file": "/audio/flight-1.mp3",
+    "durationMs": 28868,
+    "hash": "c1543680aa65",
+    "lang": "en",
+    "sourceHash": null
   },
   {
     "id": "briefing-helene",
     "kind": "briefing",
     "title": "Storm crew briefing: Helene",
-    "text": "Storm crew briefing for Hurricane Helene. Here is where to expect damage, and where to start. On the Georgia side, the heaviest outages are expected in Chatham County, Richmond County and Columbia County, with about 772,000 customers out across Georgia at the peak. On the South Carolina side, watch Beaufort County, York County and Aiken County, with about 384,000 customers out statewide. The simulation expects roughly 400 damaged transmission sections on Georgia Power's system and one on DESC's. Both utilities stage jointly at Augusta, Georgia, which reaches two repair zones within 56 minutes. Vulnerable areas first. Start near Pierce County, where about 1,700 residents rely on powered medical equipment, then Lowndes County and Jeff Davis County. Check the MrGridy map for live zone order. Stay safe out there.",
+    "text": "Storm crew briefing for Hurricane Helene. On the Georgia side, the heaviest outages are expected in Chatham County, Richmond County and Columbia County, with about 772,000 customers out across Georgia at the peak. On the South Carolina side, watch Beaufort County, York County and Aiken County, with about 384,000 customers out statewide. The simulation expects roughly 400 damaged transmission sections on Georgia Power's system and one on DESC's. Both utilities stage jointly at Augusta, Georgia, which reaches two repair zones within 56 minutes. Vulnerable areas first. Start near Pierce County, where about 1,700 residents rely on powered medical equipment, then Lowndes County and Jeff Davis County. Working together, power comes back about 9.7 hours sooner. Zone order is live on the MrGridy map. Stay safe.",
+    "file": "/audio/briefing-helene.mp3",
+    "durationMs": 54180,
+    "hash": "f9a326e3e577",
+    "lang": "en",
+    "sourceHash": null
+  },
+  {
+    "id": "briefing-helene-es",
+    "kind": "briefing",
+    "title": "Storm crew briefing: Helene (español)",
+    "text": "Informes para las cuadrillas de tormenta sobre el huracán Helene. Del lado de Georgia, se esperan los mayores apagones en Chatham County, Richmond County y Columbia County, con unos 772,000 clientes sin servicio en todo Georgia en el punto máximo. Del lado de Carolina del Sur, vigilen Beaufort County, York County y Aiken County, con unos 384,000 clientes sin servicio a nivel estatal. La simulación espera aproximadamente 400 secciones de transmisión dañadas en el sistema de Georgia Power y una en el de DESC. Ambas empresas de servicios públicos se concentran conjuntamente en Augusta, Georgia, lo que permite llegar a dos zonas de reparación en un plazo de 56 minutos. Las áreas vulnerables primero. Comiencen cerca de Pierce County, donde unos 1,700 residentes dependen de equipos médicos conectados a la corriente, luego Lowndes County y Jeff Davis County. Trabajando juntos, la energía se restablece unas 9.7 horas antes. El orden de las zonas está disponible en tiempo real en el mapa de MrGridy. Cuídense.",
+    "file": "/audio/briefing-helene-es.mp3",
+    "durationMs": 61912,
+    "hash": "8df2e37fbfd1",
+    "lang": "es",
+    "sourceHash": "f9a326e3e577"
+  },
+  {
+    "id": "sfx-spark",
+    "kind": "sfx",
+    "title": "Spark",
+    "text": "a single subtle electric spark crackle, short and clean, close up, no music",
     "file": null,
-    "durationMs": 49600,
-    "hash": "2a57af95084d"
+    "durationMs": 1200,
+    "hash": "94ce6c1b1889",
+    "lang": "en",
+    "sourceHash": null
+  },
+  {
+    "id": "sfx-hum",
+    "kind": "sfx",
+    "title": "Grid hum",
+    "text": "a soft low electrical substation hum, steady and calm, seamless loop, no music",
+    "file": null,
+    "durationMs": 6000,
+    "hash": "17a2bdbeb282",
+    "lang": "en",
+    "sourceHash": null
   }
 ]
