@@ -179,12 +179,6 @@ export function Crosswire() {
     <AppShell>
       <main className="relative h-dvh w-full overflow-hidden bg-paper">
         <MapStage mode="plan" plan={planScene} response={null} popup={null} view={cw.view} padding={padding} />
-        {/* Reserved for map controls (3D toggle): top right, under the nav, never over a panel. */}
-        <div
-          id="map-controls"
-          className="fixed right-3 z-20 flex flex-col items-end gap-2"
-          style={{ top: NAV_CLEARANCE }}
-        />
         <Rail
           title={NAV[1].name}
           tagline={NAV[1].tagline}

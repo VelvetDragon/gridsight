@@ -90,9 +90,9 @@ export default function MapStage({ mode, plan, response, popup, view, padding }:
         fx={fx}
         className="absolute z-20"
         style={{
+          // Top right, just under the nav: the app keeps this corner free of panels.
           top: padding.top - 16,
-          // Just left of the right-hand column (plan keeps its savings column beside the pair drawer).
-          right: mode === "plan" ? (plan?.selectedId ? 440 : 16) + 332 : padding.right > 48 ? padding.right - 20 : 16,
+          right: 16,
         }}
       />
       {hover ? (
