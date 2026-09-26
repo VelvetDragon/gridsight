@@ -43,8 +43,16 @@ async function loadAllProjects(catalog: Catalog, signal: AbortSignal): Promise<P
       return { utilityId: id, utilityName: names.get(id) ?? id, p: { ...p, utility: id } };
     });
   }
+  // Dominion and Georgia Power come from the full pipeline files; other utilities from the catalog.
+  const fallbackIds: string[] = [FALLBACK_IDS.DESC, FALLBACK_IDS.GPC];
+  const planRows = catalog.utilities.some((u) => fallbackIds.includes(u.id))
+    ? (await loadPlan(signal)).data.projects.map((p) => {
+        const id = p.utility === "DESC" ? FALLBACK_IDS.DESC : FALLBACK_IDS.GPC;
+        return { utilityId: id, utilityName: names.get(id) ?? id, p: { ...p, utility: id } };
+      })
+    : [];
   const lists = await Promise.all(
-    catalog.utilities.map(async (u) => {
+    catalog.utilities.filter((u) => !fallbackIds.includes(u.id)).map(async (u) => {
       try {
         const res = await fetch(`/data/catalog/projects/${encodeURIComponent(u.id)}.json`, { signal });
         const list = res.ok ? ((await res.json()) as CatalogProject[]) : [];
@@ -55,7 +63,7 @@ async function loadAllProjects(catalog: Catalog, signal: AbortSignal): Promise<P
       }
     }),
   );
-  return lists.flat();
+  return [...planRows, ...lists.flat()];
 }
 
 interface StormRow {
