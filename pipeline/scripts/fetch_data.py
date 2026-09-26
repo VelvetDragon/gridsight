@@ -42,7 +42,7 @@ SOURCES = {
     "hurdat2.txt": "https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2025-091226.txt",
 }
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; GridSight/0.1; ShellHacks 2026 research)"}
+HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; MrGridy/0.1; ShellHacks 2026 research)"}
 
 
 def main() -> None:

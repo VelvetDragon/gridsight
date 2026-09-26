@@ -18,7 +18,7 @@ OVERPASS_URLS = (
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
 )
-USER_AGENT = "GridSight/0.1 (ShellHacks 2026 research; github.com/VelvetDragon/gridsight)"
+USER_AGENT = "MrGridy/0.1 (ShellHacks 2026 research; github.com/VelvetDragon/gridsight)"
 _CACHE = CACHE_DIR / "overpass"
 
 
