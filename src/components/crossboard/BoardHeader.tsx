@@ -5,7 +5,7 @@ import { TIER_LABEL, TIER_RANGE, TIERS, UTILITY_HEX } from "@/lib/theme";
 import type { OverlapTier } from "@/lib/types";
 import type { CrosswireState } from "../crosswire/useCrosswire";
 import { UtilityCombo } from "../crosswire/UtilityPicker";
-import { fmtMoney, fmtRange } from "../plan/Savings";
+import { fmtMoney } from "../plan/Savings";
 import { cx, TierSwatch } from "../ui/primitives";
 
 /**
@@ -20,7 +20,6 @@ export function BoardHeader({ cw, onFind }: { cw: CrosswireState; onFind: (() =>
   const counts = new Map<OverlapTier, number>();
   for (const o of cw.candidates) counts.set(o.tier, (counts.get(o.tier) ?? 0) + 1);
   const { savings } = cw;
-  const ranged = savings.rangedCount > 0 && Math.round(savings.low) !== Math.round(savings.high);
 
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
@@ -94,10 +93,10 @@ export function BoardHeader({ cw, onFind }: { cw: CrosswireState; onFind: (() =>
 
       <p className="ml-auto flex items-baseline gap-2 whitespace-nowrap">
         <span className="text-[12px] text-ink-3">
-          Could save on <span className="num">{savings.count}</span> pairs
+          Could save on <span className="num">{savings.count}</span> pairs, estimated
         </span>
         <span className="display num text-[22px] leading-7 font-medium text-ink">
-          {savings.count > 0 ? (ranged ? fmtRange(savings.low, savings.high) : fmtMoney(savings.total)) : "–"}
+          {savings.count > 0 ? fmtMoney(savings.total) : "–"}
         </span>
       </p>
     </div>

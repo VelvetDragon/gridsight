@@ -2,7 +2,7 @@
 
 import { Check, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
-import { ACTION_LABEL, fmtInt, fmtKm, fmtKv, fmtMinutes, fmtMonthYear, fmtUsd } from "@/lib/format";
+import { ACTION_LABEL, fmtKm, fmtKv, fmtMinutes, fmtMonthYear } from "@/lib/format";
 import {
   buildMemo,
   isRightSizingCandidate,
@@ -29,9 +29,9 @@ import {
   Tooltip,
   UtilityDot,
 } from "../ui/primitives";
-import { matchSavings, type CostRanges } from "@/lib/savings";
+import { matchSavings } from "@/lib/savings";
 import { MiniGantt } from "./MiniGantt";
-import { MatchSavingsBlock } from "./Savings";
+import { DocumentLink, MatchSavingsBlock } from "./Savings";
 import { RightSizingChip } from "./RightSizing";
 
 export interface MatchDrawerProps {
@@ -39,7 +39,6 @@ export interface MatchDrawerProps {
   desc: Project | undefined;
   gpc: Project | undefined;
   radarMonth: number | null;
-  ranges: CostRanges | null;
   onClose: () => void;
 }
 
@@ -52,9 +51,9 @@ function Section({ title, children, aside }: { title: string; children: ReactNod
   );
 }
 
-export function MatchDrawer({ item, desc, gpc, radarMonth, ranges, onClose }: MatchDrawerProps) {
+export function MatchDrawer({ item, desc, gpc, radarMonth, onClose }: MatchDrawerProps) {
   const o = item.overlap;
-  const savings = matchSavings(o, ranges);
+  const savings = matchSavings(o, desc, gpc);
   const rightSizing = isRightSizingCandidate(o, desc, gpc);
 
   return (
@@ -91,7 +90,7 @@ export function MatchDrawer({ item, desc, gpc, radarMonth, ranges, onClose }: Ma
 
       <div className="scroll-quiet min-h-0 flex-1 overflow-y-auto">
         <div className="px-5 pt-5 pb-1">
-          {savings ? <MatchSavingsBlock savings={savings} assumptions={o.cost?.assumptions ?? []} /> : null}
+          {savings ? <MatchSavingsBlock savings={savings} /> : null}
           <p className={cx("text-[14px] leading-[22px] text-ink", savings && "mt-4")}>{o.summary}</p>
           <dl className="mt-4 grid grid-cols-2 gap-3 rounded-[12px] border border-hairline bg-white/50 px-4 py-3">
             <BigStat label="Distance apart" value={fmtKm(o.distanceKm)} />
@@ -130,15 +129,10 @@ export function MatchDrawer({ item, desc, gpc, radarMonth, ranges, onClose }: Ma
 
         <Divider className="mx-5" />
 
-        <Section title="Savings in detail">
-          <CostBlock overlap={o} />
-        </Section>
-
-        <Divider className="mx-5" />
-
         <Section title="Where this comes from">
           <ul className="flex flex-col gap-2">
             {[desc, gpc].map((p) => (p ? <SourceLink key={p.id} project={p} /> : null))}
+            {savings?.sources.map((s) => <DocumentLink key={`${s.url}#${s.page}`} source={s} />)}
           </ul>
         </Section>
       </div>
@@ -316,57 +310,6 @@ export function YardBlock({ overlap }: { overlap: Overlap }) {
       <p className="text-[12px] text-ink-3">
         Drive time from the yard to each project. Marked on the map as a small square.
       </p>
-    </div>
-  );
-}
-
-export function CostBlock({ overlap }: { overlap: Overlap }) {
-  const c = overlap.cost;
-  if (!c) return <p className="text-[13px] text-ink-3">No cost estimate for this pair.</p>;
-  const rows: [string, number, string?][] = [
-    [
-      "Land and right-of-way",
-      c.landSavingsUsd,
-      c.sharedAcres ? `${c.sharedAcres} acres × ${fmtUsd(c.landValuePerAcreUsd)}/acre` : undefined,
-    ],
-    ["Crew mobilization", c.mobilizationSavingsUsd],
-    ["Shared laydown yard", c.yardSavingsUsd],
-  ];
-  return (
-    <div className="flex flex-col gap-3">
-      <dl className="flex flex-col text-[13px]">
-        {rows.map(([label, v, sub]) => (
-          <div key={label} className="flex items-baseline justify-between gap-3 border-b border-hairline py-1.5">
-            <dt className="text-ink-2">
-              {label}
-              {sub ? <span className="num block text-[11px] text-ink-3">{sub}</span> : null}
-            </dt>
-            <dd className="num text-ink">{fmtUsd(v, { compact: false })}</dd>
-          </div>
-        ))}
-        <div className="flex items-baseline justify-between gap-3 pt-2">
-          <dt className="font-medium text-ink">Estimated total</dt>
-          <dd className="num text-[15px] font-medium text-ink">{fmtUsd(c.totalUsd, { compact: false })}</dd>
-        </div>
-      </dl>
-      {c.sharedCorridorKm > 0 ? (
-        <p className="text-[12px] text-ink-3">
-          Shared corridor <span className="num text-ink-2">{fmtKm(c.sharedCorridorKm)}</span> ·{" "}
-          <span className="num text-ink-2">{fmtInt(c.sharedAcres)}</span> acres
-        </p>
-      ) : null}
-      {c.assumptions.length ? (
-        <details className="group rounded-[8px] bg-wash px-3 py-2">
-          <summary className="cursor-pointer list-none text-[12px] font-medium text-ink-2 marker:hidden">
-            How this was estimated
-          </summary>
-          <ul className="mt-2 flex list-disc flex-col gap-1 pl-4 text-[12px] leading-[17px] text-ink-2">
-            {c.assumptions.map((a) => (
-              <li key={a}>{a}</li>
-            ))}
-          </ul>
-        </details>
-      ) : null}
     </div>
   );
 }

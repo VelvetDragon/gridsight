@@ -3,10 +3,12 @@
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { FALLBACK_IDS } from "@/lib/catalog";
+import { UTILITY_NAME } from "@/lib/theme";
 import { FindUtility } from "../crosswire/FindUtility";
 import { useCrosswire } from "../crosswire/useCrosswire";
 import type { MapPadding } from "../map/MapCanvas";
 import type { PlanSceneProps } from "../map/planScene";
+import { MapKey, planKeyRows } from "../MapKey";
 import { AppShell, NAV_H, NAV_TOP } from "../shell/AppShell";
 import { cx, Panel, SegmentedControl } from "../ui/primitives";
 import { ErrorCard } from "../ui/states";
@@ -37,6 +39,9 @@ const BOARD_TOP = NAV_TOP + NAV_H + 4;
 
 const PADDING: MapPadding = { top: 40, right: 32, bottom: 32, left: 32 };
 
+/** The key sits under MapStage's 3D button (top: PADDING.top - 16, 32px tall) and above the attribution. */
+const KEY_TOP = PADDING.top - 16 + 32 + 8;
+
 function isTyping(t: EventTarget | null): boolean {
   const el = t as HTMLElement | null;
   return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
@@ -51,6 +56,7 @@ export function CrossBoard() {
   const cw = useCrosswire();
   const [split, setSplit] = useState<Split>("even");
   const [finderOpen, setFinderOpen] = useState(false);
+  const [keyOpen, setKeyOpen] = useState(false);
   const { clearMatch, selectOverlap, selected, ranked } = cw;
 
   // Esc closes the pair; J and K step down and up the list.
@@ -134,6 +140,18 @@ export function CrossBoard() {
                 padding={PADDING}
                 keepFramedOnResize
               />
+              {cw.plan ? (
+                <div
+                  className="pointer-events-none absolute right-2 bottom-9 z-20 flex max-w-[calc(100%-16px)] flex-col items-end"
+                  style={{ top: KEY_TOP }}
+                >
+                  <MapKey
+                    open={keyOpen}
+                    onToggle={() => setKeyOpen((v) => !v)}
+                    rows={planKeyRows({ you: UTILITY_NAME.DESC, neighbor: UTILITY_NAME.GPC }, isDefaultPair)}
+                  />
+                </div>
+              ) : null}
               <p className="pointer-events-none absolute bottom-2.5 left-3 z-10 rounded-full bg-white/85 px-2.5 py-1 text-[12px] text-ink-2">
                 Click a line to pick it; shift-click to pick several
               </p>
@@ -165,7 +183,7 @@ export function CrossBoard() {
           </div>
 
           <Panel className="min-h-[420px] overflow-hidden lg:min-h-0" aria-label="Details">
-            <Inspector cw={cw} isDefaultPair={isDefaultPair} />
+            <Inspector cw={cw} />
           </Panel>
         </div>
 

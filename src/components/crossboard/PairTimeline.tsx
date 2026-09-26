@@ -4,7 +4,6 @@ import { ArrowDown, Pause, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { fmtKm, shortProjectName } from "@/lib/format";
 import type { RankedOverlap } from "@/lib/ranking";
-import { matchSavings } from "@/lib/savings";
 import { TIER_LABEL, UTILITY_HEX } from "@/lib/theme";
 import { monthIndex, monthLabel, phaseAt, RADAR_END_YEAR, RADAR_MONTHS, RADAR_START_YEAR, windowOverlap } from "@/lib/timeline";
 import type { Project } from "@/lib/types";
@@ -18,7 +17,7 @@ type SortKey = "rank" | "savings" | "distance";
 const SORTS: { key: SortKey; label: string; hint: string }[] = [
   { key: "rank", label: "Rank", hint: "Best first, by the ranking in the side panel" },
   { key: "distance", label: "Apart", hint: "Closest first" },
-  { key: "savings", label: "Could save", hint: "Biggest likely saving first" },
+  { key: "savings", label: "Est. savings", hint: "Biggest estimated saving first" },
 ];
 
 /** Shared by the header and every row so the columns line up. */
@@ -143,7 +142,8 @@ function Row({ cw, r, onDeck }: { cw: CrosswireState; r: RankedOverlap; onDeck: 
   const o = r.overlap;
   const desc = cw.projectsById.get(o.descId);
   const gpc = cw.projectsById.get(o.gpcId);
-  const saved = matchSavings(o, cw.costRanges);
+  const sig = cw.signals.get(o.id);
+  const saved = sig?.savedUsd ?? 0;
   const selected = cw.selected?.overlap.id === o.id;
   useEffect(() => {
     if (selected) ref.current?.scrollIntoView({ block: "nearest" });
@@ -188,7 +188,15 @@ function Row({ cw, r, onDeck }: { cw: CrosswireState; r: RankedOverlap; onDeck: 
         </span>
         <span className="num text-right text-[13px] text-ink-2">{o.distanceKm <= 0 ? "Touch" : fmtKm(o.distanceKm)}</span>
         <span className="num text-right text-[13px] font-medium text-ink">
-          {saved && saved.central > 0 ? fmtMoney(saved.central) : <span className="font-normal text-ink-3">–</span>}
+          {saved > 0 ? (
+            fmtMoney(saved)
+          ) : sig?.opportunities.length ? (
+            <span className="text-[12px] font-normal text-ink-3" title="Has ways to work together with no published price">
+              Not priced
+            </span>
+          ) : (
+            <span className="font-normal text-ink-3">–</span>
+          )}
         </span>
         <span className="hidden h-[56px] md:block">
           <Bars desc={desc} gpc={gpc} month={cw.radarMonth} />
@@ -216,11 +224,11 @@ export function PairTimeline({
   const [sort, setSort] = useState<SortKey>("rank");
   const rows = useMemo(() => {
     const list = [...cw.ranked];
-    const saved = (r: RankedOverlap) => matchSavings(r.overlap, cw.costRanges)?.central ?? 0;
+    const saved = (r: RankedOverlap) => cw.signals.get(r.overlap.id)?.savedUsd ?? 0;
     if (sort === "distance") list.sort((a, b) => a.overlap.distanceKm - b.overlap.distanceKm || a.rank - b.rank);
     if (sort === "savings") list.sort((a, b) => saved(b) - saved(a) || a.rank - b.rank);
     return list;
-  }, [cw.ranked, cw.costRanges, sort]);
+  }, [cw.ranked, cw.signals, sort]);
 
   const month = cw.radarMonth;
   const both = (r: RankedOverlap) => {

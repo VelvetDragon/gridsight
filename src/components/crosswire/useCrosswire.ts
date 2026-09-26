@@ -13,9 +13,12 @@ import {
 } from "@/lib/catalog";
 import { boundsOf, geometryPoints, haversineKm, type Bounds } from "@/lib/geo";
 import { tierFor } from "@/lib/overlaps";
-import { DEFAULT_WEIGHTS, rankOverlaps, type RankWeights } from "@/lib/ranking";
+import { fundingOpportunity, isMatch, screenPair, UTILITY_OWNERSHIP, type FundingMatch, type ProgramScreen } from "@/lib/grants";
+import type { AgentProject, AgentRequest } from "@/lib/integrations/savingsAgent";
+import { pairOpportunities } from "@/lib/opportunities";
+import { DEFAULT_WEIGHTS, rankOverlaps, type PairSignals, type RankWeights } from "@/lib/ranking";
 import { rememberComparison } from "@/lib/recent";
-import { savingsByYear, summarizeSavings } from "@/lib/savings";
+import { matchSavings, savingsByYear, summarizeSavings } from "@/lib/savings";
 import { setSlotNames, TIERS } from "@/lib/theme";
 import { RADAR_MONTHS } from "@/lib/timeline";
 import type { CatalogUtility, Overlap, OverlapTier, Position, Project } from "@/lib/types";
@@ -25,6 +28,7 @@ import { setUrlParams, useUrlParam } from "@/lib/useUrlState";
 import type { ViewRequest } from "../map/MapCanvas";
 import { pointAlong } from "../map/mapLabels";
 import type { ReachCollection } from "../map/planScene";
+import { useSavingsAgent } from "./useSavingsAgent";
 
 export type Measure = "closest" | "center";
 
@@ -145,21 +149,99 @@ export function useCrosswire() {
 
   const [tiers, setTiers] = useState<Set<OverlapTier>>(() => new Set(TIERS));
   const [weights, setWeights] = useState<RankWeights>(DEFAULT_WEIGHTS);
-  const ranked = useMemo(() => rankOverlaps(relevant, weights, tiers), [relevant, weights, tiers]);
+  // Ways to work together and the estimated saving of every pair (the agent's "prices" step).
+  const baseSignals = useMemo(() => {
+    const out = new Map<string, PairSignals>();
+    if (!plan) return out;
+    for (const o of measured) {
+      const a = projectsById.get(o.descId);
+      const b = projectsById.get(o.gpcId);
+      if (!a || !b) continue;
+      const wetland = plan.wetlands?.find((w) => w.overlapId === o.id) ?? null;
+      const opportunities = pairOpportunities(o, a, b, wetland, plan.lines);
+      out.set(o.id, { opportunities, savedUsd: matchSavings(o, a, b, opportunities)?.total ?? 0 });
+    }
+    return out;
+  }, [plan, measured, projectsById]);
+
+  /* ---------- Savings agent: grants, requirement checks, AI verification, notes ---------- */
+  const agentRequest = useMemo<AgentRequest>(() => {
+    if (!bundle) return { projects: [], pairs: [] };
+    const projects = new Map<string, AgentProject>();
+    const project = (p: Project): string => {
+      const u = p.utility === "DESC" ? bundle.you : bundle.neighbor;
+      projects.set(p.id, {
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        kind: p.kind,
+        action: p.action,
+        voltageKv: p.voltageKv,
+        state: p.state,
+        inService: p.inService,
+        utility: u.shortName,
+        ownership: UTILITY_OWNERSHIP[u.id] ?? null,
+        miles: p.miles,
+      });
+      return p.id;
+    };
+    const pairs = measured.flatMap((o) => {
+      const a = projectsById.get(o.descId);
+      const b = projectsById.get(o.gpcId);
+      const s = baseSignals.get(o.id);
+      if (!a || !b || !s) return [];
+      return [
+        {
+          id: o.id,
+          a: project(a),
+          b: project(b),
+          shared: s.opportunities.map((op) => ({ kind: op.kind, title: op.title })),
+          savedUsd: s.savedUsd,
+        },
+      ];
+    });
+    return { projects: [...projects.values()], pairs };
+  }, [bundle, measured, projectsById, baseSignals]);
+  const agent = useSavingsAgent(bundle ? `${bundle.you.id}:${bundle.neighbor.id}:${measure}` : "", agentRequest);
+  // Every program's checklist for every pair: the rules, with Gemini's re-reads once they arrive.
+  // Before the agent answers (or if it can't be reached) the verified list is checked by rule alone.
+  const grantScreens = useMemo(() => {
+    const byId = new Map(agentRequest.projects.map((p) => [p.id, p]));
+    const out: Record<string, ProgramScreen[]> = {};
+    for (const p of agentRequest.pairs) {
+      const a = byId.get(p.a);
+      const b = byId.get(p.b);
+      if (a && b) out[p.id] = screenPair(a, b, p.shared, agent.programs, agent.overrides);
+    }
+    return out;
+  }, [agentRequest, agent.programs, agent.overrides]);
+  const funding = useMemo(() => {
+    const out: Record<string, FundingMatch[]> = {};
+    for (const [id, screens] of Object.entries(grantScreens)) {
+      const m = screens.filter(isMatch);
+      if (m.length) out[id] = m;
+    }
+    return out;
+  }, [grantScreens]);
+  // A joint grant fit is one more way to work together, so it shows and ranks with the others.
+  const signals = useMemo(() => {
+    const out = new Map<string, PairSignals>();
+    for (const [id, s] of baseSignals) {
+      const op = fundingOpportunity(funding[id] ?? [], agent.programs);
+      out.set(id, op ? { ...s, opportunities: [...s.opportunities, op] } : s);
+    }
+    return out;
+  }, [baseSignals, funding, agent.programs]);
+
+  const ranked = useMemo(
+    () => rankOverlaps(relevant, weights, tiers, (o) => signals.get(o.id) ?? null),
+    [relevant, weights, tiers, signals],
+  );
   const selected = ranked.find((r) => r.overlap.id === matchParam) ?? null;
 
-  const costRanges = useMemo(
-    () => (plan?.costRanges ? new Map(plan.costRanges.map((r) => [r.overlapId, r])) : null),
-    [plan],
-  );
   const shown = useMemo(() => ranked.map((r) => r.overlap), [ranked]);
-  const savings = useMemo(() => summarizeSavings(shown, costRanges), [shown, costRanges]);
-  const savingsYears = useMemo(() => savingsByYear(shown, projectsById, costRanges), [shown, projectsById, costRanges]);
-  const savingsAssumptions = useMemo(() => {
-    const seen = new Set<string>();
-    for (const o of shown) for (const a of o.cost?.assumptions ?? []) seen.add(a);
-    return [...seen].slice(0, 6);
-  }, [shown]);
+  const savings = useMemo(() => summarizeSavings(shown, projectsById), [shown, projectsById]);
+  const savingsYears = useMemo(() => savingsByYear(shown, projectsById), [shown, projectsById]);
 
   // Remember what was opened, for Switchboard's "Recent comparisons".
   useEffect(() => {
@@ -300,16 +382,18 @@ export function useCrosswire() {
     tiers,
     toggleTier,
     weights,
+    signals,
+    agent,
+    funding,
+    grantScreens,
     setWeights,
     ranked,
     selected,
     selectOverlap,
     clearMatch,
     setPair,
-    costRanges,
     savings,
     savingsYears,
-    savingsAssumptions,
     reach: reachFor,
     view: effectiveView,
     findAvailable,

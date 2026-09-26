@@ -45,7 +45,7 @@ export interface FlightOptions {
   /** Narration to play in sync with the flight (optional). */
   audioUrl?: string;
   /** Savings range for the closing caption, if known. */
-  savings?: { low: number; high: number } | null;
+  savings?: number | null;
   /** Skip straight to the end frame, stepping through the captions without motion. */
   reducedMotion?: boolean;
 }
@@ -188,10 +188,9 @@ export function buildFlightScript(o: Overlap, desc: Project | undefined, gpc: Pr
     const text = mins >= 1 ? `One shared yard: ${fmtMinutes(mins)} drive for both crews` : "One shared yard right where the lines meet, for both crews";
     captions.push({ atMs: 19600, durMs: 5000, kicker: "Staging yard", text, tone: "ink" });
   }
-  if (opts.savings && opts.savings.high > 0) {
-    const { low, high } = opts.savings;
-    const range = low > 0 && low !== high ? `${fmtUsd(low, { compact: true })} to ${fmtUsd(high, { compact: true })}` : fmtUsd(high, { compact: true });
-    captions.push({ atMs: 25000, durMs: 5000, kicker: "Working together", text: `Estimated savings: ${range}`, tone: "ink" });
+  if (opts.savings && opts.savings > 0) {
+    const text = `Estimated savings: ${fmtUsd(opts.savings, { compact: true })}`;
+    captions.push({ atMs: 25000, durMs: 5000, kicker: "Working together", text, tone: "ink" });
   }
   return { durationMs: 30500, captions, keys, audioUrl: opts.audioUrl };
 }

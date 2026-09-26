@@ -101,38 +101,31 @@ export function KeyList({ rows }: { rows: KeyRow[] }) {
   );
 }
 
-/** Collapsible "What you're seeing" key panel. */
-export function MapKey({
-  open,
-  onToggle,
-  rows,
-  subtitle,
-}: {
-  open: boolean;
-  onToggle: () => void;
-  rows: KeyRow[];
-  subtitle: string;
-}) {
+/** Map legend: a small pill when closed, a full panel when open. */
+export function MapKey({ open, onToggle, rows }: { open: boolean; onToggle: () => void; rows: KeyRow[] }) {
   return (
-    <Panel className="pointer-events-auto flex min-h-0 flex-col overflow-hidden" aria-label="Map key">
+    <Panel
+      className={cx(
+        "pointer-events-auto flex min-h-0 flex-col overflow-hidden",
+        open ? "w-[240px] max-w-full" : "w-fit rounded-full",
+      )}
+      aria-label="Map legend"
+    >
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="flex w-full items-center gap-3 px-5 py-3.5 text-left transition-colors hover:bg-white/30"
+        className="flex w-full items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-white/30"
       >
-        <span className="min-w-0 flex-1">
-          <span className="display block text-[17px] leading-6 font-medium text-ink">What you&apos;re seeing</span>
-          {open ? <span className="block text-[12px] leading-4 text-ink-3">{subtitle}</span> : null}
-        </span>
+        <span className={cx("eyebrow", open && "min-w-0 flex-1")}>Legend</span>
         <ChevronDown
-          size={16}
+          size={14}
           aria-hidden
           className={cx("shrink-0 text-ink-3 transition-transform duration-200", open ? "rotate-180" : "")}
         />
       </button>
       {open ? (
-        <div className="scroll-quiet min-h-0 overflow-y-auto border-t border-hairline px-5 pt-3.5 pb-4">
+        <div className="scroll-quiet min-h-0 overflow-y-auto border-t border-hairline px-3 pt-2.5 pb-3">
           <KeyList rows={rows} />
         </div>
       ) : null}

@@ -8,6 +8,7 @@ export const RIGHT_SIZING_TIP =
   "FERC Order 1920-A: when a line is being replaced anyway, consider building it bigger for future needs.";
 
 import { isRightSizingCandidate, STRENGTH_LABEL, type Opportunity } from "./opportunities";
+import { matchSavings } from "./savings";
 
 export { isRightSizingCandidate };
 
@@ -92,7 +93,10 @@ export function buildMemo(
   if (opportunities) {
     lines.push("WAYS TO WORK TOGETHER");
     if (!opportunities.length) lines.push("- Nothing specific found beyond being close to each other.");
-    for (const op of opportunities) lines.push(`- ${op.title} (${STRENGTH_LABEL[op.strength].toLowerCase()}): ${op.reason}`);
+    for (const op of opportunities) {
+      lines.push(`- ${op.title} (${STRENGTH_LABEL[op.strength].toLowerCase()}): ${op.reason}`);
+      for (const c of op.checks ?? []) lines.push(`    [${c.ok === true ? "x" : c.ok === false ? " " : "?"}] ${c.label}: ${c.note}`);
+    }
   } else {
     lines.push("WHAT THEY CAN SHARE");
     for (const s of o.shareable) lines.push(`- ${s}`);
@@ -109,12 +113,12 @@ export function buildMemo(
       `- Drive: ${UTILITY_NAME.DESC} ${fmtMinutes(y.driveMinutesDesc)}, ${UTILITY_NAME.GPC} ${fmtMinutes(y.driveMinutesGpc)}.`,
     );
   }
-  if (o.cost) {
+  const saved = matchSavings(o, desc, gpc, opportunities);
+  if (saved && saved.total > 0) {
     lines.push("");
-    lines.push(`ESTIMATED SAVINGS: ${fmtUsd(o.cost.totalUsd)} (order of magnitude)`);
-    lines.push(
-      `- Land ${fmtUsd(o.cost.landSavingsUsd)}, mobilization ${fmtUsd(o.cost.mobilizationSavingsUsd)}, yard ${fmtUsd(o.cost.yardSavingsUsd)}.`,
-    );
+    lines.push(`ESTIMATED SAVINGS: ${fmtUsd(saved.total)} (2026 dollars, from published unit costs)`);
+    for (const l of saved.lines) lines.push(`- ${l}`);
+    lines.push(`- Sources: ${saved.sources.map((r) => `${r.document}${r.page != null ? `, p. ${r.page}` : ""}`).join("; ")}.`);
   }
   lines.push("");
   lines.push("SUGGESTED NEXT STEP");

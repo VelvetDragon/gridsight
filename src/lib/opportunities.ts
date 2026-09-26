@@ -7,22 +7,37 @@
  *
  *   outage          touch or cross, or both filings name the same substation   required
  *   corridor        a new line runs within 1.6 km of the other line             strong / possible
- *   permits         mapped wetlands in the shared corridor (wetlands.json)      strong
+ *   permits         mapped wetlands where the routes run ≤ 1.6 km apart, both in
+ *                   one state (one Corps district, one state water agency),
+ *                   starting within 24 months: one delineation, and one joint
+ *                   application through one agent (33 CFR 325.1(d)(8))         strong / possible
+ *                   A Corps authorization covers one owner's "single and
+ *                   complete project" (33 CFR 330.2(i)), so there is never one
+ *                   permit for two utilities, and NWP 57's ½-acre limit still
+ *                   applies to each project on its own.
  *   storage yard    same months, ≤ 15 km by road                                strong / possible
- *   line crew       both line work, same voltage band, same months, ≤ 60 km     strong / possible
+ *   line crew       both line work, same voltage band or a shared voltage,
+ *                   same months, ≤ 60 km                                        strong / possible
  *   substation crew both substation work, same months, ≤ 60 km                 strong / possible
- *   handoff         same kind of work, one starts ≤ 12 months after the other
+ *   handoff         same kind of work, one starts ≤ 3 months after the other
  *                   ends, ≤ 80 km                                               possible
  *   materials       same conductor, or both add ≥ 230 kV substation equipment,
  *                   starting within 24 months                                   possible
- *   right-sizing    a line rebuild ≤ 25 km from new work of equal or higher
- *                   voltage, built within 24 months of each other               possible
+ *   right-sizing    a ≥ 115 kV line rebuilt for age or hardening (so nobody
+ *                   has sized it for new load), with room left to carry more,
+ *                   that ends at the new work's substation (same name, or
+ *                   endpoints ≤ 1 km apart), at most one voltage class below
+ *                   it, built within 24 months of each other                    possible
+ *                   Whether the grid needs the extra capacity takes load-flow
+ *                   studies (grid models are not public), so the card says so.
  *
  * Each reason is one plain sentence. Build windows are estimates (in-service
  * date minus a typical build length).
  */
+import type { LineCollection } from "./data";
+import { closestBetween } from "./overlaps";
 import { UTILITY_NAME } from "./theme";
-import type { Overlap, Project } from "./types";
+import type { Overlap, Position, Project } from "./types";
 
 export type OpportunityKind =
   | "outage"
@@ -33,7 +48,9 @@ export type OpportunityKind =
   | "substationCrew"
   | "handoff"
   | "materials"
-  | "rightSizing";
+  | "rightSizing"
+  /** Added by the savings agent (lib/grants.ts), not by the rules below. */
+  | "funding";
 
 export type OpportunityStrength = "required" | "strong" | "possible";
 
@@ -45,6 +62,14 @@ export interface Opportunity {
   reason: string;
   /** First thing the two planners would do about it. */
   nextStep: string;
+  /** What was checked before suggesting it: passed, failed or cannot be checked from public data. */
+  checks?: OpportunityCheck[];
+}
+
+export interface OpportunityCheck {
+  label: string;
+  ok: boolean | null;
+  note: string;
 }
 
 /** One entry of plan/insights/wetlands.json (optional file). */
@@ -66,10 +91,18 @@ export function isWetlandNoteList(v: unknown): v is WetlandNote[] {
 const YARD_KM = 15;
 const CREW_KM = 60;
 const HANDOFF_KM = 80;
-const HANDOFF_MONTHS = 12;
-const RIGHT_SIZING_KM = 25;
+/** A contractor books its next job within weeks; after a season's gap the crew has moved on elsewhere. */
+const HANDOFF_MONTHS = 3;
+/** Below this a line is local sub-transmission; nothing new on the bulk grid makes it carry more. */
+const RIGHT_SIZING_MIN_KV = 115;
+/** Endpoints this close are taken to be the same substation. */
+const SAME_STATION_KM = 1;
+/** Below this location confidence a mapped endpoint is too rough to call the same station. */
+const MIN_LOCATION_CONFIDENCE = 0.7;
 const RIGHT_SIZING_MONTHS = 24;
 const MATERIALS_MONTHS = 24;
+/** Wetland fieldwork is only shared when both permit applications are prepared at about the same time. */
+const PERMIT_MONTHS = 24;
 /** Typical road-to-straight-line ratio in this data, used when no road distance is known. */
 const ROAD_FACTOR = 1.4;
 const MONTH_MS = 1000 * 3600 * 24 * 30.44;
@@ -138,28 +171,92 @@ function conductors(p: Project): string[] {
   );
 }
 
+/** The filing's own statement of why the project is needed. */
+function statedNeed(p: Project): string | null {
+  const m = /(?:Need|Supporting statement):\s*([^(]+?)(?:\s*\(|\.\s|\.$|$)/i.exec(p.description);
+  return m ? m[1].trim().replace(/\.$/, "") : null;
+}
+
+/** Rebuilt because of load, so the owner's load studies already sized it. */
+const CAPACITY_NEED = /overload|contingency|\bTPL\b|system performance|load growth|\bgrowth\b/i;
+/** Rebuilt because of age or condition: a like-for-like replacement unless someone asks. */
+const CONDITION_NEED = /end of life|hardening|maintenance|aging|rotten|wood pol|widening|relocat|move .*line/i;
+/** Already built with room to grow: high-temperature wire, or towers designed for more. */
+const ALREADY_SIZED = /\bACSS\b|\bACCC\b|designed\s+(?:spdc|for)|future circuit|\d+\s*kV insulation|SPDC\s*\d+\s*\/\s*\d+/i;
+
+function endpoints(p: Project): Position[] {
+  const g = p.geometry;
+  return g.type === "Point" ? [g.coordinates] : [g.coordinates[0], g.coordinates[g.coordinates.length - 1]];
+}
+
+function kmBetween(a: Position, b: Position): number {
+  return closestBetween({ type: "Point", coordinates: a }, { type: "Point", coordinates: b }).d;
+}
+
+/** Whether a mapped line of at least `kv` passes within `km` of the point. */
+function gridNear(grid: LineCollection, at: Position, kv: number, km: number): boolean {
+  for (const f of grid.features) {
+    if (Number(f.properties?.voltage ?? 0) < kv) continue;
+    const parts = f.geometry.type === "LineString" ? [f.geometry.coordinates] : f.geometry.coordinates;
+    for (const part of parts) for (const c of part) if (kmBetween(at, c) <= km) return true;
+  }
+  return false;
+}
+
+interface RightSizing {
+  rebuild: Project;
+  driver: Project;
+  /** Where the rebuild meets the new work, e.g. "Okatie" or "0.4 km apart". */
+  meets: string;
+  /** Mapped lines at the new work's voltage reach both ends of the rebuild; null when unknown. */
+  higherAtBothEnds: boolean | null;
+}
+
 /**
- * The line rebuild in the pair, when the other side adds new equipment at the same or a
- * higher voltage nearby and around the same time.
+ * The line rebuild in the pair when making it bigger is worth a planner's look: it is being
+ * replaced for age (nobody has sized it for new load yet), it has room to carry more, and it
+ * ends at the substation where the other side's new work comes in at its voltage or one class
+ * above. Being nearby is not enough: power only flows through lines that connect.
  */
-function rightSizingSides(o: Overlap, a: Project, b: Project): { rebuild: Project; driver: Project } | null {
-  if (o.distanceKm > RIGHT_SIZING_KM) return null;
+function rightSizingSides(a: Project, b: Project, grid: LineCollection | null): RightSizing | null {
   const gap = gapMonths(a, b);
   if (gap == null || gap > RIGHT_SIZING_MONTHS) return null;
   for (const [r, n] of [
     [a, b],
     [b, a],
   ] as const) {
-    if (r.kind === "line" && r.action === "rebuild" && n.action === "new" && maxKv(n) >= maxKv(r)) {
-      return { rebuild: r, driver: n };
+    if (r.kind !== "line" || r.action !== "rebuild" || n.action !== "new") continue;
+    const kv = maxKv(r);
+    if (kv < RIGHT_SIZING_MIN_KV || maxKv(n) < kv || voltageBand(n) - voltageBand(r) > 1) continue;
+    if (CAPACITY_NEED.test(r.description) || !CONDITION_NEED.test(r.description)) continue;
+    if (ALREADY_SIZED.test(r.description)) continue;
+
+    const station = sharedPlace(r, n);
+    let meets: string | null = station;
+    if (!meets && r.locationConfidence >= MIN_LOCATION_CONFIDENCE && n.locationConfidence >= MIN_LOCATION_CONFIDENCE) {
+      const km = Math.min(...endpoints(r).flatMap((e) => endpoints(n).map((f) => kmBetween(e, f))));
+      if (km <= SAME_STATION_KM) meets = `${kmText(km)} apart`;
     }
+    if (!meets) continue;
+
+    const higher = maxKv(n) > kv;
+    const higherAtBothEnds =
+      !higher || !grid?.features.length
+        ? null
+        : endpoints(r).every((e) => gridNear(grid, e, maxKv(n), SAME_STATION_KM));
+    return { rebuild: r, driver: n, meets: station ? `both connect at ${station}` : `their ends are ${meets}`, higherAtBothEnds };
   }
   return null;
 }
 
-/** A line rebuild near new, same-or-higher-voltage work: worth a FERC 1920-A right-sizing look. */
-export function isRightSizingCandidate(o: Overlap, a: Project | undefined, b: Project | undefined): boolean {
-  return !!a && !!b && !!rightSizingSides(o, a, b);
+/** A line rebuild tied into new work nearby: worth a FERC 1920-A right-sizing look. */
+export function isRightSizingCandidate(
+  _o: Overlap,
+  a: Project | undefined,
+  b: Project | undefined,
+  grid: LineCollection | null = null,
+): boolean {
+  return !!a && !!b && !!rightSizingSides(a, b, grid);
 }
 
 export function pairOpportunities(
@@ -167,6 +264,7 @@ export function pairOpportunities(
   a: Project,
   b: Project,
   wetland: WetlandNote | null = null,
+  grid: LineCollection | null = null,
 ): Opportunity[] {
   const found: Opportunity[] = [];
   const road = drive(o);
@@ -207,16 +305,57 @@ export function pairOpportunities(
     });
   }
 
-  // Environmental permits, from the wetland screening.
-  if (wetland && wetland.wetlandAcresInCorridor > 0) {
+  // Wetland permits. Each utility needs its own Corps authorization for its own project; what two
+  // projects can share is the fieldwork on common ground and, within one district, a joint application.
+  const starts = startGapMonths(a, b);
+  const sameState = !!a.state && a.state === b.state;
+  const sameGround = o.tier === "crossing" || o.tier === "row";
+  if (wetland && wetland.wetlandAcresInCorridor > 0 && sameState && sameGround && starts != null && starts <= PERMIT_MONTHS) {
+    const traced = a.geometryQuality === "traced" && b.geometryQuality === "traced";
+    const acres = Math.round(wetland.wetlandAcresInCorridor).toLocaleString("en-US");
+    // A joint application needs work of a similar character (33 CFR 325.1(d)(8)).
+    const joint = a.kind === b.kind;
     found.push({
       kind: "permits",
-      strength: "strong",
-      title: "One wetland permit",
+      strength: traced ? "strong" : "possible",
+      title: "Share the wetland survey",
       reason:
-        `About ${Math.round(wetland.wetlandAcresInCorridor).toLocaleString("en-US")} acres of wetland sit where the projects overlap. ` +
-        `One survey and one permit filing could cover both.`,
-      nextStep: "Commission one wetland delineation for the shared corridor.",
+        `Their routes run ${o.tier === "crossing" ? "into each other" : `${kmText(o.distanceKm)} apart`} in ${a.state}, ` +
+        `with about ${acres} acres of mapped wetland around them. One consultant could delineate that ground for both` +
+        `${joint ? ", and one agent can file a joint application for both owners" : ""}. ` +
+        `Each utility still needs its own authorization.`,
+      nextStep: joint
+        ? "Hire one wetland consultant for the shared ground and ask the Corps district about a joint application before either files."
+        : "Hire one wetland consultant for the shared ground before either utility files.",
+      checks: [
+        {
+          label: "Same state",
+          ok: true,
+          note: `Both are in ${a.state}: one state water-quality office, and usually one Corps district.`,
+        },
+        {
+          label: "Same ground",
+          ok: true,
+          note: "Close enough that one delineation covers land both projects work on. A delineation only covers the land surveyed.",
+        },
+        {
+          label: "Permits prepared together",
+          ok: true,
+          note: `They start within ${Math.max(1, Math.round(starts))} months of each other, inside the five years a Corps wetland determination stays valid.`,
+        },
+        {
+          label: "Joint application allowed",
+          ok: joint,
+          note: joint
+            ? "One application may cover more than one owner doing similar work in the same area, through one agent (33 CFR 325.1(d)(8))."
+            : `A ${a.kind} and a ${b.kind} are not similar work, so each utility files its own application.`,
+        },
+        {
+          label: "Wetland actually affected",
+          ok: null,
+          note: "The acreage is from the National Wetlands Inventory, a screening map. Only a field delineation shows what each route touches.",
+        },
+      ],
     });
   }
 
@@ -232,7 +371,8 @@ export function pairOpportunities(
   }
 
   // Crews at the same time, then back to back.
-  const sameBand = voltageBand(a) === voltageBand(b);
+  // A 230/115 kV job includes 115 kV work, so it matches a 115 kV job too.
+  const sameBand = voltageBand(a) === voltageBand(b) || a.voltageKv.some((v) => b.voltageKv.includes(v));
   if (concurrent && (bothLines || bothSubs) && road.km <= CREW_KM && (bothSubs || sameBand)) {
     const sameWork = a.action === b.action && maxKv(a) === maxKv(b);
     const what = bothLines ? "line" : "substation";
@@ -262,7 +402,6 @@ export function pairOpportunities(
   }
 
   // Materials: same conductor, or both adding high-voltage substation equipment.
-  const starts = startGapMonths(a, b);
   if (starts != null && starts <= MATERIALS_MONTHS) {
     const common = bothLines ? conductors(a).find((c) => conductors(b).includes(c)) : undefined;
     const hvKv = bothSubs ? a.voltageKv.filter((v) => v >= 230 && b.voltageKv.includes(v)) : [];
@@ -287,16 +426,68 @@ export function pairOpportunities(
     }
   }
 
-  const rs = rightSizingSides(o, a, b);
+  const rs = rightSizingSides(a, b, grid);
   if (rs) {
+    const { rebuild, driver, meets, higherAtBothEnds } = rs;
+    const kv = maxKv(rebuild);
+    const newKv = maxKv(driver);
+    const miles = rebuild.miles ? `${Math.round(rebuild.miles * 10) / 10} mi ` : "";
+    const wire = conductors(rebuild)[0];
+    const need = statedNeed(rebuild);
+    const option =
+      higherAtBothEnds === true
+        ? `heavier wire, or towers ready for ${kvText(newKv)} (${kvText(newKv)} already reaches both ends)`
+        : "heavier wire";
     found.push({
       kind: "rightSizing",
       strength: "possible",
       title: "Consider a bigger rebuild",
       reason:
-        `${who(rs.rebuild)} is rebuilding a ${kvText(maxKv(rs.rebuild))} line near ${who(rs.driver)}'s new ` +
-        `${kvText(maxKv(rs.driver))} ${rs.driver.kind}. Worth checking if the rebuild should carry more.`,
-      nextStep: "Check whether the rebuild should be sized up for the new load nearby.",
+        `${who(rebuild)} is replacing a ${miles}${kvText(kv)} line (${rebuild.name}) as it is; ` +
+        `${who(driver)}'s new ${kvText(newKv)} ${driver.kind} comes in where it ends (${meets}). ` +
+        `If the new work sends more power down this line, fitting ${option} during the rebuild ` +
+        `costs far less than rebuilding it again later.`,
+      nextStep:
+        `Before ${who(rebuild)} designs the rebuild, ask both planning teams to run the line in their load studies ` +
+        `with the new ${driver.kind} in service.`,
+      checks: [
+        {
+          label: "Replaced for age, not load",
+          ok: true,
+          note: `The filing's reason: "${need ?? "condition"}". So it has not been sized for new load.`,
+        },
+        {
+          label: "Room to carry more",
+          ok: true,
+          note: wire
+            ? `Planned with ${wire}; a high-temperature or larger conductor would carry more.`
+            : "No high-temperature wire or oversized towers in the filing.",
+        },
+        {
+          label: "Connects to the new work",
+          ok: true,
+          note: `${meets[0].toUpperCase()}${meets.slice(1)}, so power from the new ${driver.kind} can flow down this line.`,
+        },
+        ...(newKv > kv
+          ? [
+              {
+                label: `${kvText(newKv)} at both ends`,
+                ok: higherAtBothEnds,
+                note:
+                  higherAtBothEnds === true
+                    ? `Mapped ${kvText(newKv)} lines reach both ends, so the line could later step up in voltage.`
+                    : higherAtBothEnds === false
+                      ? `Not at both ends, so stepping up in voltage would also need new transformers. Heavier wire only.`
+                      : "Could not check the mapped grid.",
+              },
+            ]
+          : []),
+        {
+          label: "Grid needs the extra capacity",
+          ok: null,
+          note: "Only load-flow studies can show this, and the grid models behind them are not public.",
+        },
+      ],
     });
   }
 

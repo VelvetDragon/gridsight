@@ -1,6 +1,12 @@
 "use client";
 
-import { STRENGTH_LABEL, type Opportunity, type OpportunityStrength } from "@/lib/opportunities";
+import { Check, CircleHelp, X } from "lucide-react";
+import {
+  STRENGTH_LABEL,
+  type Opportunity,
+  type OpportunityCheck,
+  type OpportunityStrength,
+} from "@/lib/opportunities";
 import { cx } from "../ui/primitives";
 
 function StrengthTag({ strength }: { strength: OpportunityStrength }) {
@@ -18,6 +24,29 @@ function StrengthTag({ strength }: { strength: OpportunityStrength }) {
   );
 }
 
+/** What was checked before making the suggestion, and what public data cannot show. */
+function Checks({ checks }: { checks: OpportunityCheck[] }) {
+  return (
+    <ul className="mt-2 flex flex-col gap-1.5 rounded-[10px] border border-hairline bg-white/60 px-3 py-2.5">
+      {checks.map((c) => {
+        const Icon = c.ok === true ? Check : c.ok === false ? X : CircleHelp;
+        return (
+          <li key={c.label} className="flex gap-2 text-[12px] leading-[18px]">
+            <Icon
+              aria-label={c.ok === true ? "Checked" : c.ok === false ? "Not met" : "Cannot check"}
+              className={cx("mt-px size-3.5 shrink-0", c.ok === true ? "text-ink" : "text-ink-3")}
+              strokeWidth={2.25}
+            />
+            <span className="text-ink-2">
+              <span className="font-medium text-ink">{c.label}.</span> {c.note}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 /** The specific ways this pair could work together, each with a one-line reason. */
 export function PairOpportunities({ opportunities }: { opportunities: Opportunity[] }) {
   return (
@@ -32,6 +61,7 @@ export function PairOpportunities({ opportunities }: { opportunities: Opportunit
                 <StrengthTag strength={op.strength} />
               </div>
               <p className="mt-1 text-[13px] leading-5 text-ink-2">{op.reason}</p>
+              {op.checks?.length ? <Checks checks={op.checks} /> : null}
             </li>
           ))}
         </ul>

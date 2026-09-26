@@ -1,18 +1,20 @@
 "use client";
 
 import { ACTION_LABEL, fmtKv, fmtMonthYear } from "@/lib/format";
+import { grantSource } from "@/lib/grants";
 import { pairOpportunities } from "@/lib/opportunities";
 import { matchSavings } from "@/lib/savings";
 import { pairSentence } from "@/lib/sentences";
 import type { Project } from "@/lib/types";
 import { CopyMemo, DistanceBlock, SourceLink, YardBlock } from "../plan/MatchDrawer";
 import { MiniGantt } from "../plan/MiniGantt";
-import { fmtMoney, fmtRange, HONEST_NOTE, HowCalculated, rangeSourceLine, SavingsBar } from "../plan/Savings";
+import { DocumentLink, EstimatedTag, fmtMoney, HONEST_NOTE, HowCalculated, SavingsBar } from "../plan/Savings";
 // Call script and voice preview are switched off for now.
 // import { CoordinationCallSlot, ExplainMatchSlot } from "../slots";
 import { ExplainMatchSlot } from "../slots";
 import { More } from "../stormline/StormSections";
 import { CompanyBlock } from "../ui/primitives";
+import { FundingMatchBlock } from "./FundingMatchBlock";
 import { PairOpportunities } from "./PairOpportunities";
 import type { CrosswireState } from "./useCrosswire";
 
@@ -43,10 +45,16 @@ export function PairDetail({ cw }: { cw: CrosswireState }) {
   const o = item.overlap;
   const desc = cw.projectsById.get(o.descId);
   const gpc = cw.projectsById.get(o.gpcId);
-  const saved = matchSavings(o, cw.costRanges);
-  const ranged = saved?.ranged && Math.round(saved.low) !== Math.round(saved.high);
   const wetland = cw.bundle.plan.wetlands?.find((w) => w.overlapId === o.id) ?? null;
-  const opportunities = desc && gpc ? pairOpportunities(o, desc, gpc, wetland) : null;
+  // The agent's signals include a joint grant fit; the rules alone otherwise.
+  const opportunities =
+    desc && gpc
+      ? (cw.signals.get(o.id)?.opportunities ?? pairOpportunities(o, desc, gpc, wetland, cw.bundle.plan.lines))
+      : null;
+  const screens = cw.grantScreens[o.id] ?? [];
+  const funding = cw.funding[o.id] ?? [];
+  const grants = cw.agent.programs.filter((g) => funding.some((m) => m.grantId === g.id));
+  const saved = matchSavings(o, desc, gpc, opportunities ?? undefined);
   const slotProps =
     desc && gpc ? { overlap: o, yours: desc, theirs: gpc, you: cw.bundle.you, neighbor: cw.bundle.neighbor } : null;
 
@@ -72,27 +80,43 @@ export function PairDetail({ cw }: { cw: CrosswireState }) {
 
       {opportunities ? <PairOpportunities opportunities={opportunities} /> : null}
 
-      {saved && saved.central > 0 ? (
+      {saved && saved.total > 0 ? (
         <div className="border-t border-hairline px-5 py-5">
           <p className="display text-[30px] leading-9 font-medium text-ink">
-            {ranged ? fmtRange(saved.low, saved.high) : fmtMoney(saved.central)}
+            {fmtMoney(saved.total)}
+            <EstimatedTag />
           </p>
-          <p className="mt-1 text-[14px] leading-[21px] text-ink-2">
-            could be saved by doing this work together{ranged ? `, most likely about ${fmtMoney(saved.central)}` : ""}.
-          </p>
+          <p className="mt-1 text-[14px] leading-[21px] text-ink-2">could be saved by doing this work together.</p>
           <More label="Where it comes from">
-            <SavingsBar land={saved.land} yard={saved.yard} crew={saved.crew} />
-            <div className="mt-2">
-              <HowCalculated
-                lines={[
-                  rangeSourceLine({ low: saved.low, high: saved.high, total: saved.central, ranged: saved.ranged }),
-                  HONEST_NOTE,
-                  ...(o.cost?.assumptions ?? []),
-                ]}
-              />
+            <SavingsBar land={saved.land} crew={saved.crew} />
+            <p className="mt-2 text-[12px] leading-4 text-ink-3">{HONEST_NOTE}</p>
+            <div className="mt-1.5">
+              <HowCalculated lines={saved.lines} unpriced={saved.unpriced} linked />
             </div>
           </More>
         </div>
+      ) : saved?.unpriced.length ? (
+        <div className="border-t border-hairline px-5 py-5">
+          <p className="display text-[22px] leading-7 font-medium text-ink">Savings, but no dollar figure</p>
+          <p className="mt-1 text-[14px] leading-[21px] text-ink-2">
+            Working together here saves money, but no public source puts a price on it, so it is left out of the
+            totals rather than guessed:
+          </p>
+          <ul className="mt-2 flex list-disc flex-col gap-1 pl-5 text-[13px] leading-5 text-ink-2">
+            {saved.unpriced.map((u) => (
+              <li key={u}>{u}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {desc && gpc && screens.length ? (
+        <FundingMatchBlock
+          screens={screens}
+          programs={cw.agent.programs}
+          projects={[desc, gpc]}
+          utilities={[cw.bundle.you.shortName, cw.bundle.neighbor.shortName]}
+        />
       ) : null}
 
       {slotProps && ExplainMatchSlot ? (
@@ -122,6 +146,26 @@ export function PairDetail({ cw }: { cw: CrosswireState }) {
           <ul className="flex flex-col gap-3">
             {[desc, gpc].map((p) => (p ? <SourceLink key={p.id} project={p} /> : null))}
           </ul>
+          {saved?.sources.length ? (
+            <>
+              <h4 className="mt-4 mb-2 text-[12px] font-semibold text-ink-2">Unit costs behind the estimate</h4>
+              <ul className="flex flex-col gap-3">
+                {saved.sources.map((s) => (
+                  <DocumentLink key={`${s.url}#${s.page}`} source={s} />
+                ))}
+              </ul>
+            </>
+          ) : null}
+          {grants.length ? (
+            <>
+              <h4 className="mt-4 mb-2 text-[12px] font-semibold text-ink-2">Grant programs</h4>
+              <ul className="flex flex-col gap-3">
+                {grants.map((g) => (
+                  <DocumentLink key={g.id} source={grantSource(g)} note={`program page, checked ${g.checked}`} />
+                ))}
+              </ul>
+            </>
+          ) : null}
         </More>
       </div>
 

@@ -16,6 +16,8 @@ import {
   type Opportunity,
   type WetlandNote,
 } from "@/lib/opportunities";
+import { fundingMatches, fundingOpportunity, GRANT_CATALOG, UTILITY_OWNERSHIP, type FundingMatch } from "@/lib/grants";
+import { matchSavings, type MatchSavings } from "@/lib/savings";
 import type { Overlap, Project } from "@/lib/types";
 import type { ExplainMemo, ExplainResult } from "@/lib/integrations/explain";
 import { readDataFile, type DataOrigin } from "./dataFiles";
@@ -43,13 +45,6 @@ const TIER_LABEL: Record<Overlap["tier"], string> = {
   crew: "crews",
 };
 
-interface CostRange {
-  overlapId: string;
-  lowUsd: number;
-  centralUsd: number;
-  highUsd: number;
-}
-
 /** A utility on one side of the match. */
 export interface Party {
   name: string;
@@ -63,9 +58,12 @@ export interface MatchData {
   desc: Project;
   /** The neighbour's project (map slot "GPC"). */
   gpc: Project;
-  range: CostRange | null;
+  /** Estimated saving from published unit costs (lib/savings). */
+  saved: MatchSavings | null;
   /** The pair's specific ways to work together (lib/opportunities), strongest first. */
   opportunities: Opportunity[];
+  /** Grant programs the pair meets every public requirement of (lib/grants, verified list, by rule). */
+  funding: FundingMatch[];
   origin: DataOrigin;
   names: { a: Party; b: Party };
 }
@@ -108,15 +106,14 @@ function party(u: MatchInput["you"], fallback: Party): Party {
 /** Resolve an overlap id (DESC / Georgia Power plan) or a full match sent by the browser. */
 export async function resolveMatch(input: string | MatchInput): Promise<MatchData> {
   if (typeof input === "string") return loadMatch(input);
-  // A pair the server already knows keeps its cost range and pipeline data.
+  // A pair the server already knows keeps its pipeline data.
   const known = await loadMatch(input.overlap.id).catch(() => null);
   if (known && known.desc.id === input.yours.id && known.gpc.id === input.theirs.id) return known;
   return {
     overlap: input.overlap,
     desc: input.yours,
     gpc: input.theirs,
-    range: null,
-    opportunities: pairOpportunities(input.overlap, input.yours, input.theirs),
+    ...withSavings(input.overlap, input.yours, input.theirs, pairOpportunities(input.overlap, input.yours, input.theirs)),
     origin: "pipeline",
     names: { a: party(input.you, { name: "Your utility", short: "your utility" }), b: party(input.neighbor, { name: "The neighbor", short: "the neighbor" }) },
   };
@@ -135,13 +132,19 @@ export async function loadMatch(overlapId: string): Promise<MatchData> {
   const desc = projects.data.find((p) => p.id === overlap.descId);
   const gpc = projects.data.find((p) => p.id === overlap.gpcId);
   if (!desc || !gpc) throw new UnknownOverlapError(`Projects for overlap "${overlapId}" are missing`);
-  const ranges = await readDataFile<CostRange[]>("plan/insights/cost-ranges.json", { fixtures: false });
-  const range = Array.isArray(ranges?.data) ? ranges.data.find((r) => r.overlapId === overlapId) ?? null : null;
   const wetlands = await readDataFile<WetlandNote[]>("plan/insights/wetlands.json", { fixtures: false });
   const wetland = isWetlandNoteList(wetlands?.data) ? wetlands.data.find((w) => w.overlapId === overlapId) ?? null : null;
   const opportunities = pairOpportunities(overlap, desc, gpc, wetland);
   const origin: DataOrigin = overlaps.origin === "pipeline" && projects.origin === "pipeline" ? "pipeline" : "sample";
-  return { overlap, desc, gpc, range, opportunities, origin, names: CORE_NAMES };
+  return { overlap, desc, gpc, ...withSavings(overlap, desc, gpc, opportunities), origin, names: CORE_NAMES };
+}
+
+function withSavings(o: Overlap, desc: Project, gpc: Project, base: Opportunity[]) {
+  const owned = (p: Project) => ({ ...p, ownership: UTILITY_OWNERSHIP[p.utility === "DESC" ? "desc" : "georgia-power"] ?? null });
+  const funding = fundingMatches(owned(desc), owned(gpc), base);
+  const joint = fundingOpportunity(funding, GRANT_CATALOG);
+  const opportunities = joint ? [...base, joint] : base;
+  return { opportunities, funding, saved: matchSavings(o, desc, gpc, opportunities) };
 }
 
 /* ---------------------------------------------------------------- formatting */
@@ -191,17 +194,14 @@ export function distanceText(o: Overlap): string {
   return `They come within ${o.distanceKm.toFixed(1)} km of each other${road}`;
 }
 
-export function savings(o: Overlap, range: CostRange | null): string | null {
-  const central = range?.centralUsd ?? o.cost?.totalUsd ?? 0;
-  if (!central) return null;
-  const spread = range && range.highUsd > range.lowUsd ? ` (range ${usd(range.lowUsd)} to ${usd(range.highUsd)})` : "";
-  return `${usd(central)} central estimate${spread}`;
+export function savings(saved: MatchSavings | null): string | null {
+  return saved && saved.total > 0 ? `about ${usd(Math.round(saved.total / 1000) * 1000)} (estimated)` : null;
 }
 
 /* ---------------------------------------------------------------- template */
 
 export function templateExplanation(m: MatchData): Omit<ExplainResult, "cached" | "generatedAt"> {
-  const { overlap: o, desc, gpc, range } = m;
+  const { overlap: o, desc, gpc, saved } = m;
   const { a, b } = m.names;
   const where = place(o.summary);
   const months = Math.round(o.timelineOverlapMonths);
@@ -214,7 +214,7 @@ export function templateExplanation(m: MatchData): Omit<ExplainResult, "cached" 
     ? ops.map((op) => `${op.title} (${STRENGTH_LABEL[op.strength].toLowerCase()}): ${op.reason}`).join("\n")
     : "Nothing specific beyond being close to each other.";
   const nextStep = ops[0]?.nextStep ?? "A short call between the two project leads to compare routes and build dates.";
-  const save = savings(o, range);
+  const save = savings(saved);
   const hasYard = m.opportunities.some((op) => op.kind === "yard");
   const yard = hasYard && o.stagingYard && o.stagingYard.driveMinutesDesc > 0
     ? `One staging yard at ${o.stagingYard.position[1].toFixed(4)}, ${o.stagingYard.position[0].toFixed(4)} is about ${Math.round(o.stagingYard.driveMinutesDesc)} min from the ${a.short} job and ${Math.round(o.stagingYard.driveMinutesGpc)} min from the ${b.short} job.`
@@ -237,8 +237,8 @@ export function templateExplanation(m: MatchData): Omit<ExplainResult, "cached" 
     `Why it matters: ${distanceText(o)}, so ${TIER_WHY[o.tier]}. ${timing}`,
     `Ways to work together:\n${ways}${yard ? `\n${yard}` : ""}`,
     save
-      ? `Rough savings: ${save}, from shared mobilization, yards and land. These are planning-level figures from public unit costs, not utility budgets.`
-      : "Rough savings: not estimated for this pair.",
+      ? `Estimated savings: ${save}, from ${list([saved!.crew > 0 ? "one crew setup not paid twice" : "", saved!.land > 0 ? "land and permits on a shared route" : ""])}. Priced with MISO's published transmission unit costs in 2026 dollars, not utility budgets.`
+      : "Estimated savings: nothing this pair could share has a published price.",
     `Caveat: ${caveat}`,
     `Suggested next step: ${nextStep}`,
     SIGN_OFF,
@@ -248,7 +248,7 @@ export function templateExplanation(m: MatchData): Omit<ExplainResult, "cached" 
     `${distanceText(o)}${where ? ` near ${where}` : ""}.`,
     months > 0 ? `Build windows overlap by about ${months} months.` : "Build windows are close but do not overlap.",
     ...(ops.length ? ops.slice(0, 3).map((op) => op.reason) : ["No specific shared work found beyond being close."]),
-    save ? `Rough savings: ${save}.` : null,
+    save ? `Estimated savings: ${save}.` : null,
     caveat,
   ].filter((x): x is string => Boolean(x));
 
@@ -266,7 +266,7 @@ export function templateExplanation(m: MatchData): Omit<ExplainResult, "cached" 
 /* ---------------------------------------------------------------- Gemini */
 
 export function facts(m: MatchData) {
-  const { overlap: o, desc, gpc, range } = m;
+  const { overlap: o, desc, gpc } = m;
   const project = (p: Project, who: Party) => ({
     utility: who.name === who.short ? who.name : `${who.name} (${who.short})`,
     name: p.name,
@@ -299,12 +299,22 @@ export function facts(m: MatchData) {
         nextStep: op.nextStep,
       })),
       stagingYard: m.opportunities.some((op) => op.kind === "yard") ? o.stagingYard : null,
-      savingsUsd: range
-        ? { low: range.lowUsd, central: range.centralUsd, high: range.highUsd }
-        : o.cost
-          ? { central: o.cost.totalUsd }
-          : null,
-      costAssumptions: o.cost?.assumptions?.slice(0, 4) ?? [],
+      estimatedSavingsUsd: m.saved && m.saved.total > 0 ? Math.round(m.saved.total) : null,
+      howSavingsWereEstimated: m.saved?.lines ?? [],
+      notPriced: m.saved?.unpriced ?? [],
+      grantPrograms: m.funding.map((f) => {
+        const g = GRANT_CATALOG.find((x) => x.id === f.grantId);
+        return {
+          program: g?.name ?? f.grantId,
+          fit: f.fit === "joint" ? "one joint application for both projects" : "each utility could apply for its own project",
+          projectsThatMeetEveryPublicRequirement: f.checks.filter((c) => c.verdict === "fits").map((c) => c.projectId),
+          utilityMustStillConfirm: [
+            ...new Set(f.checks.flatMap((c) => c.results.filter((r) => r.status === "confirm").map((r) => r.text))),
+          ],
+          roundOpenNow: g?.open ?? null,
+          latestRound: g?.status ?? null,
+        };
+      }),
       existingSummary: o.summary,
     },
     utilityA: project(desc, m.names.a),
@@ -323,6 +333,9 @@ Rules:
 - Suggest the first item's nextStep as the next step when there is one.
 - If the routes are uncertain (robustness "uncertain"), say so once.
 - Savings are planning-level estimates from public unit costs, not utility budgets; say that if you cite them.
+- If overlap.grantPrograms is not empty, you may name those programs in one sentence. Grants are competitive: never
+  promise an award or give an amount, say if no round is open (roundOpenNow false), and note that the utility must
+  still confirm the items in utilityMustStillConfirm.
 - The memo body is 150 to 250 words, addressed to both teams, and ends with the exact line: "${SIGN_OFF}"`;
 
 const RESPONSE_SCHEMA = {
@@ -412,7 +425,7 @@ export async function explainOverlap(input: string | MatchInput): Promise<Explai
   }
 
   const f = facts(match);
-  const key = createHash("sha1").update(JSON.stringify({ f, models: geminiModels(), v: 2 })).digest("hex");
+  const key = createHash("sha1").update(JSON.stringify({ f, models: geminiModels(), v: 5 })).digest("hex");
   const hit = memoryCache.get(key) ?? (await diskGet(key));
   if (hit) {
     memoryCache.set(key, hit);

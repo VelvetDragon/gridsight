@@ -4,7 +4,8 @@ import { X } from "lucide-react";
 import { DEFAULT_WEIGHTS } from "@/lib/ranking";
 import { UTILITY_HEX, UTILITY_NAME } from "@/lib/theme";
 import type { Project } from "@/lib/types";
-import { fmtMoney, HONEST_NOTE, HowCalculated, rangeSourceLine, SavingsBar, SavingsHeadline } from "../plan/Savings";
+import { SAVINGS_METHOD } from "@/lib/savings";
+import { DocumentLink, HONEST_NOTE, HowCalculated, SavingsBar, SavingsHeadline } from "../plan/Savings";
 import { More } from "../stormline/StormSections";
 import { Slider } from "../ui/primitives";
 import type { CrosswireState } from "./useCrosswire";
@@ -61,16 +62,13 @@ export function PairsSavings({ cw }: { cw: CrosswireState }) {
   if (savings.count <= 0) return null;
   return (
     <div className="border-b border-hairline px-5 py-5">
-      <SavingsHeadline summary={savings} caption={false} />
+      <SavingsHeadline summary={savings} />
       <p className="mt-1.5 text-[14px] leading-[21px] text-ink-2">
-        could be saved if {UTILITY_NAME.DESC} and {UTILITY_NAME.GPC} work together on these {savings.count} pairs
-        {savings.rangedCount > 0 && Math.round(savings.low) !== Math.round(savings.high)
-          ? `; most likely about ${fmtMoney(savings.total)}`
-          : ""}
-        .
+        could be saved if {UTILITY_NAME.DESC} and {UTILITY_NAME.GPC} work together on{" "}
+        {savings.count === 1 ? "one of these pairs" : `${savings.count} of these pairs`}.
       </p>
       <More label="Where the savings come from">
-        <SavingsBar land={savings.land} yard={savings.yard} crew={savings.crew} />
+        <SavingsBar land={savings.land} crew={savings.crew} />
         {savings.acres > 0 ? (
           <p className="mt-2 text-[13px] text-ink-2">
             They would share about {savings.acres.toFixed(1)} acres of land.
@@ -80,12 +78,26 @@ export function PairsSavings({ cw }: { cw: CrosswireState }) {
         <div className="mt-1.5">
           <HowCalculated
             lines={[
-              rangeSourceLine({ ...savings, ranged: savings.rangedCount > 0 }),
-              HONEST_NOTE,
-              ...cw.savingsAssumptions,
+              ...SAVINGS_METHOD,
+              ...(savings.repeats
+                ? [
+                    `${savings.repeats} pair${savings.repeats === 1 ? " shares a job" : "s share jobs"} with other pairs, so ${savings.repeats === 1 ? "its" : "their"} crew setup is counted once.`,
+                  ]
+                : []),
             ]}
+            linked
           />
         </div>
+        {savings.sources.length ? (
+          <>
+            <h4 className="mt-4 mb-2 text-[12px] font-semibold text-ink-2">Where this comes from</h4>
+            <ul className="flex flex-col gap-3">
+              {savings.sources.map((s) => (
+                <DocumentLink key={`${s.url}#${s.page}`} source={s} />
+              ))}
+            </ul>
+          </>
+        ) : null}
       </More>
     </div>
   );
@@ -95,6 +107,19 @@ export function PairsSavings({ cw }: { cw: CrosswireState }) {
 export function RankingControls({ cw }: { cw: CrosswireState }) {
   return (
     <div className="flex flex-col gap-3">
+      <p className="text-[12px] leading-4 text-ink-3">
+        Pairs with a way to work together always come first. Within that, the sliders set how much each part counts.
+      </p>
+      <Slider
+        label="Ways to work together"
+        value={cw.weights.sharing}
+        onChange={(v) => cw.setWeights({ ...cw.weights, sharing: v })}
+      />
+      <Slider
+        label="Estimated savings"
+        value={cw.weights.savings}
+        onChange={(v) => cw.setWeights({ ...cw.weights, savings: v })}
+      />
       <Slider
         label="How close they are"
         value={cw.weights.distance}
