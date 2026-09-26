@@ -1,0 +1,54 @@
+# DigitalOcean App Platform spec for MrGridy.
+#   doctl apps create --spec .do/app.yaml          (first deploy)
+#   doctl apps update <app-id> --spec .do/app.yaml (later changes)
+# Set the SECRET values in the DigitalOcean console (Settings > App-Level or
+# Component Environment Variables) or with `doctl apps update`; never commit them.
+name: mrgridy
+region: nyc
+services:
+  - name: web
+    github:
+      repo: VelvetDragon/gridsight
+      branch: main
+      deploy_on_push: true
+    environment_slug: node-js
+    build_command: npm ci && npm run build
+    run_command: npm start
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 10
+      period_seconds: 15
+      timeout_seconds: 5
+      failure_threshold: 6
+    envs:
+      - key: NODE_ENV
+        value: production
+        scope: RUN_AND_BUILD_TIME
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+        scope: RUN_AND_BUILD_TIME
+      - key: GEMINI_API_KEY
+        value: REPLACE_IN_CONSOLE
+        type: SECRET
+        scope: RUN_TIME
+      - key: GEMINI_MODEL
+        value: gemini-3.8-flash
+        scope: RUN_TIME
+      - key: TIGER_DATABASE_URL
+        value: REPLACE_IN_CONSOLE
+        type: SECRET
+        scope: RUN_TIME
+      # Narration MP3s are generated offline (pipeline/scripts/narrate.py) and
+      # committed to public/audio, so the ElevenLabs key is not needed at run time.
+      # It is listed so the whole team's secrets live in one place.
+      - key: ELEVENLABS_API_KEY
+        value: REPLACE_IN_CONSOLE
+        type: SECRET
+        scope: RUN_TIME
+      - key: ELEVENLABS_VOICE_ID
+        value: REPLACE_IN_CONSOLE
+        type: SECRET
+        scope: RUN_TIME
