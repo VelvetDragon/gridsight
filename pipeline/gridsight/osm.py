@@ -112,11 +112,16 @@ def _lines_tile(tb: tuple[float, float, float, float], depth: int = 0) -> list[d
 way["power"="line"]{bbox_filter(tb)};
 out geom tags;
 """
+    split_flag = _CACHE / f"split-{hashlib.sha1(q.encode()).hexdigest()}.flag"
     try:
+        if split_flag.exists() and depth < 2:
+            raise RuntimeError("tile previously too large; splitting")
         return overpass(q, retries=3 if depth < 2 else 6).get("elements", [])
     except RuntimeError:
         if depth >= 2:
             raise
+        _CACHE.mkdir(parents=True, exist_ok=True)
+        split_flag.touch()
         lon_min, lat_min, lon_max, lat_max = tb
         mx, my = (lon_min + lon_max) / 2, (lat_min + lat_max) / 2
         out: list[dict] = []
