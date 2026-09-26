@@ -7,10 +7,10 @@
  * 3. Static estimate: a rise-and-restore shape scaled to each county's peak in
  *    public/data/response/<storm>/counties.json, timed by the storm track.
  */
-import type { Pool } from "pg";
 import type { CountyOutage, Position, Storm, StormIndexEntry } from "@/lib/types";
 import type { OutageCurve, OutagePoint } from "@/lib/integrations/outages";
-import { readDataFile, serverEnv } from "./dataFiles";
+import { readDataFile } from "./dataFiles";
+import { markTigerDown, tigerPool } from "./tiger";
 
 const HOUR = 3_600_000;
 const STATE_NAME = { GA: "Georgia", SC: "South Carolina" } as const;
@@ -86,33 +86,10 @@ function finish(q: OutageQuery, meta: Awaited<ReturnType<typeof describe>>, poin
 
 /* ---------------------------------------------------------------- Tiger Data */
 
-const globalForPg = globalThis as unknown as { __mrgridyPool?: Pool; __mrgridyPgDownUntil?: number };
-
-async function pool(url: string): Promise<Pool> {
-  if (!globalForPg.__mrgridyPool) {
-    const { Pool } = await import("pg");
-    globalForPg.__mrgridyPool = new Pool({
-      connectionString: url,
-      max: 4,
-      connectionTimeoutMillis: 4000,
-      idleTimeoutMillis: 30_000,
-      query_timeout: 8000,
-      application_name: "mrgridy-web",
-    });
-    globalForPg.__mrgridyPool.on("error", () => {
-      /* idle client dropped; the next query reconnects */
-    });
-  }
-  return globalForPg.__mrgridyPool;
-}
-
 async function fromTiger(q: OutageQuery): Promise<OutagePoint[] | null> {
-  const url = serverEnv("TIGER_DATABASE_URL");
-  if (!url) return null;
-  // After a failed connection, skip the database for a minute instead of slowing every request.
-  if ((globalForPg.__mrgridyPgDownUntil ?? 0) > Date.now()) return null;
+  const db = await tigerPool();
+  if (!db) return null;
   try {
-    const db = await pool(url);
     const { rows } = q.fips
       ? await db.query<{ bucket: Date; out: string }>(
           // Every hour with any report from the county's state; a county absent from it had no outage.
@@ -132,8 +109,7 @@ async function fromTiger(q: OutageQuery): Promise<OutagePoint[] | null> {
     if (!rows.length) return null;
     return fillHours(rows.map((r) => ({ t: new Date(r.bucket).toISOString(), out: Number(r.out) || 0 })));
   } catch (err) {
-    globalForPg.__mrgridyPgDownUntil = Date.now() + 60_000;
-    console.warn(`[outages] Tiger Data query failed, using static data: ${(err as Error).message}`);
+    markTigerDown(err, "outage query");
     return null;
   }
 }
