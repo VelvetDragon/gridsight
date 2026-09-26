@@ -6,6 +6,7 @@ import { FALLBACK_IDS } from "@/lib/catalog";
 import { UTILITY_NAME } from "@/lib/theme";
 import { FindUtility } from "../crosswire/FindUtility";
 import { useCrosswire } from "../crosswire/useCrosswire";
+import { CrosswireAgent } from "../crosswire/CrosswireAgent";
 import type { MapPadding } from "../map/MapCanvas";
 import type { PlanSceneProps } from "../map/planScene";
 import { MapKey, planKeyRows } from "../MapKey";
@@ -152,6 +153,7 @@ export function CrossBoard() {
                   />
                 </div>
               ) : null}
+              <CrosswireAgent cw={cw} />
               <p className="pointer-events-none absolute bottom-2.5 left-3 z-10 rounded-full bg-white/85 px-2.5 py-1 text-[12px] text-ink-2">
                 Click a line to pick it; shift-click to pick several
               </p>
