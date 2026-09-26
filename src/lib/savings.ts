@@ -37,7 +37,16 @@ export interface CostRange {
   lowUsd: number;
   centralUsd: number;
   highUsd: number;
-  components?: { land?: number; mobilization?: number; yard?: number; permits?: number };
+  /** Each part is either a single number or a { low, central, high } range. */
+  components?: Partial<Record<"land" | "mobilization" | "yard" | "permits", CostPart>>;
+}
+
+type CostPart = number | { low?: number; central?: number; high?: number };
+
+/** Central value of a cost component, 0 when missing or not a finite number. */
+function partValue(v: CostPart | undefined): number {
+  const n = typeof v === "number" ? v : v?.central;
+  return typeof n === "number" && Number.isFinite(n) ? n : 0;
 }
 
 export function isCostRangeList(v: unknown): v is CostRange[] {
@@ -68,9 +77,9 @@ export function matchSavings(o: Overlap, ranges: CostRanges | null): MatchSaving
       low: r.lowUsd,
       central: r.centralUsd,
       high: r.highUsd,
-      land: hasParts ? (c.land ?? 0) + (c.permits ?? 0) : (o.cost?.landSavingsUsd ?? 0),
-      yard: hasParts ? (c.yard ?? 0) : (o.cost?.yardSavingsUsd ?? 0),
-      crew: hasParts ? (c.mobilization ?? 0) : (o.cost?.mobilizationSavingsUsd ?? 0),
+      land: hasParts ? partValue(c.land) + partValue(c.permits) : (o.cost?.landSavingsUsd ?? 0),
+      yard: hasParts ? partValue(c.yard) : (o.cost?.yardSavingsUsd ?? 0),
+      crew: hasParts ? partValue(c.mobilization) : (o.cost?.mobilizationSavingsUsd ?? 0),
       ranged: true,
     };
   }

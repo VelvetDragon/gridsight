@@ -63,7 +63,7 @@ export function SavingsBar({ land, yard, crew }: { land: number; yard: number; c
         )}
       </div>
       <ul className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] leading-4 text-ink-2">
-        {parts.map((p) => (
+        {parts.filter((p) => p.v > 0).map((p) => (
           <li key={p.k} className="flex items-center gap-1.5">
             <span aria-hidden className="h-2 w-2 rounded-[2px]" style={{ background: PART_COLOR[p.k] }} />
             {PART_LABEL[p.k]} <span className="num text-ink">{fmtMoney(p.v)}</span>
@@ -185,8 +185,12 @@ export function SavingsCard({
         <SavingsHeadline summary={summary} />
       </div>
       <p className="mt-1 text-[12px] leading-4 text-ink-3">
-        <span className="num text-ink-2">{summary.count}</span> matches ·{" "}
-        <span className="num text-ink-2">{summary.acres.toFixed(1)}</span> acres of land shared
+        <span className="num text-ink-2">{summary.count}</span> matches
+        {summary.acres >= 0.1 && (
+          <>
+            {" "}· <span className="num text-ink-2">{summary.acres.toFixed(1)}</span> acres of land shared
+          </>
+        )}
       </p>
       <div className="mt-3">
         <SavingsBar land={summary.land} yard={summary.yard} crew={summary.crew} />
