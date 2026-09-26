@@ -2,17 +2,35 @@
 
 import type { Layer, PickingInfo } from "@deck.gl/core";
 import { PathStyleExtension, type PathStyleExtensionProps } from "@deck.gl/extensions";
-import { PathLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
+import { PathLayer, ScatterplotLayer } from "@deck.gl/layers";
 import type { ReactNode } from "react";
 import type { LineCollection, PlanData } from "@/lib/data";
 import { fmtKm, fmtKv, fmtMonthYear } from "@/lib/format";
 import { midpoint } from "@/lib/geo";
 import type { RankedOverlap } from "@/lib/ranking";
-import { INK, RIVER, TIER_HEX, TIER_LABEL, TIER_RGB, UTILITY_RGB, type RGB } from "@/lib/theme";
+import {
+  INK,
+  RIVER,
+  TIER_HEX,
+  TIER_RGB,
+  tierFull,
+  UTILITY_HEX,
+  UTILITY_NAME,
+  UTILITY_RGB,
+  type RGB,
+} from "@/lib/theme";
 import { phaseAt } from "@/lib/timeline";
 import type { Overlap, Position, Project } from "@/lib/types";
 import { TIER_LIMIT_KM } from "@/lib/types";
 import type { MapMarker } from "./MapCanvas";
+import {
+  distanceLabel,
+  pointAlong,
+  projectLabel,
+  ringLabel,
+  stateLabelMarkers,
+  yardMarker,
+} from "./mapLabels";
 
 export interface PlanSceneProps {
   data: PlanData;
@@ -164,22 +182,6 @@ export function buildPlanLayers(props: PlanSceneProps): Layer[] {
         lineWidthUnits: "pixels",
         updateTriggers: { getPosition: selectedId },
       }),
-      new TextLayer<(typeof rings)[number]>({
-        id: "tier-ring-labels",
-        data: rings,
-        getPosition: (d) => [d.center[0], d.center[1] + d.km / 110.9],
-        getText: (d) => (d.tier === "row" ? "1.6 km" : `${d.km} km`),
-        getSize: 11,
-        getColor: [...INK, 200],
-        getPixelOffset: [0, -8],
-        fontFamily: "Geist Mono, ui-monospace, monospace",
-        fontWeight: 500,
-        background: true,
-        getBackgroundColor: [250, 248, 244, 220],
-        backgroundPadding: [4, 2],
-        backgroundBorderRadius: 4,
-        updateTriggers: { getPosition: selectedId },
-      }),
     );
   }
 
@@ -267,21 +269,42 @@ export function buildPlanLayers(props: PlanSceneProps): Layer[] {
 export function planMarkers(props: PlanSceneProps): MapMarker[] {
   const { ranked, selectedId, radarMonth, projectsById } = props;
   const markers: MapMarker[] = [];
+  markers.push(...stateLabelMarkers());
   const selected = ranked.find((r) => r.overlap.id === selectedId)?.overlap;
-  if (selected?.stagingYard) {
-    const y = selected.stagingYard;
-    markers.push({
-      id: `yard-${selected.id}`,
-      position: y.position,
-      node: (
-        <div className="flex items-center gap-1.5 rounded-[7px] border border-hairline-strong bg-white/95 py-[3px] pr-2 pl-[3px] text-[12px] font-medium text-ink shadow-[var(--shadow-float)]">
-          <span className="flex h-[18px] w-[18px] items-center justify-center rounded-[5px] bg-ink text-[10px] font-semibold text-white">
-            Y
-          </span>
-          Staging yard
-        </div>
-      ),
-    });
+  if (selected) {
+    const mid = midpoint(selected.closestPoints[0], selected.closestPoints[1]);
+    const rings: [number, string][] = [
+      [1.6, "1.6 km · share land"],
+      [8, "8 km · share yards"],
+      [40, "40 km · share crews"],
+    ];
+    for (const [km, text] of rings) {
+      // The small ring is labelled at its south edge, the big ones at the north-east,
+      // so the labels stay clear of each other and of the pair's own labels.
+      const angle = km < 2 ? -Math.PI / 2 : Math.PI / 4;
+      const dx = (km * Math.cos(angle)) / (111.32 * Math.cos((mid[1] * Math.PI) / 180));
+      const dy = (km * Math.sin(angle)) / 110.9;
+      markers.push(ringLabel(`ring-${km}`, [mid[0] + dx, mid[1] + dy], text, km < 2 ? "below" : "on"));
+    }
+    const sides: ["DESC" | "GPC", string, number, "above" | "below"][] = [
+      ["DESC", selected.descId, 0, "above"],
+      ["GPC", selected.gpcId, 1, "below"],
+    ];
+    for (const [utility, pid, idx, placement] of sides) {
+      const p = projectsById.get(pid);
+      if (!p) continue;
+      const at =
+        p.geometry.type === "Point"
+          ? p.geometry.coordinates
+          : pointAlong(p.geometry.coordinates, selected.closestPoints[idx]);
+      markers.push(projectLabel(`label-${utility}`, at, utility, p.name, placement));
+    }
+    markers.push(distanceLabel("distance", mid, selected.distanceKm, selected.distanceKm === 0));
+    if (selected.stagingYard) {
+      markers.push(
+        yardMarker(`yard-${selected.id}`, selected.stagingYard.position, "Shared yard", selected.stagingYard.label),
+      );
+    }
   }
   if (radarMonth != null) {
     for (const r of ranked) {
@@ -338,7 +361,7 @@ export function planTooltip(info: PickingInfo, props: PlanSceneProps): ReactNode
     return (
       <>
         <div className="eyebrow mb-1">
-          #{rank} · {TIER_LABEL[o.tier]} · <span className="num">{fmtKm(o.distanceKm)}</span>
+          Pair #{rank} · {tierFull(o.tier)} · <span className="num">{fmtKm(o.distanceKm)}</span> apart
         </div>
         <div className="text-[13px] leading-[18px] text-ink">
           {a?.name ?? o.descId}
@@ -352,12 +375,12 @@ export function planTooltip(info: PickingInfo, props: PlanSceneProps): ReactNode
     const p = info.object as Project;
     return (
       <>
-        <div className="eyebrow mb-1" style={{ color: p.utility === "DESC" ? "#0E7C7B" : "#C2410C" }}>
-          {p.utility === "DESC" ? "DESC" : "Georgia Power"} · {p.kind}
+        <div className="mb-1 text-[12px] font-semibold" style={{ color: UTILITY_HEX[p.utility] }}>
+          {UTILITY_NAME[p.utility]} · {p.kind === "line" ? "power line" : "substation"}
         </div>
         <div className="text-[13px] leading-[18px] font-medium text-ink">{p.name}</div>
-        <div className="num mt-0.5 text-[12px] text-ink-3">
-          {fmtKv(p.voltageKv)} · in service {fmtMonthYear(p.inService)}
+        <div className="mt-0.5 text-[12px] text-ink-3">
+          {fmtKv(p.voltageKv)} · ready {fmtMonthYear(p.inService)}
         </div>
       </>
     );
