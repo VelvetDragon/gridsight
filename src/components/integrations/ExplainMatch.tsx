@@ -3,13 +3,15 @@
 /**
  * "Explain this match" for the match drawer.
  *
- *   <ExplainMatch overlapId={overlap.id} />
+ *   <ExplainMatch overlapId={overlap.id} />                         // DESC / Georgia Power plan
+ *   <ExplainMatch match={{ overlap, yours, theirs, you, neighbor }} /> // any two catalog utilities
  *
  * Calls POST /api/explain (Gemini server-side, template fallback) and shows a
  * summary, talking points and a coordination memo with Copy and Download .txt.
  */
 import { useRef, useState } from "react";
 import { Check, Copy, Download, LoaderCircle, Sparkles } from "lucide-react";
+import type { MatchRequest } from "@/lib/integrations/call";
 import { fetchExplanation, memoAsText, type ExplainResult } from "@/lib/integrations/explain";
 
 function cx(...parts: (string | false | null | undefined)[]) {
@@ -27,7 +29,17 @@ function fileName(result: ExplainResult) {
   return `mrgridy-memo-${slug || "match"}.txt`;
 }
 
-export function ExplainMatch({ overlapId, className }: { overlapId: string; className?: string }) {
+export function ExplainMatch({
+  overlapId: givenId,
+  match,
+  className,
+}: {
+  overlapId?: string;
+  match?: MatchRequest;
+  className?: string;
+}) {
+  const request: MatchRequest = match ?? givenId ?? "";
+  const overlapId = typeof request === "string" ? request : request.overlap.id;
   // State is keyed by overlap so switching matches resets the card without an effect.
   const [entry, setEntry] = useState<{ id: string; status: Status }>({ id: overlapId, status: { kind: "idle" } });
   const [copied, setCopied] = useState(false);
@@ -41,7 +53,7 @@ export function ExplainMatch({ overlapId, className }: { overlapId: string; clas
     const id = overlapId;
     setEntry({ id, status: { kind: "loading" } });
     try {
-      const result = await fetchExplanation(id, ctrl.signal);
+      const result = await fetchExplanation(request, ctrl.signal);
       setEntry({ id, status: { kind: "done", result } });
     } catch (err) {
       if (ctrl.signal.aborted) return;

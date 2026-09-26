@@ -3,15 +3,16 @@
 /**
  * "Hear the coordination call" for the match drawer.
  *
- *   <CoordinationCall overlapId={overlap.id} />
+ *   <CoordinationCall overlapId={overlap.id} />                         // DESC / Georgia Power plan
+ *   <CoordinationCall match={{ overlap, yours, theirs, you, neighbor }} /> // any two catalog utilities
  *
- * POST /api/call returns a short call between a Dominion Energy SC planner and
- * a Georgia Power planner (Gemini script, ElevenLabs two-voice audio) and this
- * plays it with a live transcript. Without audio it still shows the transcript.
+ * POST /api/call returns a short call between the two utilities' planners
+ * (Gemini script, ElevenLabs two-voice audio) and this plays it with a live
+ * transcript. Without audio it still shows the transcript.
  */
 import { useEffect, useRef, useState } from "react";
 import { LoaderCircle, Pause, Phone, Play } from "lucide-react";
-import { fetchCall, type CoordinationCall as Call } from "@/lib/integrations/call";
+import { fetchCall, type CoordinationCall as Call, type MatchRequest } from "@/lib/integrations/call";
 import { narration } from "@/lib/integrations/narration";
 
 function cx(...parts: (string | false | null | undefined)[]) {
@@ -35,7 +36,17 @@ function lineAt(call: Call, t: number): number {
   return words.length - 1;
 }
 
-export function CoordinationCall({ overlapId, className }: { overlapId: string; className?: string }) {
+export function CoordinationCall({
+  overlapId: givenId,
+  match,
+  className,
+}: {
+  overlapId?: string;
+  match?: MatchRequest;
+  className?: string;
+}) {
+  const request: MatchRequest = match ?? givenId ?? "";
+  const overlapId = typeof request === "string" ? request : request.overlap.id;
   const [entry, setEntry] = useState<{ id: string; status: Status }>({ id: overlapId, status: { kind: "idle" } });
   const status: Status = entry.id === overlapId ? entry.status : { kind: "idle" };
   const [playing, setPlaying] = useState(false);
@@ -54,7 +65,7 @@ export function CoordinationCall({ overlapId, className }: { overlapId: string; 
     const id = overlapId;
     setEntry({ id, status: { kind: "loading" } });
     try {
-      const call = await fetchCall(id);
+      const call = await fetchCall(request);
       setEntry({ id, status: { kind: "ready", call } });
       if (call.audioUrl) play(call);
     } catch (err) {

@@ -8,6 +8,7 @@
  */
 import type { ComponentType } from "react";
 import type { CatalogUtility, Overlap, Project } from "@/lib/types";
+import { CoordinationCallForPair, ExplainMatchForPair } from "./integrations/slotAdapters";
 
 export interface MatchSlotProps {
   overlap: Overlap;
@@ -22,7 +23,7 @@ export interface MatchSlotProps {
 export type SlotComponent<P> = ComponentType<P>;
 
 /** Gemini "Explain this match" (integrations teammate). */
-export const ExplainMatchSlot: SlotComponent<MatchSlotProps> | null = null;
+export const ExplainMatchSlot: SlotComponent<MatchSlotProps> | null = ExplainMatchForPair;
 
 /** "Hear the coordination call" audio (integrations teammate). */
-export const CoordinationCallSlot: SlotComponent<MatchSlotProps> | null = null;
+export const CoordinationCallSlot: SlotComponent<MatchSlotProps> | null = CoordinationCallForPair;
