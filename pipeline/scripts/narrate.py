@@ -6,7 +6,7 @@ Writes public/audio/<id>.mp3 and public/audio/manifest.json:
 Clips:
   story-1 .. story-7        story mode chapters
   flight-1                  corridor fly-through of the #1 overlap
-  briefing-<storm>          storm crew briefing (featured storm), English
+  briefing-<storm>          storm crew briefing (every storm), English
   briefing-<storm>-es       the same briefing in Spanish (Gemini translation, multilingual voice)
   sfx-spark, sfx-hum        sound effects (ElevenLabs Sound Effects; needs the sound_generation permission)
 
@@ -55,7 +55,7 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true", help="write manifest texts only, no audio")
     ap.add_argument("--data-dir", help="read data from here instead of public/data")
     ap.add_argument("--out-dir", default=str(AUDIO_DIR), help="where MP3s and manifest.json go")
-    ap.add_argument("--storm", help="storm id for the briefing (default: the featured storm)")
+    ap.add_argument("--storm", help="only brief this storm (default: every storm)")
     ap.add_argument("--only", nargs="*", help="only voice these clip ids")
     ap.add_argument("--force", action="store_true", help="re-voice clips even if the text is unchanged")
     ap.add_argument("--no-spanish", action="store_true", help="skip the Spanish briefing")

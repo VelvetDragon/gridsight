@@ -458,9 +458,11 @@ def briefing_clip(d: Data) -> Clip | None:
             f"with about {say_int(sc_out)} customers out statewide."
         )
     if seg["GPC"] or seg["DESC"]:
+        gpc = f"roughly {say_about(seg['GPC'])}" if round(seg["GPC"]) else "no"
+        desc = say_about(seg["DESC"]) if round(seg["DESC"]) else "none"
         parts.append(
-            f"The simulation expects roughly {say_about(seg['GPC'])} damaged transmission sections on "
-            f"Georgia Power's system and {say_about(seg['DESC'])} on DESC's."
+            f"The simulation expects {gpc} damaged transmission sections on "
+            f"Georgia Power's system and {desc} on DESC's."
         )
     if d.yards:
         yard_bits = []
@@ -503,6 +505,15 @@ def build_clips(root: Path | None, storm_id: str | None = None) -> tuple[list[Cl
     for extra in (flight_clip(d), briefing_clip(d)):
         if extra:
             clips.append(extra)
+    # Without --storm, every storm in storms.json gets its own briefing (featured one first).
+    if not storm_id:
+        storms, _ = read_json("response/storms.json", root)
+        for s in storms or []:
+            if d.storm and s.get("id") == d.storm["id"]:
+                continue
+            extra = briefing_clip(load_data(root, s["id"]))
+            if extra:
+                clips.append(extra)
     clips.extend(sfx_clips())
     return clips, d
 
