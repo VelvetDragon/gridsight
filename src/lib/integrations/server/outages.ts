@@ -59,7 +59,7 @@ async function describe(q: OutageQuery) {
   const counties = await readDataFile<CountyOutage[]>(`response/${q.storm}/counties.json`);
   const rows = (Array.isArray(counties?.data) ? counties.data : []).filter((c) => !q.state || c.state === q.state);
   return {
-    label: q.state ? STATE_NAME[q.state] : "Georgia and South Carolina",
+    label: q.state ? STATE_NAME[q.state] : "Georgia, South Carolina and nearby counties",
     state: q.state,
     customers: rows.length ? rows.reduce((s, c) => s + (c.customers || 0), 0) : null,
     predictedPeakOut: rows.length ? rows.reduce((s, c) => s + (c.predictedPeakOut || 0), 0) : null,
