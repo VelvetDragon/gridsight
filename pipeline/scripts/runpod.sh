@@ -52,7 +52,7 @@ cd pipeline
 python scripts/fetch_data.py
 # Monte Carlo on the GPU: every storm, best-track and forecast runs, $SIMS each.
 python -m gridsight.response.simulate --storm all --device cuda --sims "$SIMS"
-# Outage model, zones, yards and JSON (reuses the simulations above).
+# Outage model, zones, yards, mutual-aid scenarios and JSON (reuses the simulations above).
 python -m gridsight.response.build --storm "$STORM" --skip-sim
 cd ..
 

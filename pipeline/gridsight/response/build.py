@@ -6,7 +6,8 @@ Usage (from pipeline/):
     python -m gridsight.response.build --storm all --device cuda --sims 10000
 
 Writes public/data/response/<storm>/{storm,segments,counties,zones,yards,vulnerable,meta}.json
-for each published storm and public/data/response/storms.json. Shapes follow
+and mutual-aid.json (mutual_aid.py) for each published storm, and
+public/data/response/storms.json. Shapes follow
 src/lib/types.ts (Response mode) and are checked before writing.
 
 Which simulation drives the published maps (--track):
@@ -150,6 +151,7 @@ def main(argv=None) -> None:
     ap.add_argument("--train-sims", type=int, default=None, help="sims for training-only storms")
     ap.add_argument("--skip-sim", action="store_true", help="reuse cached simulation results")
     ap.add_argument("--track", default="best", choices=["best", "forecast"])
+    ap.add_argument("--no-mutual-aid", action="store_true", help="skip the mutual-aid scenarios")
     a = ap.parse_args(argv)
 
     published = {s.key for s in resolve(a.storm) if s.publish}
@@ -249,6 +251,10 @@ def main(argv=None) -> None:
     for c in cv:
         print(f"  {c['storm']:8s} model {c['maePredicted']:.4f} [{c['maeCustomersPredicted']:8.0f}]"
               f"  wind-only {c['maeBaseline']:.4f} [{c['maeCustomersBaseline']:8.0f}]  ({c['counties']} counties)")
+    if not a.no_mutual_aid:
+        from gridsight.response import mutual_aid
+
+        mutual_aid.main(["--storm", ",".join(sorted(published))])
 
 
 if __name__ == "__main__":
