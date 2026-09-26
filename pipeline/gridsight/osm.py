@@ -16,7 +16,8 @@ from gridsight.config import BBOX, CACHE_DIR
 
 OVERPASS_URLS = (
     "https://overpass-api.de/api/interpreter",
-    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
 )
 USER_AGENT = "MrGridy/0.1 (ShellHacks 2026 research; github.com/VelvetDragon/gridsight)"
 _CACHE = CACHE_DIR / "overpass"
@@ -38,7 +39,7 @@ def overpass(query: str, *, timeout: int = 300, retries: int = 6) -> dict:
 
     last_err: Exception | None = None
     for attempt in range(retries):
-        url = OVERPASS_URLS[attempt % len(OVERPASS_URLS)]
+        url = OVERPASS_URLS[attempt % len(OVERPASS_URLS)]  # rotate across public instances
         try:
             resp = requests.post(
                 url,
@@ -103,6 +104,22 @@ out center tags;
             }
         )
     return out
+
+
+def power_sites_tiled(bbox: tuple[float, float, float, float], step: float = 3.0) -> list[dict]:
+    """power_sites() over a large area in step x step degree tiles (each cached)."""
+    lon_min, lat_min, lon_max, lat_max = bbox
+    out: dict[str, dict] = {}
+    x = lon_min
+    while x < lon_max:
+        y = lat_min
+        while y < lat_max:
+            tile = (round(x, 4), round(y, 4), round(min(x + step, lon_max), 4), round(min(y + step, lat_max), 4))
+            for site in power_sites(tile):
+                out.setdefault(site["osm"], site)
+            y += step
+        x += step
+    return list(out.values())
 
 
 def _lines_tile(tb: tuple[float, float, float, float], depth: int = 0) -> list[dict]:
