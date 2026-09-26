@@ -1,7 +1,9 @@
 "use client";
 
+import { RotateCcw, SkipForward } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
+  ACTS,
   CHAPTERS,
   EDGES,
   FLOWS,
@@ -140,19 +142,20 @@ type Cam = { cx: number; cy: number; s: number; vx: number; vy: number; vw: numb
 /** Where the part in focus sits on screen, leaving the right side for its story. */
 const FOCUS = { x: 430, y: 480, s: 1.9 };
 
+function focusCam(p: P): Cam {
+  return {
+    cx: p.x + (W / 2 - FOCUS.x) / FOCUS.s,
+    cy: p.y + (H / 2 - FOCUS.y) / FOCUS.s,
+    s: FOCUS.s,
+    vx: 0,
+    vy: 0,
+    vw: W,
+    vh: H,
+  };
+}
+
 function camTarget(f: Frame): Cam {
-  if (f.mode === "build" && f.lt >= T_FOCUS && f.lt < T_RELEASE) {
-    const p = PART[CHAPTERS[f.ch].fill];
-    return {
-      cx: p.x + (W / 2 - FOCUS.x) / FOCUS.s,
-      cy: p.y + (H / 2 - FOCUS.y) / FOCUS.s,
-      s: FOCUS.s,
-      vx: 0,
-      vy: 0,
-      vw: W,
-      vh: H,
-    };
-  }
+  if (f.mode === "build" && f.lt >= T_FOCUS && f.lt < T_RELEASE) return focusCam(PART[CHAPTERS[f.ch].fill]);
   // While building, follow the new part, its neighbours and the blanks it spawns; the finale shows everything.
   let ids: string[];
   if (f.mode === "build") {
@@ -177,7 +180,7 @@ function camTarget(f: Frame): Cam {
     y0 = m - minH / 2;
     y1 = m + minH / 2;
   }
-  const vp = f.mode === "build" ? { vx: 40, vy: 116, vw: 1520, vh: 700 } : { vx: 30, vy: 112, vw: 1540, vh: 668 };
+  const vp = f.mode === "build" ? { vx: 40, vy: 120, vw: 1520, vh: 680 } : { vx: 30, vy: 112, vw: 1540, vh: 624 };
   const s = Math.min(vp.vw / (x1 - x0), vp.vh / (y1 - y0));
   return { cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, s, ...vp };
 }
@@ -233,11 +236,18 @@ export function BuildShow() {
   return mounted ? <Show /> : <div className="fixed inset-0 bg-[#060910]" />;
 }
 
+/** Replaying one part on its own: starts just before the camera closes in, ends once it has lit up again. */
+const REPLAY_FROM = T_FOCUS - 0.2;
+const REPLAY_END = T_FILL + 1.1;
+
+type Replay = { id: string; lt: number } | null;
+
 function Show() {
   const clock = useRef(0);
   const paused = useRef(false);
+  const replay = useRef<Replay>(null);
   const cam = useRef<Cam>(START_CAM);
-  const [view, setView] = useState({ t: 0, cam: START_CAM });
+  const [view, setView] = useState<{ t: number; cam: Cam; replay: Replay }>({ t: 0, cam: START_CAM, replay: null });
   const [isPaused, setIsPaused] = useState(false);
   const live = useLiveStorms();
 
@@ -247,8 +257,15 @@ function Show() {
     const tick = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
-      if (!paused.current) clock.current += dt;
-      const target = camTarget(frameAt(clock.current));
+      // A replay holds the main story where it is and plays one part on top.
+      const r = replay.current;
+      if (r) {
+        if (!paused.current) r.lt += dt;
+        if (r.lt > REPLAY_END) replay.current = null;
+      } else if (!paused.current) clock.current += dt;
+      const rp = replay.current;
+      const target =
+        rp && rp.lt < T_RELEASE ? focusCam(PART[rp.id]) : camTarget(frameAt(clock.current));
       const k = 1 - Math.exp(-dt * 3);
       const c = cam.current;
       const next: Cam = {
@@ -261,7 +278,7 @@ function Show() {
         vh: lerp(c.vh, target.vh, k),
       };
       cam.current = next;
-      setView({ t: clock.current, cam: next });
+      setView({ t: clock.current, cam: next, replay: rp ? { ...rp } : null });
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -269,9 +286,21 @@ function Show() {
   }, []);
 
   const goTo = useCallback((x: number) => {
+    replay.current = null;
     const cycle = Math.floor(clock.current / LOOP);
     clock.current = cycle * LOOP + x + 0.001;
   }, []);
+
+  /** A part that is already built is replayed on its own; one that is not yet built is jumped to. */
+  const pick = useCallback(
+    (id: string) => {
+      const f = frameAt(clock.current);
+      const built = f.mode !== "build" || FILL_CH[id] < f.ch || (FILL_CH[id] === f.ch && f.lt >= T_FILL);
+      if (built) replay.current = { id, lt: REPLAY_FROM };
+      else goTo(FILL_CH[id] * CH);
+    },
+    [goTo],
+  );
 
   useEffect(() => {
     const marks = [...CHAPTERS.map((_, i) => i * CH), BUILD, ...FLOW_START];
@@ -283,11 +312,16 @@ function Show() {
         paused.current = !paused.current;
         setIsPaused(paused.current);
       } else if (e.key === "ArrowRight") {
-        const next = marks.find((m) => m > x + 0.05);
-        goTo(next ?? LOOP);
+        if (replay.current) replay.current = null;
+        else goTo(marks.find((m) => m > x + 0.05) ?? LOOP);
       } else if (e.key === "ArrowLeft") {
-        const prev = [...marks].reverse().find((m) => m < x - 1.2);
-        goTo(prev ?? 0);
+        goTo([...marks].reverse().find((m) => m < x - 1.2) ?? 0);
+      } else if (e.key === "Home") {
+        goTo(0);
+      } else if (e.key === "End") {
+        goTo(BUILD);
+      } else if (e.key === "Escape") {
+        replay.current = null;
       } else if (e.key === "f" || e.key === "F") {
         if (document.fullscreenElement) void document.exitFullscreen();
         else void document.documentElement.requestFullscreen?.();
@@ -299,10 +333,13 @@ function Show() {
 
   const f = frameAt(view.t);
   const c = view.cam;
-  const current = f.mode === "build" ? PART[CHAPTERS[f.ch].fill] : null;
+  const rp = view.replay;
+  const current = !rp && f.mode === "build" ? PART[CHAPTERS[f.ch].fill] : null;
   const flow = f.mode === "flow" ? FLOWS[f.fi] : null;
-  const stormy = flow?.storm ? clamp(f.mode === "flow" ? f.lt / 1.5 : 0) * clamp((FLOW_LEN[FLOWS.length - 1] - (f.mode === "flow" ? f.lt : 0)) / 1.2) : 0;
+  const stormy =
+    flow?.storm && f.mode === "flow" ? clamp(f.lt / 1.5) * clamp((FLOW_LEN[FLOWS.length - 1] - f.lt) / 1.2) : 0;
   const out = f.mode === "out" ? easeInOut(clamp(f.lt / (FIN_OUT - 0.4))) : 0;
+  const built = f.mode === "build" ? f.ch + (f.lt >= T_FILL ? 1 : 0) : CHAPTERS.length;
 
   return (
     <div className={`fixed inset-0 overflow-hidden bg-[#060910] select-none ${isPaused ? "ab-paused" : ""}`}>
@@ -327,19 +364,112 @@ function Show() {
             <RegionBox key={r.id} r={r} f={f} />
           ))}
           <Edges f={f} />
-          {flow && f.mode === "flow" ? <FlowPulses f={f} /> : null}
+          {flow && f.mode === "flow" && !rp ? <FlowPulses f={f} /> : null}
           {PARTS.map((p) => (
-            <Station key={p.id} part={p} f={f} t={view.t} onPick={() => goTo(FILL_CH[p.id] * CH)} />
+            <Station
+              key={p.id}
+              part={p}
+              f={f}
+              t={view.t}
+              replayLt={rp?.id === p.id ? rp.lt : null}
+              onPick={() => pick(p.id)}
+            />
           ))}
         </g>
 
         {current && f.mode === "build" ? <Focus part={current} ch={f.ch} lt={f.lt} cam={c} live={live} /> : null}
+        {rp ? <Focus part={PART[rp.id]} ch={FILL_CH[rp.id]} lt={rp.lt} cam={c} live={live} /> : null}
 
-        <Chrome f={f} paused={isPaused} out={out} />
+        <Chrome f={f} paused={isPaused} out={out} replaying={Boolean(rp)} />
       </svg>
 
-      <div className="ab-hint pointer-events-none absolute bottom-3 left-5 font-mono text-[11px] text-slate-500">
-        → next · ← back · space pause · F full screen · click a station to replay it
+      <Rail
+        built={built}
+        now={rp ? FILL_CH[rp.id] : f.mode === "build" ? f.ch : -1}
+        finale={f.mode !== "build"}
+        onPick={(i) => pick(CHAPTERS[i].fill)}
+        onStart={() => goTo(0)}
+        onEnd={() => goTo(BUILD)}
+      />
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- part rail */
+
+/** Jump to any part: built ones replay on their own, the rest are skipped to. */
+function Rail({
+  built,
+  now,
+  finale,
+  onPick,
+  onStart,
+  onEnd,
+}: {
+  built: number;
+  now: number;
+  finale: boolean;
+  onPick: (i: number) => void;
+  onStart: () => void;
+  onEnd: () => void;
+}) {
+  const [hover, setHover] = useState<number | null>(null);
+  const shown = hover ?? (now >= 0 ? now : null);
+  const btn =
+    "flex h-8 items-center gap-1.5 rounded-full px-3 font-mono text-[11px] tracking-[0.08em] text-slate-400 uppercase transition hover:bg-white/[0.07] hover:text-white";
+  return (
+    <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center">
+      <div className="pointer-events-auto relative flex items-center gap-2 rounded-full border border-white/[0.07] bg-[#0a0f1b]/80 py-1.5 pr-1.5 pl-2 shadow-[0_12px_40px_rgba(0,0,0,0.5)] backdrop-blur-md">
+        <button onClick={onStart} className={btn} aria-label="Start over">
+          <RotateCcw size={13} /> Start
+        </button>
+        <div className="mx-1 h-4 w-px bg-white/10" />
+        <div className="flex items-center" onMouseLeave={() => setHover(null)}>
+          {CHAPTERS.map((c, i) => {
+            const part = PART[c.fill];
+            const hex = TONE[part.tone];
+            const done = i < built;
+            const isNow = i === now;
+            const gap = ACTS.some((a) => a.from === i && i > 0);
+            return (
+              <button
+                key={c.fill}
+                onClick={() => onPick(i)}
+                onMouseEnter={() => setHover(i)}
+                onFocus={() => setHover(i)}
+                aria-label={`${i + 1}. ${part.name}${done ? ", replay" : ", jump to"}`}
+                className={`group grid size-7 place-items-center rounded-full ${gap ? "ml-3" : ""}`}
+              >
+                <span
+                  className="grid size-[18px] place-items-center rounded-full font-mono text-[9.5px] transition-transform group-hover:scale-125"
+                  style={{
+                    background: done ? `${hex}26` : "transparent",
+                    color: done ? hex : "#475569",
+                    boxShadow: isNow ? `0 0 0 1.5px ${hex}, 0 0 14px ${hex}88` : `inset 0 0 0 1px ${done ? `${hex}66` : "#334155"}`,
+                  }}
+                >
+                  {i + 1}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="mx-1 h-4 w-px bg-white/10" />
+        <button onClick={onEnd} className={`${btn} ${finale ? "text-emerald-300" : ""}`} aria-label="Skip to the full system">
+          Full system <SkipForward size={13} />
+        </button>
+
+        {shown !== null ? (
+          <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 rounded-full border border-white/[0.08] bg-[#0a0f1b]/90 px-3 py-1 font-mono text-[11px] whitespace-nowrap text-slate-300">
+            <span style={{ color: TONE[PART[CHAPTERS[shown].fill].tone] }}>{String(shown + 1).padStart(2, "0")}</span>
+            {"  "}
+            {PART[CHAPTERS[shown].fill].name}
+            <span className="text-slate-500">
+              {"  ·  "}
+              {shown === now && hover === null ? "now explaining" : shown < built ? "click to replay" : "click to jump here"}
+            </span>
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -546,8 +676,23 @@ function Edges({ f }: { f: Frame }) {
   );
 }
 
-function Station({ part, f, t, onPick }: { part: Part; f: Frame; t: number; onPick: () => void }) {
-  const { shown, filled, age } = status(part.id, f);
+function Station({
+  part,
+  f,
+  t,
+  replayLt,
+  onPick,
+}: {
+  part: Part;
+  f: Frame;
+  t: number;
+  replayLt: number | null;
+  onPick: () => void;
+}) {
+  const st = status(part.id, f);
+  const { shown, filled } = st;
+  const age = replayLt === null ? st.age : replayLt - T_FILL;
+  const labelIn = replayLt === null ? 1 : replayLt < T_FOCUS ? 1 : clamp((replayLt - T_FILL) / 0.3);
   if (shown <= 0) return null;
   const hex = TONE[part.tone];
   const Icon = part.icon;
@@ -573,7 +718,7 @@ function Station({ part, f, t, onPick }: { part: Part; f: Frame; t: number; onPi
           <circle r={r} fill="#0b1222" stroke={hex} strokeWidth={1.8} />
           <circle r={r - 6} fill={hex} fillOpacity={0.09} />
           <Icon x={-14} y={-14} width={28} height={28} color={hex} strokeWidth={1.7} />
-          <g>
+          <g opacity={labelIn}>
             <text
               y={r + 26}
               textAnchor="middle"
@@ -798,7 +943,7 @@ function Focus({ part, ch, lt, cam, live }: { part: Part; ch: number; lt: number
 
   // Title trace and accent bar
   const topY = n.y - 176;
-  const botY = n.y - 44;
+  const botY = n.y - 14;
   const titleTrace = trace(n, rr, -40, padX, (topY + botY) / 2);
   const titleDraw = seg(lt, T_TITLE, 0.45) * (1 - seg(lt, T_MERGE, 0.4));
   const bar = seg(lt, T_TITLE + 0.35, 0.35) * fadeOut;
@@ -937,6 +1082,17 @@ function Focus({ part, ch, lt, cam, live }: { part: Part; ch: number; lt: number
         {part.does}
       </text>
 
+      <text
+        x={tx}
+        y={n.y - 22}
+        fontSize="15"
+        fill={hex}
+        opacity={seg(lt, T_TITLE + 1.2, 0.45) * fadeOut}
+        fontFamily="var(--font-numbers)"
+      >
+        {`↳  ${part.via}`}
+      </text>
+
       {/* The number */}
       <g opacity={statIn} transform={`translate(${(1 - statIn) * 16},0)`}>
         <line x1={sx - 44} y1={n.y - 178} x2={sx - 44} y2={n.y - 6} stroke="#334155" strokeWidth={1} />
@@ -1049,8 +1205,11 @@ function Trace({ poly, draw, hex, lt, back }: { poly: Poly; draw: number; hex: s
 
 /* ---------------------------------------------------------------- title, counter, captions */
 
-function Chrome({ f, paused, out }: { f: Frame; paused: boolean; out: number }) {
+function Chrome({ f, paused, out, replaying }: { f: Frame; paused: boolean; out: number; replaying: boolean }) {
   const built = f.mode === "build" ? f.ch + (f.lt >= T_FILL ? 1 : 0) : CHAPTERS.length;
+  const actIx = f.mode === "build" ? ACTS.filter((a) => a.from <= f.ch).length - 1 : -1;
+  const story =
+    replaying ? "REPLAYING ONE PART" : actIx >= 0 ? `STORY ${actIx + 1} OF ${ACTS.length}  ·  ${ACTS[actIx].title.toUpperCase()}` : "THE WHOLE SYSTEM";
   return (
     <g>
       <g transform="translate(48,70)">
@@ -1060,11 +1219,9 @@ function Chrome({ f, paused, out }: { f: Frame; paused: boolean; out: number }) 
             how it&apos;s built
           </tspan>
         </text>
-        {paused ? (
-          <text y={26} fontSize="11" letterSpacing="2.4" fill="#FBBF24" fontFamily="var(--font-numbers)">
-            PAUSED
-          </text>
-        ) : null}
+        <text y={30} fontSize="11.5" letterSpacing="2.6" fill={paused ? "#FBBF24" : "#7dd3fc"} fillOpacity={0.85} fontFamily="var(--font-numbers)">
+          {paused ? "PAUSED" : story}
+        </text>
       </g>
 
       {/* Parts built so far */}
@@ -1078,30 +1235,11 @@ function Chrome({ f, paused, out }: { f: Frame; paused: boolean; out: number }) 
         <text y={20} textAnchor="end" fontSize="10.5" letterSpacing="2.4" fill="#64748b" fontFamily="var(--font-numbers)">
           PARTS BUILT
         </text>
-        <g transform={`translate(${-CHAPTERS.length * 17},34)`}>
-          {CHAPTERS.map((c, i) => {
-            const part = PART[c.fill];
-            const done = i < built;
-            const now = f.mode === "build" && i === f.ch && !done;
-            return (
-              <rect
-                key={c.fill}
-                x={i * 17}
-                y={0}
-                width={13}
-                height={4}
-                rx={2}
-                fill={done || now ? TONE[part.tone] : "#1e293b"}
-                opacity={done ? 0.9 : now ? 0.45 : 1}
-              />
-            );
-          })}
-        </g>
       </g>
 
       {/* Finale titles */}
-      {f.mode === "intro" ? <FinaleTitle lt={f.lt} /> : null}
-      {f.mode === "flow" ? <FlowCaption f={f} /> : null}
+      {f.mode === "intro" && !replaying ? <FinaleTitle lt={f.lt} /> : null}
+      {f.mode === "flow" && !replaying ? <FlowCaption f={f} /> : null}
       {f.mode === "out" ? (
         <text
           x={W / 2}
@@ -1122,7 +1260,7 @@ function Chrome({ f, paused, out }: { f: Frame; paused: boolean; out: number }) 
 function FinaleTitle({ lt }: { lt: number }) {
   const o = clamp(lt / 0.6) * clamp((FIN_INTRO - lt) / 0.5);
   return (
-    <g opacity={o} transform={`translate(${W / 2},${H - 70})`}>
+    <g opacity={o} transform={`translate(${W / 2},${H - 150})`}>
       <text textAnchor="middle" fontSize="34" fill="#f8fafc" fontFamily="var(--font-display)" style={{ fontVariationSettings: '"SOFT" 60, "opsz" 72' }}>
         The whole system
       </text>
@@ -1137,7 +1275,7 @@ function FlowCaption({ f }: { f: Extract<Frame, { mode: "flow" }> }) {
   const flow = FLOWS[f.fi];
   const o = clamp(f.lt / 0.5) * clamp((FLOW_LEN[f.fi] - f.lt) / 0.4);
   return (
-    <g opacity={o} transform={`translate(${W / 2},${H - 72})`}>
+    <g opacity={o} transform={`translate(${W / 2},${H - 170})`}>
       <text textAnchor="middle" fontSize="12" letterSpacing="2.6" fill="#34D399" fontFamily="var(--font-numbers)">
         REQUEST {f.fi + 1} OF {FLOWS.length}
       </text>
