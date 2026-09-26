@@ -29,7 +29,7 @@ export async function findUtility(
   const res = await fetch("/api/utilities/find", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
+    body: JSON.stringify({ ...input, stream: true }),
     signal,
   });
   if (!res.ok || !res.body) {
