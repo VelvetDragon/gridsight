@@ -224,7 +224,8 @@ export interface ResponseMeta {
   validation: {
     countyMaePredicted: number | null;
     countyMaeBaseline: number | null;
-    reportedDescTransmissionPoles: number;
+    /** Public DESC figure for this storm, or null when none was published. */
+    reportedDescTransmissionPoles: number | null;
     predictedDescTransmissionFailures: number | null;
   };
   /**
