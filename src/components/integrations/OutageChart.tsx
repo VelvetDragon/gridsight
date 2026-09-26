@@ -195,9 +195,9 @@ export function OutageChart({ storm, fips, state, height = 160, className }: Out
                     strokeWidth={1}
                   />
                   <text
-                    x={width - PAD.right}
+                    x={PAD.left + 4}
                     y={geom.y(curve!.predictedPeakOut) - 4}
-                    textAnchor="end"
+                    textAnchor="start"
                     className="fill-ink-3 text-[10px]"
                   >
                     Model peak {compact(curve!.predictedPeakOut)}
