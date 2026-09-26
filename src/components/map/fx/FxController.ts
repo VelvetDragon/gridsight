@@ -1,12 +1,12 @@
 /**
- * Runs the realistic map effects. It takes the scene's ordinary deck.gl
- * layers, swaps or augments a few of them (river, power lines) and pushes the result to the overlay, and it drives one three.js
- * custom layer inside MapLibre (3D river, 3D towers and wires).
+ * Runs the map effects. It takes the scene's ordinary deck.gl layers,
+ * replaces the flat river with real water, and drives one three.js custom
+ * layer inside MapLibre (the 3D river surface, and 3D towers with sagging
+ * wires along the selected pair of planned lines when zoomed in).
  *
  * While effects animate it runs its own requestAnimationFrame loop, so React
  * never re-renders per frame; only layers whose uniforms change get new props.
- * In Clean mode the scene's layers pass through untouched, except the river,
- * which keeps its light 2D flow.
+ * The "3D" view tilts the camera and adds hillshaded relief and a sky.
  */
 import type { Layer } from "@deck.gl/core";
 import type { MapboxOverlay, MapboxOverlayProps } from "@deck.gl/mapbox";
@@ -15,21 +15,12 @@ import type { Bbox } from "@/lib/fx/geometry";
 import { metersPerPixel } from "@/lib/fx/geometry";
 import type { PlanSceneProps } from "../planScene";
 import type { ResponseSceneProps } from "../responseScene";
-import {
-  constructionLayer,
-  flatTowerLayers,
-  tiltBlend,
-  TOWER_3D_ZOOM,
-  TowerField,
-  towerFade,
-  type PowerFxInput,
-  type StructureCollection,
-} from "./PowerLineLayers";
+import { TOWER_ZOOM, TowerField, type PowerFxInput, type StructureCollection } from "./PowerLineLayers";
 import { riverFxLayers, riverPaths } from "./RiverLayers";
+import { disableTerrain, enableTerrain } from "./terrain";
 import { GridPass, TOWER_H } from "./three/Grid3D";
 import { RiverPass } from "./three/River3D";
 import { ThreeFxLayer } from "./three/ThreeFxLayer";
-import { loadTowerAtlas } from "./towerIcon";
 
 export interface FxScene {
   mode: "plan" | "response" | "story";
@@ -38,7 +29,6 @@ export interface FxScene {
 }
 
 export interface FxOptions {
-  realistic: boolean;
   reducedMotion: boolean;
 }
 
@@ -51,6 +41,8 @@ interface Frame {
 }
 
 const STRUCTURES_URL = "/data/context/structures.geojson";
+/** On-screen height (px) below which towers are scaled up to stay legible. */
+const MIN_TOWER_PX = 20;
 
 const ids = new WeakMap<object, number>();
 let seq = 0;
@@ -74,11 +66,11 @@ export class FxController {
   private map: maplibregl.Map | null = null;
   private scene: FxScene = { mode: "plan", plan: null, response: null };
   private power: PowerFxInput | null = null;
-  private opts: FxOptions = { realistic: true, reducedMotion: false };
+  private opts: FxOptions = { reducedMotion: false };
+  private depth = false;
   private raf = 0;
   private running = false;
   private readonly t0 = typeof performance !== "undefined" ? performance.now() : 0;
-  private lastTick = 0;
   private lastRender = 0;
   /** Optional frame cap (?fxfps=N), for low-power devices and headless captures. */
   private readonly minFrameMs = (() => {
@@ -87,12 +79,10 @@ export class FxController {
     return fps > 0 ? 1000 / fps : 0;
   })();
   private towers = new TowerField();
-  private atlas: HTMLCanvasElement | null = null;
   private structures: StructureCollection | null = null;
   private three: ThreeFxLayer | null = null;
   private riverPass = new RiverPass();
   private gridPass = new GridPass();
-  private threeActive = false;
   private lastThreeTry = 0;
 
   /* ---------- wiring ---------- */
@@ -109,17 +99,12 @@ export class FxController {
 
   private updatePower() {
     const p = this.scene.plan;
-    if (!p) {
+    if (!p || this.scene.mode !== "plan") {
       this.power = null;
       return;
     }
     const sel = p.ranked.find((r) => r.overlap.id === p.selectedId)?.overlap;
-    this.power = {
-      plan: p.data,
-      radarMonth: p.radarMonth,
-      focus: sel ? new Set([sel.descId, sel.gpcId]) : null,
-      structures: this.structures,
-    };
+    this.power = { plan: p.data, towerIds: sel ? new Set([sel.descId, sel.gpcId]) : null, structures: this.structures };
   }
 
   syncOverlay(overlay: MapboxOverlay, props: MapboxOverlayProps) {
@@ -133,12 +118,6 @@ export class FxController {
     this.map = map;
     map.on("move", this.onMove);
     map.on("styledata", this.onStyle);
-    loadTowerAtlas()
-      .then((a) => {
-        this.atlas = a;
-        this.renderNow();
-      })
-      .catch(() => {});
     fetch(STRUCTURES_URL, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((fc: StructureCollection | null) => {
@@ -169,16 +148,16 @@ export class FxController {
     return this.map;
   }
 
-  isRealistic(): boolean {
-    return this.opts.realistic;
-  }
+  /* ---------- 3D view ---------- */
 
-  /* ---------- camera ---------- */
-
-  setTilt(on: boolean, animate = true) {
+  /** Tilts the camera and adds relief shading (or levels the map and removes it). */
+  setDepth(on: boolean, animate = true) {
+    this.depth = on;
     const map = this.map;
     if (!map) return;
-    const target = { pitch: on ? 55 : 0, bearing: on ? -14 : 0 };
+    if (on) enableTerrain(map);
+    else disableTerrain(map);
+    const target = { pitch: on ? 58 : 0, bearing: on ? -12 : 0 };
     if (!animate || this.opts.reducedMotion) map.jumpTo(target);
     else map.easeTo({ ...target, duration: 1600, essential: true, easing: (t) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2) });
   }
@@ -190,7 +169,8 @@ export class FxController {
   };
 
   private onStyle = () => {
-    if (this.opts.realistic) this.ensureThree();
+    this.ensureThree();
+    if (this.depth && this.map && !this.map.getLayer("fx-hillshade")) enableTerrain(this.map);
   };
 
   private get animating(): boolean {
@@ -201,7 +181,6 @@ export class FxController {
     if (this.animating) {
       if (!this.running) {
         this.running = true;
-        this.lastTick = performance.now();
         this.raf = requestAnimationFrame(this.tick);
       }
     } else {
@@ -256,86 +235,43 @@ export class FxController {
       overlay.setProps(props);
       return;
     }
-    const base = (props.layers ?? []) as Layer[];
-    const layers = this.opts.realistic ? this.compose(base, f) : this.composeClean(base, f);
-    overlay.setProps({ ...props, layers });
-  }
-
-  /** Clean: the scene as drawn by its builders, with the river's light 2D flow. */
-  private composeClean(base: Layer[], f: Frame): Layer[] {
-    this.hideThree();
-    const { mode, plan, response } = this.scene;
-    const out: Layer[] = [];
-    for (const layer of base) {
-      const id = layer.id;
-      if (id === "river-wash" || id === "r-river-wash") {
-        const river = mode === "plan" ? plan?.data.river : response?.data.river;
-        if (river) out.push(...riverFxLayers(river, { id: id.replace("-wash", ""), time: f.time, zoom: f.zoom }));
-        continue;
-      }
-      if (id === "river-core" || id === "r-river-core") continue;
-      out.push(layer);
-    }
-    return out;
+    overlay.setProps({ ...props, layers: this.compose((props.layers ?? []) as Layer[], f) });
   }
 
   private compose(base: Layer[], f: Frame): Layer[] {
     const { mode, plan, response } = this.scene;
-    const out: Layer[] = [];
     const threeOk = this.ensureThree();
+    const river = mode === "response" ? response?.data.river : plan?.data.river;
 
-    const river = mode === "plan" ? plan?.data.river : response?.data.river;
-    const power = mode === "plan" && plan ? this.power : null;
-    const tilt = tiltBlend(f.pitch);
-    const gate3d = smoothstep(TOWER_3D_ZOOM - 0.2, TOWER_3D_ZOOM + 0.4, f.zoom);
-    const grow = threeOk ? tilt * gate3d : 0;
-    const flat = towerFade(f.zoom) * (1 - grow);
-    const towerSet =
-      power && (flat > 0 || grow > 0)
-        ? this.towers.get(
-            power,
-            f,
-            `${identity(power.plan)}|${power.structures ? "s" : "c"}|${power.radarMonth == null ? "now" : Math.floor(power.radarMonth)}|${plan?.selectedId ?? ""}`,
-          )
-        : null;
-
-    // three.js passes.
     if (threeOk) {
       this.riverPass.time = f.time;
       this.riverPass.setRiver(river ? riverPaths(river) : null);
-      const scale = Math.max(1, (16 * f.mpp) / TOWER_H);
-      this.gridPass.setData(towerSet, {
+      const power = this.power;
+      const grow = power?.towerIds ? smoothstep(TOWER_ZOOM - 0.2, TOWER_ZOOM + 0.4, f.zoom) : 0;
+      const set =
+        power && grow > 0
+          ? this.towers.get(power, f, `${identity(power.plan)}|${power.structures ? "s" : "c"}|${plan?.selectedId ?? ""}`)
+          : null;
+      const scale = Math.max(1, (MIN_TOWER_PX * f.mpp) / TOWER_H);
+      this.gridPass.setData(set, {
         scale,
         grow,
-        thick: Math.min(4, Math.max(1, (0.5 * f.mpp) / (0.15 * scale))),
+        thick: Math.min(3, Math.max(1, (0.45 * f.mpp) / (0.15 * scale))),
         wireWidth: 1,
         time: f.time,
       });
       this.map?.triggerRepaint();
     }
 
+    const out: Layer[] = [];
     for (const layer of base) {
       const id = layer.id;
-      if (id === "river-wash" || id === "r-river-wash") {
-        // The 3D water replaces the flat river; the 2D flow stays as a fallback.
+      if (id.endsWith("river-wash")) {
+        // The 3D water replaces the flat river; a calm 2D water body is the fallback.
         if (!threeOk && river) out.push(...riverFxLayers(river, { id: id.replace("-wash", ""), time: f.time, zoom: f.zoom }));
         continue;
       }
-      if (id === "river-core" || id === "r-river-core") continue;
-
-      if (power) {
-        const lift = Math.max(towerFade(f.zoom) * (1 - grow), grow);
-        if ((id === "context-lines" || id === "project-lines") && lift > 0) {
-          out.push(layer.clone({ opacity: 1 - (id === "context-lines" ? 0.6 : 0.4) * lift }));
-          continue;
-        }
-        if (id === "project-substations") {
-          if (towerSet) out.push(...flatTowerLayers(towerSet, this.atlas, f.zoom, flat));
-          const build = constructionLayer(power, f.time, 1 - grow);
-          if (build) out.push(build);
-        }
-      }
-
+      if (id.endsWith("river-core")) continue;
       out.push(layer);
     }
     return out;
@@ -348,30 +284,18 @@ export class FxController {
     const map = this.map;
     if (!map) return false;
     if (!this.three) this.three = new ThreeFxLayer([this.riverPass, this.gridPass]);
-    if (map.getLayer(this.three.id)) {
-      this.threeActive = true;
-      return true;
-    }
+    if (map.getLayer(this.three.id)) return true;
     const now = performance.now();
     if (now - this.lastThreeTry < 400) return false;
     this.lastThreeTry = now;
     try {
       const firstSymbol = map.getStyle()?.layers?.find((l) => l.type === "symbol")?.id;
       map.addLayer(this.three, firstSymbol);
-      this.threeActive = true;
       return true;
     } catch {
       // Style not ready yet; the next styledata event retries.
       return false;
     }
-  }
-
-  private hideThree() {
-    if (!this.threeActive) return;
-    this.riverPass.setRiver(null);
-    this.gridPass.setData(null, { scale: 1, grow: 0, thick: 1, wireWidth: 1, time: 0 });
-    this.map?.triggerRepaint();
-    this.threeActive = false;
   }
 
   private removeThree() {
@@ -384,6 +308,5 @@ export class FxController {
       }
     }
     this.three = null;
-    this.threeActive = false;
   }
 }

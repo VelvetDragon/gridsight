@@ -4,43 +4,25 @@ import type { CSSProperties } from "react";
 import type { FxHandle } from "./useFx";
 
 /**
- * Self-contained view controls: Realistic / Clean map style and a 3D tilt.
- * Place it anywhere over the map; it only needs the handle from useFx.
+ * One self-contained view control: "3D" tilts the camera and raises the
+ * terrain, the river surface and (when zoomed in on a pair) the towers.
  */
 export function FxControls({ fx, style, className = "" }: { fx: FxHandle; style?: CSSProperties; className?: string }) {
-  const options = [
-    { id: "realistic", label: "Realistic", on: fx.realistic },
-    { id: "clean", label: "Clean", on: !fx.realistic },
-  ] as const;
   return (
-    <div className={`pointer-events-auto flex items-center gap-1.5 ${className}`} style={style}>
-      <div role="radiogroup" aria-label="Map style" className="glass flex h-8 items-center rounded-[10px] p-[3px]">
-        {options.map((o) => (
-          <button
-            key={o.id}
-            type="button"
-            role="radio"
-            aria-checked={o.on}
-            onClick={() => fx.setRealistic(o.id === "realistic")}
-            className={`h-[26px] cursor-pointer rounded-[7px] px-2.5 text-[12px] font-medium transition-colors ${
-              o.on ? "bg-white text-ink shadow-[0_1px_2px_rgba(20,22,28,0.12)]" : "text-ink-3 hover:text-ink"
-            }`}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
-      <button
-        type="button"
-        aria-pressed={fx.tilted}
-        title={fx.tilted ? "Back to a flat map" : "Tilt the map to see the storm and towers in 3D"}
-        onClick={fx.toggleTilt}
-        className={`glass h-8 cursor-pointer rounded-[10px] px-2.5 text-[12px] font-semibold tracking-[0.02em] transition-colors ${
-          fx.tilted ? "text-ink" : "text-ink-3 hover:text-ink"
-        }`}
-      >
-        {fx.tilted ? "2D" : "3D"}
-      </button>
-    </div>
+    <button
+      type="button"
+      aria-pressed={fx.depth}
+      title={fx.depth ? "Back to a flat map" : "Tilt the map and show terrain in 3D"}
+      onClick={fx.toggleDepth}
+      className={`glass pointer-events-auto flex h-8 cursor-pointer items-center gap-1.5 rounded-[10px] px-3 text-[12px] font-semibold tracking-[0.02em] transition-colors ${
+        fx.depth ? "text-ink" : "text-ink-3 hover:text-ink"
+      } ${className}`}
+      style={style}
+    >
+      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.4">
+        <path d="M1.5 12.5 5.5 6l3 4 2-2.5 4 5z" strokeLinejoin="round" />
+      </svg>
+      3D
+    </button>
   );
 }

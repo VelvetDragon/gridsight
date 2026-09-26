@@ -91,11 +91,17 @@ export default function MapStage({ mode, plan, response, story, popup, view, pad
         onClick={onClick}
         fx={fx.controller}
       />
-      <FxControls
-        fx={fx}
-        className="absolute z-20"
-        style={{ top: padding.top - 16, right: padding.right > 48 ? padding.right - 20 : 16 }}
-      />
+      {mode !== "story" ? (
+        <FxControls
+          fx={fx}
+          className="absolute z-20"
+          style={{
+            top: padding.top - 16,
+            // Just left of the right-hand column (plan keeps its savings column beside the pair drawer).
+            right: mode === "plan" ? (plan?.selectedId ? 440 : 16) + 332 : padding.right > 48 ? padding.right - 20 : 16,
+          }}
+        />
+      ) : null}
       {hover ? (
         <div
           className="glass-strong pointer-events-none absolute z-30 max-w-[300px] rounded-[10px] px-3 py-2"
