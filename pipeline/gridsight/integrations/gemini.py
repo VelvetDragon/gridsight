@@ -12,7 +12,7 @@ from gridsight.integrations.common import env
 
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 # Current Flash models (ai.google.dev/gemini-api/docs/models); GEMINI_MODEL goes first when set.
-DEFAULT_MODELS = ["gemini-3.8-flash", "gemini-3-flash-preview", "gemini-3.5-flash-lite"]
+DEFAULT_MODELS = ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3-flash-preview"]
 
 
 class GeminiAuthError(RuntimeError):

@@ -11,14 +11,11 @@ import os from "node:os";
 import path from "node:path";
 import type { Overlap, Project } from "@/lib/types";
 import type { ExplainMemo, ExplainResult } from "@/lib/integrations/explain";
-import { readDataFile, serverEnv, type DataOrigin } from "./dataFiles";
+import { readDataFile, type DataOrigin } from "./dataFiles";
+import { geminiJson, geminiKey, geminiModels } from "./gemini";
 
 const PRODUCT = "MrGridy";
 const SIGN_OFF = `Prepared with ${PRODUCT} from public filings.`;
-const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
-/** Current Flash models (ai.google.dev/gemini-api/docs/models); override with GEMINI_MODEL. */
-const DEFAULT_MODELS = ["gemini-3.8-flash", "gemini-3-flash-preview", "gemini-3.5-flash-lite"];
-const TIMEOUT_MS = 25_000;
 
 const TIER_TEXT: Record<Overlap["tier"], string> = {
   crossing: "the projects touch or cross",
@@ -26,7 +23,7 @@ const TIER_TEXT: Record<Overlap["tier"], string> = {
   logistics: "the projects come within 8 km of each other, close enough to share laydown yards and deliveries",
   crew: "the projects come within 40 km of each other, a crew's morning drive",
 };
-const TIER_WHY: Record<Overlap["tier"], string> = {
+export const TIER_WHY: Record<Overlap["tier"], string> = {
   crossing: "their outages and crossing design have to be planned together",
   row: "they could share right-of-way, access roads and permits",
   logistics: "they could share laydown yards and material deliveries",
@@ -46,7 +43,7 @@ interface CostRange {
   highUsd: number;
 }
 
-interface MatchData {
+export interface MatchData {
   overlap: Overlap;
   desc: Project;
   gpc: Project;
@@ -77,25 +74,25 @@ export async function loadMatch(overlapId: string): Promise<MatchData> {
 
 /* ---------------------------------------------------------------- formatting */
 
-function usd(n: number): string {
+export function usd(n: number): string {
   if (n >= 1e6) return `$${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)} million`;
   return `$${Math.round(n).toLocaleString("en-US")}`;
 }
 
-function monthYear(iso: string | null | undefined): string {
+export function monthYear(iso: string | null | undefined): string {
   if (!iso) return "date not published";
   const d = new Date(`${iso.slice(0, 10)}T00:00:00Z`);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
 }
 
-function list(items: string[]): string {
+export function list(items: string[]): string {
   const xs = items.filter(Boolean);
   if (xs.length <= 1) return xs.join("");
   return `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
 }
 
-function place(summary: string): string | null {
+export function place(summary: string): string | null {
   const m = /\bnear ([A-Z][A-Za-z .'-]+, (?:GA|SC))/.exec(summary ?? "");
   return m ? m[1] : null;
 }
@@ -108,7 +105,7 @@ function describe(p: Project): string {
 }
 
 /** "SAV: Goshen - McIntosh 115 kV: Rebuild" -> "Goshen - McIntosh 115 kV". */
-function shortName(p: Project): string {
+export function shortName(p: Project): string {
   return p.name.replace(/^[A-Z]{2,6}:\s*/, "").split(":")[0].trim() || p.name;
 }
 
@@ -116,13 +113,13 @@ function sourceLine(p: Project): string {
   return `${p.source.document}${p.source.page ? `, p. ${p.source.page}` : ""}`;
 }
 
-function distanceText(o: Overlap): string {
+export function distanceText(o: Overlap): string {
   if (o.tier === "crossing" || o.distanceKm <= 0.05) return "They touch or cross";
   const road = o.roadKm != null ? ` (${o.roadKm.toFixed(1)} km by road)` : "";
   return `They come within ${o.distanceKm.toFixed(1)} km of each other${road}`;
 }
 
-function savings(o: Overlap, range: CostRange | null): string | null {
+export function savings(o: Overlap, range: CostRange | null): string | null {
   const central = range?.centralUsd ?? o.cost?.totalUsd ?? 0;
   if (!central) return null;
   const spread = range && range.highUsd > range.lowUsd ? ` (range ${usd(range.lowUsd)} to ${usd(range.highUsd)})` : "";
@@ -190,7 +187,7 @@ export function templateExplanation(m: MatchData): Omit<ExplainResult, "cached" 
 
 /* ---------------------------------------------------------------- Gemini */
 
-function facts(m: MatchData) {
+export function facts(m: MatchData) {
   const { overlap: o, desc, gpc, range } = m;
   const project = (p: Project) => ({
     utility: p.utility === "DESC" ? "Dominion Energy South Carolina (DESC)" : "Georgia Power",
@@ -286,47 +283,6 @@ function isGeminiOut(v: unknown): v is GeminiOut {
   );
 }
 
-async function callGemini(model: string, apiKey: string, prompt: string): Promise<GeminiOut> {
-  const res = await fetch(`${GEMINI_ENDPOINT}/${encodeURIComponent(model)}:generateContent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.3,
-        responseMimeType: "application/json",
-        responseSchema: RESPONSE_SCHEMA,
-      },
-    }),
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    const detail = (await res.text().catch(() => "")).slice(0, 200);
-    throw new GeminiHttpError(res.status, detail);
-  }
-  const body = (await res.json()) as {
-    candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[];
-  };
-  const text = (body.candidates?.[0]?.content?.parts ?? [])
-    .filter((p) => !p.thought && typeof p.text === "string")
-    .map((p) => p.text)
-    .join("");
-  const parsed: unknown = JSON.parse(text);
-  if (!isGeminiOut(parsed)) throw new Error("Gemini returned an unexpected shape");
-  return parsed;
-}
-
-class GeminiHttpError extends Error {
-  constructor(
-    public status: number,
-    detail: string,
-  ) {
-    super(`Gemini responded ${status}: ${detail}`);
-  }
-}
-
 function tidy(out: GeminiOut): GeminiOut {
   let body = out.memo.body.trim();
   if (!body.includes(SIGN_OFF)) body = `${body}\n\n${SIGN_OFF}`;
@@ -363,17 +319,13 @@ async function diskPut(key: string, value: ExplainResult) {
 
 export async function explainOverlap(overlapId: string): Promise<ExplainResult> {
   const match = await loadMatch(overlapId);
-  const apiKey = serverEnv("GEMINI_API_KEY");
   const template = templateExplanation(match);
-  if (!apiKey) {
+  if (!geminiKey()) {
     return { ...template, generatedAt: new Date().toISOString(), cached: false };
   }
 
-  const models = [serverEnv("GEMINI_MODEL"), ...DEFAULT_MODELS].filter(
-    (m, i, all): m is string => Boolean(m) && all.indexOf(m) === i,
-  );
   const f = facts(match);
-  const key = createHash("sha1").update(JSON.stringify({ f, models, v: 1 })).digest("hex");
+  const key = createHash("sha1").update(JSON.stringify({ f, models: geminiModels(), v: 1 })).digest("hex");
   const hit = memoryCache.get(key) ?? (await diskGet(key));
   if (hit) {
     memoryCache.set(key, hit);
@@ -387,27 +339,25 @@ Address the memo "to" both utilities' transmission planning teams.
 FACTS:
 ${JSON.stringify(f, null, 1)}`;
 
-  for (const model of models) {
-    try {
-      const out = tidy(await callGemini(model, apiKey, prompt));
-      const result: ExplainResult = {
-        overlapId,
-        source: "gemini",
-        model,
-        ...out,
-        generatedAt: new Date().toISOString(),
-        cached: false,
-        dataOrigin: match.origin,
-      };
-      memoryCache.set(key, result);
-      await diskPut(key, result);
-      return result;
-    } catch (err) {
-      const status = err instanceof GeminiHttpError ? err.status : 0;
-      // Bad key or quota: no point trying another model.
-      if (status === 401 || status === 403 || status === 429) break;
-      console.warn(`[explain] ${model} failed: ${(err as Error).message}`);
-    }
+  try {
+    const { data, model } = await geminiJson(
+      { parts: [{ text: prompt }], system: SYSTEM_PROMPT, schema: RESPONSE_SCHEMA, timeoutMs: 25_000 },
+      isGeminiOut,
+    );
+    const result: ExplainResult = {
+      overlapId,
+      source: "gemini",
+      model,
+      ...tidy(data),
+      generatedAt: new Date().toISOString(),
+      cached: false,
+      dataOrigin: match.origin,
+    };
+    memoryCache.set(key, result);
+    await diskPut(key, result);
+    return result;
+  } catch (err) {
+    console.warn(`[explain] Gemini unavailable, using the template: ${(err as Error).message}`);
+    return { ...template, generatedAt: new Date().toISOString(), cached: false };
   }
-  return { ...template, generatedAt: new Date().toISOString(), cached: false };
 }
