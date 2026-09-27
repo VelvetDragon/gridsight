@@ -30,8 +30,9 @@ export function Stormline() {
   const stormParam = useUrlParam("storm");
   const timeParam = useUrlParam("t");
   const response = useResponseMode(stormParam, timeParam);
-  const [open, setOpen] = useState(true);
-  const [teamOpen, setTeamOpen] = useState(true);
+  // Both panels start closed: the map and "Ask MrGridy" first; the agent or a click opens them.
+  const [open, setOpen] = useState(false);
+  const [teamOpen, setTeamOpen] = useState(false);
   const [teamMove, setTeamMove] = useState<string | null>(null);
   const scene = useMemo(
     () => (response.scene ? { ...response.scene, selectedTeamMove: teamMove } : null),

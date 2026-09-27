@@ -79,6 +79,7 @@ const TOOLS = [
     "Play a storm's replay on the map (\"simulate Helene\", \"play Matthew\"). Opens the storm if a name is given.",
     { name: str("Storm name, optional"), from: str("\"start\" (default) or \"closest\" to start just before its closest pass") },
   ),
+  tool("storm_briefing", "The storm crew briefing for the open storm: where outages hit, damage on each grid, shared staging, who to reach first, time saved."),
   tool("pause_replay", "Pause the storm replay."),
   tool(
     "jump_to",
@@ -112,6 +113,7 @@ Rules:
 - "Simulate", "play" or "show me" a storm: call play_replay, then describe in one sentence what to watch. While it plays you can call storm_now to narrate.
 - Impact questions ("what difference does this make", "how much does it save"): use impact_overall, plus storm_summary for the open storm.
 - Future questions ("what's next", "where could this go"): use future_work. Be ambitious but say clearly what is built today and what comes next.
+- "Give me the briefing" or "brief me": call storm_briefing and read the briefing text aloud as written, in a calm, clear voice. This is the one answer that can be longer than three sentences.
 - Keep every answer to three short sentences, then offer more detail ("Want the details?"). Never read long lists.
 - Connect the facts: who is short of crews, who has spare, where damage overlaps, who needs power first, and what it costs versus the hours saved.`;
 

@@ -191,7 +191,6 @@ function useTools(bridge: AgentBridge) {
       const d = await ready();
       b = ref.current;
       if (!d || b.times.length < 2) return json({ error: "No replay for this storm." });
-      b.showSection("storm");
       const start = from === "closest" ? (closestTime(d, b.times) ?? b.times[0]) - 12 * 3600e3 : b.times[0];
       b.replay.playFrom(Math.max(b.times[0], start));
       const peak = Math.max(...d.storm.track.map((p) => p.windKt));
@@ -201,6 +200,21 @@ function useTools(bridge: AgentBridge) {
         peakWindMph: Math.round(peak * 1.151),
         whatToWatch: "The storm moves along its real track; line sections light up as its winds reach them, coloured by their chance of breaking.",
       });
+    },
+
+    storm_briefing: async () => {
+      const d = await ready();
+      const id = ref.current.stormId;
+      if (!d || !id) return json({ error: "No storm is open." });
+      try {
+        const res = await fetch("/audio/manifest.json");
+        const clips = (await res.json()) as { id: string; text: string }[];
+        const clip = clips.find((c) => c.id === `briefing-${id}`);
+        if (!clip) return json({ error: "No briefing for this storm." });
+        return json({ storm: d.storm.name, briefing: clip.text });
+      } catch {
+        return json({ error: "Could not load the briefing." });
+      }
     },
 
     pause_replay: () => {
