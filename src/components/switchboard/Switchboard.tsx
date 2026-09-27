@@ -63,11 +63,11 @@ export function Switchboard() {
           <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
             <div className="max-w-[600px]">
               <h1
-                className="display sb-rise text-[36px] leading-[1.12] font-medium tracking-[-0.02em] text-ink sm:text-[clamp(34px,5dvh,44px)]"
+                className="display sb-rise text-[34px] leading-[1.12] font-medium tracking-[-0.02em] text-ink lg:text-[clamp(30px,2.6vw,40px)]"
                 style={{ animationDelay: "0.12s" }}
               >
-                <span className="block sm:whitespace-nowrap">Build together in blue skies.</span>
-                <span className="block sm:whitespace-nowrap">
+                <span className="block lg:whitespace-nowrap">Build together in blue skies.</span>
+                <span className="block lg:whitespace-nowrap">
                   Recover{" "}
                   <span className="relative inline-block">
                     together
