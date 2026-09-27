@@ -18,6 +18,8 @@ export interface RailSection {
 
 /** Width the map should keep clear on the left for the rail. */
 export function railInset(open: boolean): number {
+  // Phones: an open rail covers the map like a sheet, so the map keeps its full width.
+  if (typeof window !== "undefined" && window.innerWidth < 768) return open ? 24 : RAIL_GUTTER + RAIL_COLLAPSED_W + 12;
   return RAIL_GUTTER + (open ? RAIL_W : RAIL_COLLAPSED_W) + 24;
 }
 
@@ -91,7 +93,7 @@ export function Rail({
     <aside
       aria-label={title}
       className="glass gs-in-left fixed z-30 flex flex-col overflow-hidden rounded-[16px]"
-      style={{ top, left: RAIL_GUTTER, bottom: RAIL_GUTTER, width: RAIL_W }}
+      style={{ top, left: RAIL_GUTTER, bottom: RAIL_GUTTER, width: `min(${RAIL_W}px, calc(100vw - ${RAIL_GUTTER * 2}px))` }}
     >
       <header className="flex items-start gap-3 px-5 pt-4 pb-3">
         <div className="min-w-0 flex-1">

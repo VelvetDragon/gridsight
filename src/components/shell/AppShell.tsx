@@ -42,13 +42,13 @@ export function AppShell({ children, aside }: { children: ReactNode; aside?: Rea
       {children}
       <nav
         aria-label="Main"
-        className="glass fixed z-50 flex items-center gap-2 rounded-[16px] pr-2 pl-4"
+        className="glass fixed z-50 flex items-center gap-1 rounded-[16px] pr-2 pl-2 sm:gap-2 sm:pl-4"
         style={{ top: NAV_TOP, left: NAV_TOP, right: NAV_TOP, height: NAV_H }}
       >
-        <Link href="/home" className="mr-3 rounded-[8px]" aria-label="MrGridy, Switchboard">
+        <Link href="/home" className="mr-3 hidden shrink-0 rounded-[8px] sm:block" aria-label="MrGridy, Switchboard">
           <Wordmark size={20} />
         </Link>
-        <ul className="flex items-center gap-1">
+        <ul className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] sm:gap-1">
           {NAV.map((item, i) => {
             const active = pathname === item.href;
             return (
@@ -58,7 +58,7 @@ export function AppShell({ children, aside }: { children: ReactNode; aside?: Rea
                   aria-current={active ? "page" : undefined}
                   title={`${item.tagline} (press ${i + 1})`}
                   className={cx(
-                    "flex h-9 items-center gap-2 rounded-[10px] px-3 text-[14px] font-medium transition-colors duration-150",
+                    "flex h-9 items-center gap-2 rounded-[10px] px-2 text-[13px] font-medium whitespace-nowrap transition-colors duration-150 sm:px-3 sm:text-[14px]",
                     active
                       ? "bg-white/85 text-ink shadow-[0_0_0_1px_rgba(20,24,30,0.08)]"
                       : "text-ink-2 hover:bg-white/50 hover:text-ink",
