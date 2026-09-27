@@ -33,8 +33,8 @@ export function BoardHeader({ cw, onFind }: { cw: CrosswireState; onFind: (() =>
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
       {cw.catalog ? (
-        <div className="flex min-w-0 items-center gap-1">
-          <div className="w-[230px] min-w-0">
+        <div className="flex w-full min-w-0 items-center gap-1 sm:w-auto">
+          <div className="min-w-0 flex-1 sm:w-[230px] sm:flex-none">
             <UtilityCombo
               label="Your utility"
               swatch={UTILITY_HEX.DESC}
@@ -56,7 +56,7 @@ export function BoardHeader({ cw, onFind }: { cw: CrosswireState; onFind: (() =>
           >
             <ArrowLeftRight size={15} aria-hidden />
           </button>
-          <div className="w-[230px] min-w-0">
+          <div className="min-w-0 flex-1 sm:w-[230px] sm:flex-none">
             <UtilityCombo
               label="Neighbour"
               swatch={UTILITY_HEX.GPC}

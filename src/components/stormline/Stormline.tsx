@@ -10,7 +10,7 @@ import { LayerKey } from "../response/LayerKey";
 import { useResponseMode } from "../response/useResponseMode";
 import { AppShell, NAV_CLEARANCE } from "../shell/AppShell";
 import { NAV } from "../shell/nav";
-import { Rail, railInset, type RailSection } from "../shell/Rail";
+import { Rail, railInset, SHEET_FRACTION, type RailSection } from "../shell/Rail";
 import { ErrorCard } from "../ui/states";
 import { StormBriefingButton } from "../integrations/StormBriefingButton";
 import { StormWatch } from "./StormWatch";
@@ -43,16 +43,25 @@ export function Stormline() {
   // cover the whole map as a sheet, so it closes on mount there. The team-up panel
   // opens when a storm is picked.
   const phone = useSyncExternalStore(subscribePhone, isPhone, () => false);
-  const [openChoice, setOpen] = useState<boolean | null>(null);
+  const [openChoice, setOpenChoice] = useState<boolean | null>(null);
   const open = openChoice ?? !phone;
-  const [teamOpen, setTeamOpen] = useState(false);
+  const [teamOpen, setTeamOpenRaw] = useState(false);
+  // On phones both panels are bottom sheets in the same spot, so opening one closes the other.
+  const setOpen = useCallback((v: boolean) => {
+    setOpenChoice(v);
+    if (v && isPhone()) setTeamOpenRaw(false);
+  }, []);
+  const setTeamOpen = useCallback((v: boolean) => {
+    setTeamOpenRaw(v);
+    if (v && isPhone()) setOpenChoice(false);
+  }, []);
   const { pickStorm } = response;
   const pickFromList = useCallback(
     (id: string) => {
       pickStorm(id);
       if (!isPhone()) setTeamOpen(true);
     },
-    [pickStorm],
+    [pickStorm, setTeamOpen],
   );
   const [teamMove, setTeamMove] = useState<string | null>(null);
   const scene = useMemo(
@@ -69,8 +78,14 @@ export function Stormline() {
   }, [clearZone]);
 
   const padding = useMemo<MapPadding>(
-    () => ({ top: NAV_CLEARANCE + 16, bottom: SCRUBBER_H + 40, left: railInset(open), right: panelInset(teamOpen) }),
-    [open, teamOpen],
+    () => ({
+      top: NAV_CLEARANCE + 16,
+      // Phones: keep the storm framed above whichever bottom sheet is open.
+      bottom: phone && (open || teamOpen) ? Math.round(window.innerHeight * SHEET_FRACTION) + 24 : SCRUBBER_H + 40,
+      left: railInset(open),
+      right: panelInset(teamOpen),
+    }),
+    [open, teamOpen, phone],
   );
 
   const data = response.data;

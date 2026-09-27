@@ -8,6 +8,12 @@ import { NAV_CLEARANCE } from "./AppShell";
 export const RAIL_W = 392;
 export const RAIL_COLLAPSED_W = 60;
 export const RAIL_GUTTER = 12;
+/**
+ * Phones: the open rail (and Stormline's team-up panel) becomes a bottom sheet
+ * 55% of the screen tall, so the map stays in view above it.
+ */
+export const SHEET_FRACTION = 0.55;
+export const SHEET_CLASS = "max-md:top-auto! max-md:right-3! max-md:left-3! max-md:z-40 max-md:h-[55dvh] max-md:w-auto!";
 
 export interface RailSection {
   id: string;
@@ -18,7 +24,7 @@ export interface RailSection {
 
 /** Width the map should keep clear on the left for the rail. */
 export function railInset(open: boolean): number {
-  // Phones: an open rail covers the map like a sheet, so the map keeps its full width.
+  // Phones: an open rail is a bottom sheet, so the map keeps its full width.
   if (typeof window !== "undefined" && window.innerWidth < 768) return open ? 24 : RAIL_GUTTER + RAIL_COLLAPSED_W + 12;
   return RAIL_GUTTER + (open ? RAIL_W : RAIL_COLLAPSED_W) + 24;
 }
@@ -92,7 +98,7 @@ export function Rail({
   return (
     <aside
       aria-label={title}
-      className="glass gs-in-left fixed z-30 flex flex-col overflow-hidden rounded-[16px]"
+      className={cx("glass gs-in-left fixed z-30 flex flex-col overflow-hidden rounded-[16px]", SHEET_CLASS)}
       style={{ top, left: RAIL_GUTTER, bottom: RAIL_GUTTER, width: `min(${RAIL_W}px, calc(100vw - ${RAIL_GUTTER * 2}px))` }}
     >
       <header className="flex items-start gap-3 px-5 pt-4 pb-3">
@@ -112,7 +118,7 @@ export function Rail({
       </header>
       {header ? <div className="px-5 pb-3">{header}</div> : null}
       {sections.length > 1 ? (
-        <div role="tablist" aria-label={`${title} sections`} className="flex gap-1 border-y border-hairline px-3 py-2">
+        <div role="tablist" aria-label={`${title} sections`} className="flex gap-1 overflow-x-auto border-y border-hairline px-3 py-2 [scrollbar-width:none]">
           {sections.map((s) => (
             <button
               key={s.id}
@@ -121,7 +127,7 @@ export function Rail({
               aria-selected={s.id === current?.id}
               onClick={() => onActive(s.id)}
               className={cx(
-                "flex h-8 items-center gap-1.5 rounded-[9px] px-2.5 text-[13px] font-medium transition-colors",
+                "flex h-8 shrink-0 items-center gap-1.5 rounded-[9px] px-2.5 text-[13px] font-medium whitespace-nowrap transition-colors",
                 s.id === current?.id
                   ? "bg-white/85 text-ink shadow-[0_0_0_1px_rgba(20,24,30,0.08)]"
                   : "text-ink-3 hover:text-ink",

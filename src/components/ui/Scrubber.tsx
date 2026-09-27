@@ -49,7 +49,7 @@ export function Scrubber({
 }) {
   const pct = ((value - min) / (max - min || 1)) * 100;
   return (
-    <div className="flex h-full items-center gap-4 px-4">
+    <div className="flex h-full items-center gap-3 px-3 sm:gap-4 sm:px-4">
       <button
         type="button"
         onClick={onToggle}
@@ -62,7 +62,7 @@ export function Scrubber({
           <Play size={15} fill="currentColor" className="translate-x-[1px]" />
         )}
       </button>
-      <div className="w-[200px] shrink-0">{current}</div>
+      <div className="w-[120px] shrink-0 sm:w-[200px]">{current}</div>
       <div className="@container relative min-w-0 flex-1 pt-1">
         <div className="relative h-7">
           {histogram && histogram.length ? (

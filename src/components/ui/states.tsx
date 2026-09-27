@@ -30,7 +30,7 @@ export function EmptyState({ title, body, action }: { title: string; body?: Reac
 export function ErrorCard({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-4">
-      <Panel className="pointer-events-auto w-[380px] p-5" role="alert">
+      <Panel className="pointer-events-auto w-[380px] max-w-full p-5" role="alert">
         <div className="eyebrow mb-2">Data unavailable</div>
         <div className="text-[15px] font-medium">Mr.Gridy could not load this mode&apos;s data.</div>
         <p className="mt-1.5 text-[13px] leading-5 text-ink-3">

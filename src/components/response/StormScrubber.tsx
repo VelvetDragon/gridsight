@@ -69,11 +69,11 @@ export function StormScrubber({
         ticks={ticks}
         histogram={histogram}
         current={
-          <div className="flex flex-col">
-            <span className="display text-[16px] leading-5 font-medium text-ink">
+          <div className="flex min-w-0 flex-col">
+            <span className="display truncate text-[16px] leading-5 font-medium text-ink">
               {storm.name}, <span className="tabular-nums">{fmtUtc(value)}</span>
             </span>
-            <span className="text-[12px] leading-4 text-ink-3">
+            <span className="truncate text-[12px] leading-4 text-ink-3">
               {frame ? (
                 <>
                   {stormCategoryShort(frame.windKt)} · <span className="num">{Math.round(frame.windKt)} kt</span>

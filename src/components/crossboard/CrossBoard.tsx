@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FALLBACK_IDS } from "@/lib/catalog";
 import { UTILITY_NAME } from "@/lib/theme";
 import { setUrlParams, useUrlParam } from "@/lib/useUrlState";
@@ -62,6 +62,14 @@ export function CrossBoard() {
   const findLinked = useUrlParam("find") === "1" && cw.findAvailable;
   const [keyOpen, setKeyOpen] = useState(false);
   const { clearMatch, selectOverlap, selected, ranked } = cw;
+  const detailsRef = useRef<HTMLElement>(null);
+
+  // Below lg the details sit under the map and the list, so bring a newly picked pair into view.
+  const selectedId = selected?.overlap.id ?? null;
+  useEffect(() => {
+    if (!selectedId || !window.matchMedia("(max-width: 1023px)").matches) return;
+    detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [selectedId]);
 
   // Esc closes the pair; J and K step down and up the list.
   useEffect(() => {
@@ -107,7 +115,7 @@ export function CrossBoard() {
   return (
     <AppShell>
       <main
-        className="relative flex min-h-dvh w-full flex-col gap-2 bg-paper px-3 pb-3 lg:h-dvh lg:overflow-hidden"
+        className="relative flex h-dvh w-full flex-col gap-2 overflow-y-auto bg-paper px-3 pb-3 lg:overflow-hidden"
         style={{ paddingTop: BOARD_TOP }}
       >
         <h1 className="sr-only">Crosswire</h1>
@@ -127,7 +135,7 @@ export function CrossBoard() {
           ) : null}
         </Panel>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="grid grid-cols-1 gap-2 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
           <div className="flex min-h-0 flex-col gap-2">
             <section
               aria-label="Map of both plans"
@@ -188,7 +196,7 @@ export function CrossBoard() {
             </Panel>
           </div>
 
-          <Panel className="min-h-[420px] overflow-hidden lg:min-h-0" aria-label="Details">
+          <Panel ref={detailsRef} className="min-h-[420px] scroll-mt-[72px] overflow-hidden lg:min-h-0" aria-label="Details">
             <Inspector cw={cw} />
           </Panel>
         </div>

@@ -7,7 +7,7 @@ import { andList, fullyModeled, moveKey, teamUpImpact, type LendMove, type TeamU
 import { restorationValue } from "@/lib/outageCost";
 import { timeSaved } from "@/lib/savings";
 import { NAV_CLEARANCE } from "../shell/AppShell";
-import { RAIL_GUTTER } from "../shell/Rail";
+import { RAIL_GUTTER, SHEET_CLASS } from "../shell/Rail";
 import type { Position } from "@/lib/types";
 import { cx } from "../ui/primitives";
 import { Block, More } from "./StormSections";
@@ -184,7 +184,7 @@ export const PANEL_W = 372;
 
 /** Width the map should keep clear on the right for the team-up panel. */
 export function panelInset(open: boolean): number {
-  if (typeof window !== "undefined" && window.innerWidth < 768) return 24; // phones: the panel is a sheet over the map
+  if (typeof window !== "undefined" && window.innerWidth < 768) return 24; // phones: the panel is a bottom sheet
   return open ? RAIL_GUTTER + PANEL_W + 24 : 40;
 }
 
@@ -272,7 +272,7 @@ export function TeamUpPanel({
   return (
     <aside
       aria-label="Who should team up"
-      className="glass fixed z-30 flex flex-col overflow-hidden rounded-[16px]"
+      className={cx("glass fixed z-30 flex flex-col overflow-hidden rounded-[16px]", SHEET_CLASS)}
       style={{ top: NAV_CLEARANCE, right: RAIL_GUTTER, bottom: RAIL_GUTTER, width: `min(${PANEL_W}px, calc(100vw - ${RAIL_GUTTER * 2}px))` }}
     >
       <header className="flex items-start gap-3 border-b border-hairline px-5 pt-4 pb-3">

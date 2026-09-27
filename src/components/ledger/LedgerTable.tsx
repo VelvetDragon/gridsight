@@ -184,7 +184,7 @@ export function LedgerTable<R>({
       </div>
 
       {view === "sheet" ? (
-        <div className="mt-4 min-h-0 flex-1 overflow-auto rounded-[12px] border border-hairline-strong bg-white">
+        <div className="mt-4 min-h-0 flex-1 overflow-auto rounded-[12px] max-md:min-h-[75dvh] border border-hairline-strong bg-white">
           <p className="border-b border-hairline bg-[#F7F5F0] px-3 py-2 text-[13px] text-ink-2">
             {chosen.length
               ? `Your ${chosen.length} picked rows, as they will look in Excel.`
@@ -242,7 +242,7 @@ export function LedgerTable<R>({
           </table>
         </div>
       ) : (
-        <div className="mt-4 min-h-0 flex-1 overflow-auto rounded-[14px] border border-hairline bg-white/60">
+        <div className="mt-4 min-h-0 flex-1 overflow-auto rounded-[14px] max-md:min-h-[75dvh] border border-hairline bg-white/60">
           {visible.length ? (
             <table className="w-full border-collapse text-[14px]">
               <thead className="sticky top-0 z-10 bg-[#F7F5F0]">

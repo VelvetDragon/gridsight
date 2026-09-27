@@ -143,7 +143,7 @@ export function Ledger() {
 
   return (
     <AppShell>
-      <main className="flex h-dvh flex-col bg-paper px-6 pb-6" style={{ paddingTop: NAV_CLEARANCE + 16 }}>
+      <main className="flex h-dvh flex-col overflow-y-auto bg-paper px-3 pb-3 sm:px-6 sm:pb-6 md:overflow-hidden" style={{ paddingTop: NAV_CLEARANCE + 16 }}>
         <div className="mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col">
           <header className="flex flex-wrap items-end gap-x-6 gap-y-2">
             <div>
@@ -159,7 +159,7 @@ export function Ledger() {
                   aria-selected={tab === t.id}
                   onClick={() => setTab(t.id)}
                   className={cx(
-                    "h-9 rounded-[9px] px-4 text-[14px] font-medium transition-colors",
+                    "h-9 rounded-[9px] px-2.5 text-[14px] sm:px-4 font-medium transition-colors",
                     tab === t.id
                       ? "bg-white text-ink shadow-[0_0_0_1px_rgba(20,24,30,0.08)]"
                       : "text-ink-3 hover:text-ink",
