@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { TIER_HEX, TIER_LABEL, UTILITY_HEX } from "@/lib/theme";
+import { closeInTime } from "@/lib/timeline";
 import type { OverlapTier, Position, Project } from "@/lib/types";
 
 /**
@@ -15,6 +16,8 @@ import type { OverlapTier, Position, Project } from "@/lib/types";
 
 export interface HeroOverlap {
   id: string;
+  descId: string;
+  gpcId: string;
   tier: OverlapTier;
   rank: number;
   distanceKm: number;
@@ -96,7 +99,7 @@ export function HeroMap({
 
   return (
     <div className="relative h-full w-full">
-      <svg viewBox={`0 0 ${VB.w} ${VB.h}`} className="h-full w-full" role="img" aria-label="Both utilities' planned projects and the 50 places they meet">
+      <svg viewBox={`0 0 ${VB.w} ${VB.h}`} className="h-full w-full" role="img" aria-label={`Both utilities' planned projects and the ${overlaps.length} places they meet`}>
         <defs>
           <pattern id="hm-grid" width="40" height="40" patternUnits="userSpaceOnUse">
             <path d="M40 0H0V40" fill="none" stroke="#15181E" strokeOpacity="0.045" strokeWidth="1" />
@@ -347,7 +350,12 @@ export function useHeroData(): HeroData | null {
       get<StormEntry[]>("response/storms.json").catch(() => []),
     ])
       .then(([projects, overlaps, states, river, storms]) => {
-        if (alive) setData({ projects, overlaps, states: states.features, river: river.features, storms });
+        // Same rule as Crosswire: pairs built too far apart in time share nothing.
+        const byId = new Map(projects.map((p) => [p.id, p]));
+        const timely = overlaps.filter((o) =>
+          closeInTime(byId.get(o.descId)?.buildWindow ?? null, byId.get(o.gpcId)?.buildWindow ?? null),
+        );
+        if (alive) setData({ projects, overlaps: timely, states: states.features, river: river.features, storms });
       })
       .catch(() => {});
     return () => {
