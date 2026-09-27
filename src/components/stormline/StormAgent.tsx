@@ -614,7 +614,7 @@ export function StormAgent({ bridge }: { bridge: AgentBridge }) {
       tools={tools}
       page="storm"
       hint="Talk to MrGridy about this storm (voice by ElevenLabs)"
-      className="fixed left-1/2"
+      className="fixed left-1/2 max-md:top-auto! max-md:bottom-[124px]"
       style={{ top: NAV_CLEARANCE }}
     />
   );

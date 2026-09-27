@@ -172,6 +172,7 @@ export const PANEL_W = 372;
 
 /** Width the map should keep clear on the right for the team-up panel. */
 export function panelInset(open: boolean): number {
+  if (typeof window !== "undefined" && window.innerWidth < 768) return 24; // phones: the panel is a sheet over the map
   return open ? RAIL_GUTTER + PANEL_W + 24 : 40;
 }
 
@@ -255,7 +256,8 @@ export function TeamUpPanel({
         style={{ top: NAV_CLEARANCE, right: RAIL_GUTTER }}
       >
         <Handshake size={15} aria-hidden className="text-ink-3" />
-        Who should team up
+        <span className="sm:hidden">Team up</span>
+        <span className="hidden sm:inline">Who should team up</span>
         <PanelRightOpen size={15} aria-hidden className="text-ink-3" />
       </button>
     );
@@ -265,7 +267,7 @@ export function TeamUpPanel({
     <aside
       aria-label="Who should team up"
       className="glass fixed z-30 flex flex-col overflow-hidden rounded-[16px]"
-      style={{ top: NAV_CLEARANCE, right: RAIL_GUTTER, bottom: RAIL_GUTTER, width: PANEL_W }}
+      style={{ top: NAV_CLEARANCE, right: RAIL_GUTTER, bottom: RAIL_GUTTER, width: `min(${PANEL_W}px, calc(100vw - ${RAIL_GUTTER * 2}px))` }}
     >
       <header className="flex items-start gap-3 border-b border-hairline px-5 pt-4 pb-3">
         <div className="min-w-0 flex-1">
