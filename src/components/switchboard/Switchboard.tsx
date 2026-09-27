@@ -66,17 +66,20 @@ export function Switchboard() {
                 className="display sb-rise text-[42px] leading-[1.05] font-medium tracking-[-0.02em] text-ink sm:text-[clamp(40px,6.2dvh,50px)]"
                 style={{ animationDelay: "0.12s" }}
               >
-                Neighbours do the same work. Now they can do it{" "}
+                Build together in blue skies.
+                <br />
+                Recover{" "}
                 <span className="relative inline-block whitespace-nowrap">
-                  together.
+                  together
                   <Squiggle />
-                </span>
+                </span>{" "}
+                in gray skies.
               </h1>
 
               <p className="sb-rise mt-5 text-[17px] leading-[27px] text-ink-2" style={{ animationDelay: "0.22s" }}>
-                MrGridy helps neighbouring power companies in two ways: getting crews ready{" "}
-                <span className="font-medium text-ink">before a hurricane</span>, and sharing the work{" "}
-                <span className="font-medium text-ink">when they build</span> new power lines.
+                MrGridy maps where neighbouring power companies meet, using only public data, so they can share the work{" "}
+                <span className="font-medium text-ink">when they build</span> new lines and share crews{" "}
+                <span className="font-medium text-ink">when a hurricane hits</span>.
               </p>
 
             </div>
