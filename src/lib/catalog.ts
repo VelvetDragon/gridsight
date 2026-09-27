@@ -345,6 +345,23 @@ export function registerFoundUtility(utility: CatalogUtility, projects: CatalogP
   }
 }
 
+/** true for a utility added with "Find another utility" (saved on this device). */
+export function isFoundUtility(id: string): boolean {
+  if (found.has(id)) return true;
+  if (typeof window === "undefined") return false;
+  return readSaved().some((s) => s.utility.id === id);
+}
+
+/** Remove a found utility from this device (the dropdown and saved list). */
+export function forgetFoundUtility(id: string) {
+  found.delete(id);
+  try {
+    window.localStorage.setItem(SAVED_KEY, JSON.stringify(readSaved().filter((s) => s.utility.id !== id)));
+  } catch {
+    // Storage blocked: it disappears after the next reload anyway.
+  }
+}
+
 /** Projects of a utility found on demand, if any. */
 export function foundProjects(id: string): CatalogProject[] | null {
   return found.get(id) ?? null;

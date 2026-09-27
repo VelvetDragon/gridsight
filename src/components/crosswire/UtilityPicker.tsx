@@ -16,8 +16,11 @@ export function UtilityCombo({
   onFind,
   trailing,
   compact = false,
+  onRemove,
 }: {
   trailing?: React.ReactNode;
+  /** Utilities added with "Find another utility" get a Remove button. */
+  onRemove?: { can: (id: string) => boolean; remove: (id: string) => void };
   /** No label row above and a shorter button; the label moves to the button's accessible name. */
   compact?: boolean;
   label: string;
@@ -140,6 +143,19 @@ export function UtilityCombo({
                     {[u.parent, u.states.join(", "), `${u.projectCount} planned projects`].filter(Boolean).join(" · ")}
                   </span>
                 </span>
+                {onRemove?.can(u.id) ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemove.remove(u.id);
+                    }}
+                    className="shrink-0 rounded-[6px] px-1.5 py-0.5 text-[12px] text-ink-3 hover:bg-white hover:text-alert"
+                    title={`Remove ${u.name} from this list`}
+                  >
+                    Remove
+                  </button>
+                ) : null}
                 {u.id === value?.id ? <Check size={14} aria-hidden className="text-ink-2" /> : null}
               </li>
             ))}

@@ -5,6 +5,7 @@ import { TIER_LABEL, TIER_RANGE, TIERS, UTILITY_HEX } from "@/lib/theme";
 import type { OverlapTier } from "@/lib/types";
 import type { CrosswireState } from "../crosswire/useCrosswire";
 import { UtilityCombo } from "../crosswire/UtilityPicker";
+import { forgetFoundUtility, isFoundUtility } from "@/lib/catalog";
 import { fmtMoney } from "../plan/Savings";
 import { cx, TierSwatch } from "../ui/primitives";
 
@@ -14,6 +15,14 @@ import { cx, TierSwatch } from "../ui/primitives";
  */
 export function BoardHeader({ cw, onFind }: { cw: CrosswireState; onFind: (() => void) | null }) {
   const utilities = cw.catalog?.utilities ?? [];
+  // Added utilities can be removed; the page reloads on the default pair.
+  const removable = {
+    can: isFoundUtility,
+    remove: (id: string) => {
+      forgetFoundUtility(id);
+      window.location.replace(`${window.location.origin}/compare`);
+    },
+  };
   const you = utilities.find((u) => u.id === cw.pairIds?.[0]) ?? null;
   const neighbor = utilities.find((u) => u.id === cw.pairIds?.[1]) ?? null;
 
@@ -34,6 +43,7 @@ export function BoardHeader({ cw, onFind }: { cw: CrosswireState; onFind: (() =>
               exclude={neighbor?.id ?? null}
               onChange={(id) => neighbor && cw.setPair(id, neighbor.id)}
               onFind={null}
+              onRemove={removable}
               compact
             />
           </div>
@@ -55,6 +65,7 @@ export function BoardHeader({ cw, onFind }: { cw: CrosswireState; onFind: (() =>
               exclude={you?.id ?? null}
               onChange={(id) => you && cw.setPair(you.id, id)}
               onFind={onFind}
+              onRemove={removable}
               compact
             />
           </div>
