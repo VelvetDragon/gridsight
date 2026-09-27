@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCcw, SkipForward } from "lucide-react";
+import { Pause, Play, RotateCcw, SkipForward } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   ACTS,
@@ -286,6 +286,11 @@ function Show() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const togglePause = useCallback(() => {
+    paused.current = !paused.current;
+    setIsPaused(paused.current);
+  }, []);
+
   const goTo = useCallback((x: number) => {
     replay.current = null;
     const cycle = Math.floor(clock.current / LOOP);
@@ -310,8 +315,7 @@ function Show() {
       const x = ((clock.current % LOOP) + LOOP) % LOOP;
       if (e.key === " ") {
         e.preventDefault();
-        paused.current = !paused.current;
-        setIsPaused(paused.current);
+        togglePause();
       } else if (e.key === "ArrowRight") {
         if (replay.current) replay.current = null;
         else goTo(marks.find((m) => m > x + 0.05) ?? LOOP);
@@ -330,7 +334,7 @@ function Show() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goTo]);
+  }, [goTo, togglePause]);
 
   const f = frameAt(view.t);
   const c = view.cam;
@@ -407,6 +411,10 @@ function Show() {
         onPick={(i) => pick(CHAPTERS[i].fill)}
         onStart={() => goTo(0)}
         onEnd={() => goTo(BUILD)}
+        flowNow={f.mode === "flow" && !rp ? f.fi : -1}
+        onFlow={(i) => goTo(FLOW_START[i])}
+        paused={isPaused}
+        onTogglePause={togglePause}
       />
     </div>
   );
@@ -422,6 +430,10 @@ function Rail({
   onPick,
   onStart,
   onEnd,
+  flowNow,
+  onFlow,
+  paused,
+  onTogglePause,
 }: {
   built: number;
   now: number;
@@ -429,14 +441,28 @@ function Rail({
   onPick: (i: number) => void;
   onStart: () => void;
   onEnd: () => void;
+  flowNow: number;
+  onFlow: (i: number) => void;
+  paused: boolean;
+  onTogglePause: () => void;
 }) {
   const [hover, setHover] = useState<number | null>(null);
+  const [hoverFlow, setHoverFlow] = useState<number | null>(null);
+  const flowShown = hoverFlow ?? (flowNow >= 0 && hover === null ? flowNow : null);
   const shown = hover ?? (now >= 0 ? now : null);
   const btn =
     "flex h-8 items-center gap-1.5 rounded-full px-3 font-mono text-[11px] tracking-[0.08em] text-slate-400 uppercase transition hover:bg-white/[0.07] hover:text-white";
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center">
       <div className="pointer-events-auto relative flex items-center gap-2 rounded-full border border-white/[0.07] bg-[#0a0f1b]/80 py-1.5 pr-1.5 pl-2 shadow-[0_12px_40px_rgba(0,0,0,0.5)] backdrop-blur-md">
+        <button
+          onClick={onTogglePause}
+          className="grid size-8 place-items-center rounded-full text-slate-300 transition hover:bg-white/[0.08] hover:text-white"
+          aria-label={paused ? "Play" : "Pause"}
+          title={paused ? "Play (space)" : "Pause (space)"}
+        >
+          {paused ? <Play size={14} /> : <Pause size={14} />}
+        </button>
         <button onClick={onStart} className={btn} aria-label="Start over">
           <RotateCcw size={13} /> Start
         </button>
@@ -475,8 +501,46 @@ function Rail({
         <button onClick={onEnd} className={`${btn} ${finale ? "text-emerald-300" : ""}`} aria-label="Skip to the full system">
           Full system <SkipForward size={13} />
         </button>
+        <div className="mx-1 h-4 w-px bg-white/10" />
+        <div className="flex items-center gap-0.5 pr-1" onMouseLeave={() => setHoverFlow(null)}>
+          <span className="mr-1 font-mono text-[10px] tracking-[0.12em] text-slate-500 uppercase">Requests</span>
+          {FLOWS.map((fl, i) => {
+            const on = i === flowNow;
+            return (
+              <button
+                key={fl.title}
+                onClick={() => onFlow(i)}
+                onMouseEnter={() => setHoverFlow(i)}
+                onFocus={() => setHoverFlow(i)}
+                aria-label={`Request ${i + 1}: ${fl.title}`}
+                className="group grid size-7 place-items-center rounded-full"
+              >
+                <span
+                  className="grid size-[18px] place-items-center rounded-[6px] font-mono text-[10px] transition-transform group-hover:scale-125"
+                  style={{
+                    color: on ? "#06231a" : "#6ee7b7",
+                    background: on ? "#34D399" : "rgba(52,211,153,0.12)",
+                    boxShadow: on ? "0 0 14px rgba(52,211,153,0.6)" : "inset 0 0 0 1px rgba(52,211,153,0.35)",
+                  }}
+                >
+                  {i + 1}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
-        {shown !== null ? (
+        {flowShown !== null ? (
+          <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 rounded-full border border-white/[0.08] bg-[#0a0f1b]/90 px-3 py-1 font-mono text-[11px] whitespace-nowrap text-slate-300">
+            <span className="text-emerald-300">Request {flowShown + 1}</span>
+            {"  "}
+            {FLOWS[flowShown].title}
+            <span className="text-slate-500">
+              {"  ·  "}
+              {flowShown === flowNow && hoverFlow === null ? (paused ? "paused" : "playing") : "click to play it"}
+            </span>
+          </div>
+        ) : shown !== null ? (
           <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 rounded-full border border-white/[0.08] bg-[#0a0f1b]/90 px-3 py-1 font-mono text-[11px] whitespace-nowrap text-slate-300">
             <span style={{ color: TONE[PART[CHAPTERS[shown].fill].tone] }}>{String(shown + 1).padStart(2, "0")}</span>
             {"  "}
