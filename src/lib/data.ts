@@ -7,6 +7,8 @@
  * uses those records to show an honest "Sample data" indicator.
  */
 import { isWetlandNoteList, type WetlandNote } from "./opportunities";
+import { ACTUAL_FILE, isActualRestoration, type ActualStorm } from "./actual";
+import { trimTrack } from "./response";
 import { isOutageCost, OUTAGE_COST_FILE, type OutageCost } from "./outageCost";
 import { isMutualAid, type MutualAid } from "./savings";
 import { isTeamUp, type TeamUp } from "./teamup";
@@ -187,8 +189,10 @@ export interface ResponseData {
   mutualAid: MutualAid | null;
   /** Every transmission owner in the path and who should team up, when available. */
   teamUp: TeamUp | null;
-  /** Cost of an outage hour per utility (same for every storm), when available. */
+  /** Cost of an outage hour per utility, for the rough dollar estimate, when available. */
   outageCost: OutageCost | null;
+  /** What actually happened to each utility in this storm, from published sources, when available. */
+  actual: ActualStorm | null;
 }
 
 export interface Bundle<T> {
@@ -242,15 +246,24 @@ export async function loadResponse(stormId: string, signal?: AbortSignal): Promi
     loadDataFile<VulnerableArea[]>(f.vulnerable, "array", signal),
     loadOptionalLines(PLAN_FILES.river, signal),
   ]);
-  const [mutualAid, teamUp, outageCost] = await Promise.all([
+  const [mutualAid, teamUp, actual, outageCost] = await Promise.all([
     loadOptional(f.mutualAid, meta.origin === "sample", isMutualAid, signal),
     loadOptional(f.teamUp, false, isTeamUp, signal),
+    loadOptional(ACTUAL_FILE, false, isActualRestoration, signal),
     loadOptional(OUTAGE_COST_FILE, false, isOutageCost, signal),
   ]);
   return {
     data: {
       meta: meta.data,
-      storm: storm.data,
+      storm: trimTrack(storm.data, [
+        ...zones.data.map((z) => z.centroid),
+        ...segments.data
+          .filter((s) => s.failureProbability >= 0.15)
+          .map((s): Position => [
+            (s.coordinates[0][0] + s.coordinates[1][0]) / 2,
+            (s.coordinates[0][1] + s.coordinates[1][1]) / 2,
+          ]),
+      ]),
       segments: segments.data,
       counties: counties.data,
       zones: zones.data,
@@ -259,9 +272,10 @@ export async function loadResponse(stormId: string, signal?: AbortSignal): Promi
       river: river.data,
       mutualAid: mutualAid?.data ?? null,
       teamUp: teamUp?.data ?? null,
+      actual: actual?.data.storms[stormId] ?? null,
       outageCost: outageCost?.data ?? null,
     },
     // The river is shared context, reported under Plan mode's status.
-    files: [meta, storm, segments, counties, zones, yards, vulnerable, ...(mutualAid ? [mutualAid] : []), ...(teamUp ? [teamUp] : []), ...(outageCost ? [outageCost] : [])].map(strip),
+    files: [meta, storm, segments, counties, zones, yards, vulnerable, ...(mutualAid ? [mutualAid] : []), ...(teamUp ? [teamUp] : []), ...(actual ? [actual] : []), ...(outageCost ? [outageCost] : [])].map(strip),
   };
 }

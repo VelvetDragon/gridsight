@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { CloudLightning, Layers, Wrench } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useUrlParam } from "@/lib/useUrlState";
 import type { MapPadding } from "../map/MapCanvas";
 import { StormScrubber } from "../response/StormScrubber";
@@ -16,7 +16,7 @@ import { StormBriefingButton } from "../integrations/StormBriefingButton";
 import { StormWatch } from "./StormWatch";
 import { panelInset, TeamUpPanel } from "./TeamUpSection";
 import { StormAgent } from "./StormAgent";
-import { Block, BothGridsLine, CrewsSection, ModelCheck, More, RealOutages, StormPicker, TimeSavedBlock } from "./StormSections";
+import { ActualRestoration, Block, BothGridsLine, CrewsSection, ModelCheck, More, RealOutages, StormPicker, TimeSavedBlock } from "./StormSections";
 
 const MapStage = dynamic(() => import("../map/MapStage"), {
   ssr: false,
@@ -25,14 +25,35 @@ const MapStage = dynamic(() => import("../map/MapStage"), {
 
 const SCRUBBER_H = 72;
 
+/** Same breakpoint as the rail and team-up panel, where both become sheets over the map. */
+const PHONE_QUERY = "(max-width: 767px)";
+const isPhone = () => window.matchMedia(PHONE_QUERY).matches;
+function subscribePhone(onChange: () => void) {
+  const mq = window.matchMedia(PHONE_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
 /** Stormline: where the next storm meets both grids. */
 export function Stormline() {
   const stormParam = useUrlParam("storm");
   const timeParam = useUrlParam("t");
   const response = useResponseMode(stormParam, timeParam);
-  // Both panels start closed: the map and "Ask MrGridy" first; the agent or a click opens them.
-  const [open, setOpen] = useState(false);
+  // The rail starts open so the storm details are right there; on phones it would
+  // cover the whole map as a sheet, so it closes on mount there. The team-up panel
+  // opens when a storm is picked.
+  const phone = useSyncExternalStore(subscribePhone, isPhone, () => false);
+  const [openChoice, setOpen] = useState<boolean | null>(null);
+  const open = openChoice ?? !phone;
   const [teamOpen, setTeamOpen] = useState(false);
+  const { pickStorm } = response;
+  const pickFromList = useCallback(
+    (id: string) => {
+      pickStorm(id);
+      if (!isPhone()) setTeamOpen(true);
+    },
+    [pickStorm],
+  );
   const [teamMove, setTeamMove] = useState<string | null>(null);
   const scene = useMemo(
     () => (response.scene ? { ...response.scene, selectedTeamMove: teamMove } : null),
@@ -64,13 +85,16 @@ export function Stormline() {
             <StormWatch />
           </Block>
           <Block>
-            <StormPicker storms={response.storms} stormId={response.stormId} onStorm={response.pickStorm} />
+            <StormPicker storms={response.storms} stormId={response.stormId} onStorm={pickFromList} />
           </Block>
           {data ? (
             <>
               <Block>
                 <BothGridsLine data={data} />
                 {response.stormId ? <StormBriefingButton stormId={response.stormId} className="mt-4" /> : null}
+              </Block>
+              <Block>
+                <ActualRestoration data={data} />
               </Block>
               {data.mutualAid ? (
                 <Block>

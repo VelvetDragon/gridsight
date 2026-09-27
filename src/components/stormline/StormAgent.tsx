@@ -10,8 +10,10 @@ import { useEffect, useRef } from "react";
 import { VoiceAgent } from "../integrations/VoiceAgent";
 import type { ResponseData } from "@/lib/data";
 import { stormKey, zoneLabel } from "@/lib/response";
+import { restorationValue } from "@/lib/outageCost";
 import { timeSaved } from "@/lib/savings";
 import {
+  fullyModeled,
   isTeamUp,
   moveKey,
   teamUpImpact,
@@ -99,13 +101,18 @@ function nearestCounty(p: Position, data: ResponseData): string | null {
   return best;
 }
 
+/** What every "hours sooner" in these tools means, so the agent never voices it as power back. */
+const SIM_NOTE =
+  "Hours sooner are for simulated transmission repairs only, not for customers getting power back: most hurricane outages are on local distribution lines, which are not modeled, and both utilities already bring in outside crews through mutual assistance. Say so when quoting them.";
+
 function describeMove(m: TeamUpMove, t: TeamUp) {
   const n = (id: string) => t.owners.find((o) => o.id === id)?.name ?? id;
   if (m.kind === "lend") {
     return {
       move: `${n(m.from)} lends ${m.crews} crews to ${n(m.to)}`,
       driveHours: m.driveHours,
-      hoursSooner: m.hoursSooner,
+      // Hours only for the two fully modeled utilities; others get crews scaled to the bit on the map.
+      simulatedTransmissionRepairHoursSooner: fullyModeled(m.to) ? m.hoursSooner : null,
       costUsd: m.costUsd,
       why: m.why,
       working: m.cost
@@ -286,7 +293,6 @@ function useTools(bridge: AgentBridge) {
       let lendHours = 0;
       let crews = 0;
       let cost = 0;
-      let customerHours = 0;
       let aidHours = 0;
       let vulnerableHours = 0;
       let helpedStorms = 0;
@@ -297,13 +303,11 @@ function useTools(bridge: AgentBridge) {
           stormFile<{ savedHours?: Record<string, number> }>(st.id, "mutual-aid.json"),
         ]);
         if (plan && counties) {
-          const imp = teamUpImpact(plan, counties.map((c) => ({ ...c, centroid: [0, 0] as Position })));
-          customerHours += imp.customerHours;
-          cost += imp.costUsd;
+          cost += teamUpImpact(plan).costUsd;
           const lends = plan.moves.filter((m): m is LendMove => m.kind === "lend");
           if (lends.length) helpedStorms += 1;
           for (const m of lends) {
-            lendHours += m.hoursSooner;
+            if (fullyModeled(m.to)) lendHours += m.hoursSooner;
             crews += m.crews;
           }
         }
@@ -314,14 +318,13 @@ function useTools(bridge: AgentBridge) {
         storms: storms.length,
         stormsWhereLendingCrewsHelps: helpedStorms,
         crewsLentAcrossStorms: crews,
-        hoursSoonerForUtilitiesGettingHelp: round(lendHours),
-        customerHoursInTheDarkAvoidedUpperBound: round(customerHours, -5),
+        simulatedTransmissionRepairHoursSoonerForDominionAndGeorgiaPower: round(lendHours),
         crewCostUsd: round(cost, -4),
-        dominionAndGeorgiaPowerSharingCrewsAndYards: {
-          totalHoursSoonerTo90PctRestored: round(aidHours),
-          totalHoursSoonerForPeopleOnMedicalEquipment: round(vulnerableHours),
+        dominionAndGeorgiaPowerSharingCrewsWhatIf: {
+          totalHoursSoonerTo90PctOfTransmissionRepairs: round(aidHours),
+          totalHoursSoonerForRepairsNearPeopleOnMedicalEquipment: round(vulnerableHours),
         },
-        note: "Planning estimates from simulated storms and public data.",
+        note: SIM_NOTE,
       });
     },
 
@@ -374,24 +377,32 @@ function useTools(bridge: AgentBridge) {
       const byState: Record<string, number> = {};
       for (const c of d.counties) byState[c.state] = (byState[c.state] ?? 0) + c.predictedPeakOut;
       const aid = d.mutualAid ? timeSaved(d.mutualAid) : null;
-      const imp = d.teamUp ? teamUpImpact(d.teamUp, d.counties) : null;
+      const imp = d.teamUp ? teamUpImpact(d.teamUp) : null;
+      const avoided =
+        d.mutualAid && d.outageCost && !d.actual?.outageCostHidden ? restorationValue(d.mutualAid, d.counties, d.outageCost).usd : null;
       return json({
         storm: `${d.storm.name}`,
         lineSectionsWithOneInTenChanceOfBreaking: risky,
         customersPredictedOutAtPeakByState: Object.fromEntries(Object.entries(byState).map(([k, v]) => [k, round(v, -3)])),
-        dominionAndGeorgiaPowerWorkingTogether: aid
-          ? { hoursSoonerTo90PctRestored: round(aid.to90, 1), hoursSoonerForPeopleOnMedicalEquipment: round(aid.vulnerableTo90, 1) }
+        dominionAndGeorgiaPowerSharingCrewsWhatIf: aid
+          ? {
+              hoursSoonerTo90PctOfTransmissionRepairs: round(aid.to90, 1),
+              hoursSoonerForRepairsNearPeopleOnMedicalEquipment: round(aid.vulnerableTo90, 1),
+              outageCostAvoidedRoughEstimateUsd: avoided != null ? round(avoided, -4) : null,
+            }
           : null,
         teamUp: imp
           ? {
-              helped: imp.sooner.map((s) => ({ utility: s.name, hoursSooner: round(s.hours, 1) })),
-              customerHoursAvoidedUpperBound: round(imp.customerHours, -4),
+              helped: imp.sooner.map((s) => ({
+                utility: s.name,
+                simulatedTransmissionRepairHoursSooner: fullyModeled(s.id) ? round(s.hours, 1) : null,
+              })),
               crewCostUsd: imp.costUsd,
               sharedYards: imp.sharedYards,
             }
           : null,
         repairZones: d.zones.length,
-        note: "Planning estimate from a 10,000-run simulation of this storm, not a record of what happened.",
+        note: `Planning estimate from a 10,000-run simulation of this storm, not a record of what happened. ${SIM_NOTE}`,
       });
     },
 
@@ -493,7 +504,9 @@ function useTools(bridge: AgentBridge) {
       const n = (id: string) => t?.owners.find((o) => o.id === id)?.name ?? id;
       for (const m of (t?.moves ?? []).filter((x): x is LendMove => x.kind === "lend").slice(0, 3)) {
         out.push(
-          `Before landfall, line up ${m.crews} ${n(m.from)} crews for ${n(m.to)}: about ${round(m.hoursSooner)} hours sooner power for roughly $${round(m.costUsd / 1000)}k in crew time.`,
+          fullyModeled(m.to)
+            ? `Before landfall, line up ${m.crews} ${n(m.from)} crews for ${n(m.to)}: in the simulation its transmission repairs finish about ${round(m.hoursSooner)} hours sooner, for roughly $${round(m.costUsd / 1000)}k in crew time.`
+            : `Before landfall, line up ${m.crews} ${n(m.from)} crews for ${n(m.to)}, for roughly $${round(m.costUsd / 1000)}k in crew time.`,
         );
       }
       const helped = new Set((t?.moves ?? []).filter((x): x is LendMove => x.kind === "lend").map((m) => m.to));
@@ -513,7 +526,7 @@ function useTools(bridge: AgentBridge) {
       }
       const aid = d.mutualAid ? timeSaved(d.mutualAid) : null;
       if (aid && aid.to90 >= 0.5) {
-        out.push(`Dominion and Georgia Power sharing crews and yards gets 90% of repairs done about ${round(aid.to90, 1)} hours sooner.`);
+        out.push(`In the simulation, Dominion and Georgia Power sharing transmission crews gets 90% of those repairs done about ${round(aid.to90, 1)} hours sooner.`);
       }
       if (!out.length) out.push("No outside crews are needed for this storm; keep crews home and share yards only where damage is close.");
       return json({ storm: d.storm.name, suggestions: out });
@@ -543,7 +556,7 @@ function useTools(bridge: AgentBridge) {
         for (const m of plan?.moves ?? []) {
           if (m.kind !== "lend") continue;
           crewCost += m.costUsd;
-          hoursSooner += m.hoursSooner;
+          if (fullyModeled(m.to)) hoursSooner += m.hoursSooner;
         }
       }
       return json({
@@ -560,8 +573,8 @@ function useTools(bridge: AgentBridge) {
           .map(([label, n]) => ({ yard: label, storms: n })),
         mutualAidEconomics: {
           recommendedCrewCostPerYearUsd: round(crewCost / years, -3),
-          hoursSoonerAcrossStorms: round(hoursSooner),
-          meaning: "Lent crews in the team-up plans, summed over every storm and spread over the years covered.",
+          simulatedTransmissionRepairHoursSoonerForDominionAndGeorgiaPower: round(hoursSooner),
+          meaning: `Lent crews in the team-up plans, summed over every storm and spread over the years covered. ${SIM_NOTE}`,
         },
         note: "Suggestions from simulated storms and public data; utilities would confirm with their own asset records.",
       });
@@ -585,7 +598,7 @@ function useTools(bridge: AgentBridge) {
           if (m.kind !== "lend") continue;
           const k = `${m.from}>${m.to}`;
           const e = pairs.get(k) ?? { storms: 0, crews: 0, hours: 0 };
-          pairs.set(k, { storms: e.storms + 1, crews: e.crews + m.crews, hours: e.hours + m.hoursSooner });
+          pairs.set(k, { storms: e.storms + 1, crews: e.crews + m.crews, hours: e.hours + (fullyModeled(m.to) ? m.hoursSooner : 0) });
         }
       }
       const top = (m: Map<string, number>) =>
@@ -599,7 +612,13 @@ function useTools(bridge: AgentBridge) {
           .slice(0, 5)
           .map(([k, v]) => {
             const [f, to] = k.split(">");
-            return { from: names.get(f) ?? f, to: names.get(to) ?? to, storms: v.storms, averageCrews: round(v.crews / v.storms), totalHoursSooner: round(v.hours) };
+            return {
+              from: names.get(f) ?? f,
+              to: names.get(to) ?? to,
+              storms: v.storms,
+              averageCrews: round(v.crews / v.storms),
+              simulatedTransmissionRepairHoursSooner: fullyModeled(to) ? round(v.hours) : null,
+            };
           }),
       });
     },

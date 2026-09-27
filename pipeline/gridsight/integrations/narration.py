@@ -170,6 +170,7 @@ class Data:
     origins: dict[str, str | None]
     track: dict[str, Any] | None = None  # storm.json of the storm
     response_meta: dict[str, Any] | None = None
+    teamup: dict[str, Any] | None = None  # teamup.json: whole-storm damage per owner
 
 
 def load_data(root: Path | None, storm_id: str | None = None) -> Data:
@@ -200,6 +201,7 @@ def load_data(root: Path | None, storm_id: str | None = None) -> Data:
     mutual_aid = None
     track = None
     response_meta = None
+    teamup = None
     if storm:
         sid = storm["id"]
         track = get(f"response/{sid}/storm.json")
@@ -208,13 +210,14 @@ def load_data(root: Path | None, storm_id: str | None = None) -> Data:
         zones = get(f"response/{sid}/zones.json") or []
         yards = get(f"response/{sid}/yards.json") or []
         vulnerable = get(f"response/{sid}/vulnerable.json") or []
+        teamup, _ = read_json(f"response/{sid}/teamup.json", root, fixtures=False)
         for rel in (f"response/{sid}/mutual-aid.json", "response/mutual-aid.json", "plan/insights/mutual-aid.json"):
             mutual_aid, _ = read_json(rel, root, fixtures=False)
             if mutual_aid is not None:
                 origins[rel] = "pipeline"
                 break
     return Data(meta, projects, overlaps, cost_ranges, storm, counties, zones, yards, vulnerable, mutual_aid, origins,
-                track, response_meta)
+                track, response_meta, teamup)
 
 
 def hours_saved(mutual_aid: Any) -> dict[str, float] | None:
@@ -238,14 +241,23 @@ def say_hours(h: float) -> str:
 
 
 def mutual_aid_sentence(mutual_aid: Any, short: bool = False) -> str | None:
-    """One line about restoring power together, from mutual-aid.json."""
+    """One line on the simulated crew-sharing what-if, from mutual-aid.json.
+
+    The scenario model covers transmission repairs only and compares against a baseline
+    with no outside help, so it must not be voiced as "power comes back sooner".
+    """
     saved = hours_saved(mutual_aid)
-    if saved and saved.get("to90pct", 0) > 0:
-        line = f"Working together, power comes back about {say_hours(saved['to90pct'])} hours sooner"
+    if saved and saved.get("to90pct", 0) >= 0.5:
+        line = (
+            "In the simulation, if the two companies' transmission crews took each other's jobs, "
+            f"ninety percent of the transmission repairs would be done about {say_hours(saved['to90pct'])} hours sooner"
+        )
         vul = saved.get("vulnerableTo90pct", 0)
-        if vul > 0 and not short:
-            line += f", and {say_hours(vul)} hours sooner for people who rely on powered medical equipment"
+        if vul >= 0.5 and not short:
+            line += f", and {say_hours(vul)} hours sooner near people who rely on powered medical equipment"
         return line + "."
+    if saved is not None:
+        return "In the simulation, sharing transmission crews barely changes repair time for this storm."
     candidates: list[Any] = []
     if isinstance(mutual_aid, dict):
         candidates = [mutual_aid.get(k) for k in ("narration", "headline", "summary")]
@@ -380,7 +392,8 @@ def story_clips(d: Data) -> list[Clip]:
     aid = mutual_aid_sentence(d.mutual_aid)
     if aid:
         fix.append(aid)
-        fix.append("Shared staging yards and crews go to the nearest repair zone first, whichever company owns it.")
+        fix.append("In that what-if, crews go to the nearest repair zone first, whichever company owns it. "
+                   "It covers transmission only, and both companies already bring in outside crews through mutual assistance.")
     elif d.yards:
         labels = say_list([say_place(y.get("label", "")) for y in d.yards[:2]])
         fix.append(f"{say_count(len(d.yards), 'shared staging yard').capitalize()}, at {labels}, "
@@ -439,12 +452,12 @@ def briefing_clip(d: Data) -> Clip | None:
     ga, sc = top_counties("GA"), top_counties("SC")
     ga_out = sum(c.get("predictedPeakOut", 0) for c in d.counties if c.get("state") == "GA")
     sc_out = sum(c.get("predictedPeakOut", 0) for c in d.counties if c.get("state") == "SC")
+    # Whole-storm expected damage per utility (teamup.json), not just the part inside repair zones.
     seg = {"GPC": 0.0, "DESC": 0.0}
-    for z in d.zones:
-        utils = z.get("utilities", [])
-        for u in utils:
-            if u in seg:
-                seg[u] += float(z.get("expectedDamagedSegments", 0)) / max(len(utils), 1)
+    owner_key = {"georgia-power": "GPC", "desc": "DESC"}
+    for o in (d.teamup or {}).get("owners", []):
+        if o.get("id") in owner_key:
+            seg[owner_key[o["id"]]] = float(o.get("damagedSections", 0))
 
     peak_kt = max((p.get("windKt", 0) for p in (d.track or {}).get("track", [])), default=64)
     parts = [f"Storm crew briefing for {'Hurricane' if peak_kt >= 64 else 'Tropical Storm'} {name}."]
@@ -456,7 +469,7 @@ def briefing_clip(d: Data) -> Clip | None:
     if sc:
         parts.append(
             f"On the South Carolina side, watch {say_list([county_label(c) for c in sc])}, "
-            f"with about {say_int(sc_out)} customers out statewide."
+            f"with about {say_int(sc_out)} customers expected out statewide."
         )
     if seg["GPC"] or seg["DESC"]:
         gpc = f"roughly {say_about(seg['GPC'])}" if round(seg["GPC"]) else "no"
@@ -473,12 +486,9 @@ def briefing_clip(d: Data) -> Clip | None:
                 f"{say_count(len(y.get('serves', [])), 'repair zone')} within "
                 f"{round(float(y.get('maxDriveMinutes', 0)))} minutes"
             )
-        parts.append(f"Both utilities stage jointly at {say_list(yard_bits)}.")
+        parts.append(f"A shared staging yard could serve both utilities at {say_list(yard_bits)}.")
     else:
-        parts.append(
-            "No single yard reaches both sides quickly for this storm, "
-            "so each utility stages on its own side and shares updates."
-        )
+        parts.append("No single yard reaches damage on both sides quickly for this storm.")
 
     ordered = [z for z in sorted(d.zones, key=lambda z: z.get("priority", 1e9)) if z.get("vulnerablePeople", 0) > 0]
     named: list[str] = []

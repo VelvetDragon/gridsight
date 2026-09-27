@@ -35,8 +35,8 @@
  *   of the overlapping build window, or when the later project goes into service.
  *
  * Time (Response mode)
- *   From mutual-aid.json: hours until 50/90/100% of customers (and 90% of
- *   vulnerable residents) have power back, with each company restoring alone
+ *   From mutual-aid.json: hours until 50/90/100% of the simulated damaged transmission
+ *   line sections (and 90% near vulnerable residents) are repaired, with each company alone
  *   ("separate") versus sharing crews and yards ("coordinated"). Hours saved =
  *   separate − coordinated, unless the file states them.
  */
@@ -405,6 +405,18 @@ export interface MutualAid {
 export function isMutualAid(v: unknown): v is MutualAid {
   const s = (v as MutualAid | null)?.scenarios;
   return !!s && !!s.separate && !!s.coordinated && Array.isArray(s.separate.restorationCurve);
+}
+
+/**
+ * Each utility's expected damaged line sections in the scenario, read from the pipeline's
+ * "Work items" assumption line. Null when the line is missing.
+ */
+export function workSplit(m: MutualAid): { desc: number; gpc: number } | null {
+  for (const line of m.assumptions) {
+    const hit = /DESC\s+([\d.]+),\s*GPC\s+([\d.]+)/.exec(line);
+    if (hit) return { desc: Number(hit[1]), gpc: Number(hit[2]) };
+  }
+  return null;
 }
 
 export interface TimeSaved {

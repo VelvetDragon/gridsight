@@ -7,9 +7,10 @@
  * EIA-861 (Dominion Energy SC in South Carolina, Georgia Power in Georgia).
  *
  * Customers out for a utility = predicted peak outages in its state (counties.json) x the
- * utility's share of the state's customers. Dollars = customer-hours sooner x the utility's
- * rate. Upper bound: it assumes those customers wait on the transmission repairs being
- * sped up; distribution repairs are not modelled.
+ * utility's share of the state's customers. Only the transmission repairs are simulated, and
+ * over 90% of power interruptions start on distribution lines (DOE Quadrennial Energy Review
+ * 2017), so only TRANSMISSION_SHARE of those customers count as waiting on them. Dollars =
+ * those customer-hours sooner x the utility's rate.
  */
 import type { MutualAid, RestorationScenario } from "./savings";
 
@@ -40,12 +41,20 @@ export function isOutageCost(v: unknown): v is OutageCost {
   return !!u && typeof u.DESC?.usdPerCustomerHour === "number" && typeof u.GPC?.usdPerCustomerHour === "number";
 }
 
+/** Share of customer outages caused by transmission damage (QER 2017: over 90% are on distribution). */
+export const TRANSMISSION_SHARE = 0.1;
+export const QER_URL =
+  "https://www.energy.gov/sites/prod/files/2017/01/f34/Transforming%20the%20Nation%E2%80%99s%20Electricity%20System--Summary%20for%20Policymakers.pdf";
+
 export const UTILITY_KEYS: UtilityKey[] = ["DESC", "GPC"];
 
-/** A utility's customers predicted out at the peak: its state's predicted outages x its share of the state. */
+/**
+ * A utility's customers out at the peak because of transmission damage: its state's predicted
+ * outages x its share of the state x TRANSMISSION_SHARE.
+ */
 export function customersOut(counties: { state: string; predictedPeakOut: number }[], u: UtilityOutageCost): number {
   const state = counties.filter((c) => c.state === u.state).reduce((a, c) => a + c.predictedPeakOut, 0);
-  return state * u.stateShare;
+  return state * u.stateShare * TRANSMISSION_SHARE;
 }
 
 /** Percent restored at hour h on a step curve (100 after its end). */
@@ -112,7 +121,7 @@ export function outageCostLines(oc: OutageCost): string[] {
   const g = oc.utilities.GPC;
   return [
     `Cost of an outage hour (${oc.dollarYear} dollars): Dominion Energy SC $${d.usdPerCustomerHour.toFixed(0)} per customer-hour, Georgia Power $${g.usdPerCustomerHour.toFixed(0)} (homes about $${d.residentialUsdPerHour.toFixed(2)}, businesses $${d.nonResidentialUsdPerHour.toFixed(0)} in SC and $${g.nonResidentialUsdPerHour.toFixed(0)} in GA).`,
-    `Customers out: predicted peak outages in the state x the utility's share of the state's customers (${Math.round(d.stateShare * 100)}% in SC, ${Math.round(g.stateShare * 100)}% in GA, EIA-861). Upper bound: it assumes they wait on these transmission repairs.`,
+    `Customers counted: predicted peak outages in the state x the utility's share of the state's customers (${Math.round(d.stateShare * 100)}% in SC, ${Math.round(g.stateShare * 100)}% in GA, EIA-861) x ${Math.round(TRANSMISSION_SHARE * 100)}%, the share caused by transmission damage (over 90% of power interruptions start on distribution lines, DOE Quadrennial Energy Review 2017, ${QER_URL}).`,
     ...oc.assumptions,
     ...oc.sources.map((s) => `Source: ${s.label} (${s.url})`),
   ];

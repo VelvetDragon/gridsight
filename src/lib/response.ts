@@ -5,6 +5,14 @@ import type { CountyOutage, Position, RepairZone, Storm } from "./types";
 
 export const REPLAY_STEP_MS = 15 * 60 * 1000;
 
+/** The storm counts as "here" once its center is this close to the damage. */
+const NEAR_KM = 150;
+/** Longest stretch kept while it is here; slow stalling storms get cut to this. */
+const MAX_NEAR_MS = 30 * 3600e3;
+/** Replay lead-in before the storm arrives, and tail after it leaves. */
+const LEAD_MS = 6 * 3600e3;
+const TAIL_MS = 3 * 3600e3;
+
 export interface StormFrame {
   position: Position;
   windKt: number;
@@ -35,6 +43,63 @@ export function stormAt(storm: Storm, times: number[], ms: number): StormFrame |
     }
   }
   return { ...t[t.length - 1] };
+}
+
+/**
+ * Cut the best track down to the part that matters for the service area: from
+ * `LEAD_MS` before the center first comes within `NEAR_KM` of any anchor (repair
+ * zones, likely-damaged lines) to `TAIL_MS` after it last is. If it lingers
+ * longer than `MAX_NEAR_MS`, keep that much around its peak impact (wind × the
+ * number of anchors in reach). Without this, some replays start days out in the
+ * Atlantic and end over New England. The cut ends are interpolated so the track
+ * still begins and ends exactly on the window.
+ */
+export function trimTrack(storm: Storm, anchors: Position[]): Storm {
+  const times = trackTimes(storm);
+  if (times.length < 2 || !anchors.length) return storm;
+  let first = NaN;
+  let last = NaN;
+  let best = Infinity;
+  let closest = times[0];
+  let peak = -1;
+  let peakAt = times[0];
+  for (let ms = times[0]; ms <= times[times.length - 1]; ms += REPLAY_STEP_MS) {
+    const f = stormAt(storm, times, ms);
+    if (!f) continue;
+    let d = Infinity;
+    let inReach = 0;
+    for (const a of anchors) {
+      const km = haversineKm(f.position, a);
+      d = Math.min(d, km);
+      if (km <= NEAR_KM) inReach++;
+    }
+    if (d < best) {
+      best = d;
+      closest = ms;
+    }
+    if (inReach * f.windKt > peak) {
+      peak = inReach * f.windKt;
+      peakAt = ms;
+    }
+    if (d <= NEAR_KM) {
+      if (Number.isNaN(first)) first = ms;
+      last = ms;
+    }
+  }
+  // Never gets close: center the window on its nearest pass instead.
+  if (Number.isNaN(first)) first = last = closest;
+  if (last - first > MAX_NEAR_MS) {
+    first = Math.min(Math.max(first, peakAt - MAX_NEAR_MS / 2), last - MAX_NEAR_MS);
+    last = first + MAX_NEAR_MS;
+  }
+  const from = Math.max(times[0], first - LEAD_MS);
+  const to = Math.min(times[times.length - 1], last + TAIL_MS);
+  const at = (ms: number) => {
+    const f = stormAt(storm, times, ms)!;
+    return { ...f, time: new Date(ms).toISOString() };
+  };
+  const inner = storm.track.filter((_, i) => times[i] > from && times[i] < to);
+  return { ...storm, track: [at(from), ...inner, at(to)] };
 }
 
 /**

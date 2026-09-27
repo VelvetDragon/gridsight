@@ -3,7 +3,8 @@
 import { ArrowRight, Handshake, PanelRightClose, PanelRightOpen, Tent, Truck, Users } from "lucide-react";
 import type { ResponseData } from "@/lib/data";
 import { fmtInt, fmtUsd } from "@/lib/format";
-import { andList, AVERAGE_GAIN, moveKey, teamUpImpact, type LendMove, type TeamUp, type TeamUpMove, type TeamUpOwner } from "@/lib/teamup";
+import { andList, fullyModeled, moveKey, teamUpImpact, type LendMove, type TeamUp, type TeamUpMove, type TeamUpOwner } from "@/lib/teamup";
+import { restorationValue } from "@/lib/outageCost";
 import { timeSaved } from "@/lib/savings";
 import { NAV_CLEARANCE } from "../shell/AppShell";
 import { RAIL_GUTTER } from "../shell/Rail";
@@ -58,7 +59,8 @@ function LendExplain({ m, n }: { m: LendMove; n: (id: string) => string }) {
           {n(m.to)} has about {fmtInt(m.receiverWorkHours ?? 0)} crew-hours of repairs and {fmtInt(m.receiverCrews ?? 0)} crews
           of its own: <b className="text-ink">{hours(m.hoursBefore)}</b> of work alone. {n(m.from)} adds {fmtInt(m.crews)} crews,
           working at {eff}% on unfamiliar equipment, so the work takes <b className="text-ink">{hours(m.hoursAfter)}</b>. Minus{" "}
-          {hours(m.driveHours)} to drive there: power back about <b className="text-ink">{hours(m.hoursSooner)} sooner</b>.
+          {hours(m.driveHours)} to drive there: its simulated transmission repairs finish about{" "}
+          <b className="text-ink">{hours(m.hoursSooner)} sooner</b>.
         </p>
       </div>
       <div>
@@ -136,8 +138,18 @@ function MoveRow({
           </span>
           <span className="mt-1 block text-[13px] leading-[19px] text-ink-2">
             Lend <b className="text-ink">{fmtInt(m.crews)} crews</b> ({fmtInt(m.cost?.workers ?? m.crews * 5)} line workers),{" "}
-            {hours(m.driveHours)} drive. {n(m.to)} gets power back about <b className="text-ink">{hours(m.hoursSooner)} sooner</b>{" "}
-            for about {usd(m.costUsd)} in crew time.
+            {hours(m.driveHours)} drive.{" "}
+            {fullyModeled(m.to) ? (
+              <>
+                {n(m.to)}&apos;s simulated transmission repairs finish about <b className="text-ink">{hours(m.hoursSooner)} sooner</b>{" "}
+                for about {usd(m.costUsd)} in crew time.
+              </>
+            ) : (
+              <>
+                Only part of {n(m.to)}&apos;s network is on this map and its crews are scaled to that part, so the hours
+                are not reliable. Crew time: about {usd(m.costUsd)}.
+              </>
+            )}
           </span>
           {!selected ? <span className="mt-1 block text-[12px] text-ink-3">Tap to see how this is worked out</span> : null}
         </button>
@@ -185,47 +197,41 @@ function Stat({ big, label }: { big: string; label: string }) {
   );
 }
 
-function compact(n: number): string {
-  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `${Math.round(n / 1e3)}k`;
-  return fmtInt(n);
-}
-
-/** What teaming up changes for this storm, in four numbers and a sentence. */
+/** What teaming up changes for this storm, from the simulation, with its limits spelled out. */
 function Impact({ data, t }: { data: ResponseData; t: TeamUp }) {
-  const imp = teamUpImpact(t, data.counties, data.outageCost);
+  const imp = teamUpImpact(t);
+  const avoided =
+    data.mutualAid && data.outageCost && !data.actual?.outageCostHidden
+      ? restorationValue(data.mutualAid, data.counties, data.outageCost).usd
+      : null;
   const aid = data.mutualAid ? timeSaved(data.mutualAid) : null;
-  const top = imp.sooner[0];
-  const perCh = imp.customerHours > 0 ? imp.costCountedUsd / imp.customerHours : null;
-  const ratio = imp.usd != null && imp.costCountedUsd > 0 ? imp.usd / imp.costCountedUsd : null;
+  const top = imp.sooner.find((s) => fullyModeled(s.id));
   return (
     <Block>
       <h3 className="display text-[19px] font-medium text-ink">What teaming up changes</h3>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {top ? <Stat big={hours(top.hours)} label={`sooner power for ${top.name}`} /> : null}
-        {imp.customerHours > 0 ? (
-          <Stat big={`up to ${compact(imp.customerHours)}`} label="fewer customer-hours in the dark" />
+      <p className="mt-1 text-[11px] font-semibold tracking-[0.08em] text-ink-3 uppercase">What-if simulation</p>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        {top ? <Stat big={hours(top.hours)} label={`sooner transmission repairs for ${top.name}`} /> : null}
+        {avoided != null ? (
+          <Stat big={fmtUsd(avoided, { compact: true })} label="outage costs avoided if Dominion and Georgia Power share crews (rough estimate)" />
         ) : null}
-        {imp.usd != null && imp.usd >= 1 ? (
-          <Stat big={`up to ${fmtUsd(imp.usd, { compact: true })}`} label="outage costs avoided for customers" />
-        ) : null}
-        {imp.costUsd > 0 ? <Stat big={fmtUsd(imp.costUsd, { compact: true })} label="crew time for the help" /> : null}
+        {imp.costUsd > 0 ? <Stat big={fmtUsd(imp.costUsd, { compact: true })} label="crew time for the lent crews" /> : null}
         {imp.sharedYards ? (
           <Stat big={`${imp.sharedYards}`} label={`staging yard${imp.sharedYards > 1 ? "s" : ""} shared instead of ${imp.sharedYards * 2}`} />
         ) : null}
-        {aid && aid.vulnerableTo90 > 0 ? (
-          <Stat big={hours(aid.vulnerableTo90)} label="sooner for people on medical equipment" />
+        {aid && aid.vulnerableTo90 >= 0.5 ? (
+          <Stat big={hours(aid.vulnerableTo90)} label="sooner repairs near people on medical equipment" />
         ) : null}
       </div>
       <p className="mt-3 text-[13px] leading-[19px] text-ink-2">
-        {ratio != null && ratio >= 1
-          ? `Every $1 of borrowed crew time saves customers up to about $${fmtInt(ratio)} in outage costs.`
-          : perCh != null
-          ? `Every dollar of borrowed crew time buys back power: about ${perCh < 1 ? `${Math.round(perCh * 100)}¢` : fmtUsd(perCh)} per customer-hour of outage avoided.`
-          : top
-            ? "Borrowed crews shorten the outage for the utility that needs them most."
-            : "No utility needs outside crews for this storm; shared yards still cut driving and set-up."}{" "}
+        {top
+          ? `Borrowed crews shorten ${top.name}'s transmission repairs in the simulation.`
+          : "No Dominion or Georgia Power repairs need borrowed crews in this simulation; shared yards still cut driving and set-up."}{" "}
         {imp.sharedCrewAreas ? `${imp.sharedCrewAreas} more place${imp.sharedCrewAreas > 1 ? "s" : ""} where crews can work both systems.` : ""}
+      </p>
+      <p className="mt-2 text-[12px] leading-[18px] text-ink-3">
+        Transmission lines only; most customer outages come from local distribution lines. The utilities already bring in
+        outside crews through mutual assistance, so this is not a forecast of when customers get power back.
       </p>
     </Block>
   );
@@ -465,17 +471,29 @@ function TeamUpBody({
               two utilities in Crosswire.
             </li>
             <li>
-              Customer-hours: customers predicted out in the state (South Carolina for Dominion, Georgia for Georgia Power)
-              {data.outageCost ? " x the utility's share of the state's customers (EIA-861)" : ""} x hours sooner x{" "}
-              {AVERAGE_GAIN}, because restoration is spread over the outage. It is an upper bound: the crew math covers
-              transmission lines, and many homes also wait on local distribution repairs.
+              Hours are for simulated transmission repairs, not for customers getting power back: most hurricane outages
+              come from local distribution lines, which are not modeled.
+            </li>
+            <li>
+              The crew numbers come from Helene totals (Dominion: more than 4,000 crew members from 14 states; Georgia
+              Power: 20,000+ personnel including teams from 35+ partner companies). Those totals already include outside
+              mutual-aid crews, and the transmission share and crew size are our assumptions, not published figures. Dominion
+              listed 57 transmission linemen for Helene; the model gives it about 200 transmission workers.
+            </li>
+            <li>
+              Other owners get crews in proportion to the part of their network on this map, so hours for owners with
+              little line here are not reliable and are not shown.
             </li>
             {data.outageCost ? (
               <li>
-                Outage costs: customer-hours x ${data.outageCost.utilities.DESC.usdPerCustomerHour.toFixed(0)} per
-                customer-hour for Dominion (SC) and ${data.outageCost.utilities.GPC.usdPerCustomerHour.toFixed(0)} for
-                Georgia Power (GA): LBNL ICE 2.0 interruption costs ({data.outageCost.dollarYear} dollars) weighted by each
-                utility&apos;s homes and businesses and their electricity use (EIA-861).
+                Outage costs avoided (rough estimate, from the Dominion and Georgia Power crew-sharing what-if): predicted
+                customers out x the utility&apos;s share of the state (EIA-861) x 10% (over 90% of power interruptions start on
+                distribution lines, DOE Quadrennial Energy Review 2017) x the average hours sooner x $
+                {data.outageCost.utilities.DESC.usdPerCustomerHour.toFixed(0)} per customer-hour for Dominion and $
+                {data.outageCost.utilities.GPC.usdPerCustomerHour.toFixed(0)} for Georgia Power: LBNL ICE 2.0 costs (
+                {data.outageCost.dollarYear} dollars) for an extra hour of an outage 8 to 24 hours long. LBNL does not
+                estimate past 24 hours, so this is an approximation. Not shown when the model&apos;s outages run well above
+                published ones.
               </li>
             ) : null}
             {t.assumptions.map((a) => (

@@ -132,9 +132,70 @@ export function BothGridsLine({ data }: { data: ResponseData }) {
   );
 }
 
+/** What actually happened to each utility in this storm, from published sources (actual-restoration.json). */
+export function ActualRestoration({ data }: { data: ResponseData }) {
+  const a = data.actual;
+  const order = ["GPC", "DESC"] as const;
+  return (
+    <div>
+      <h3 className="text-[13px] font-medium text-ink-3">What actually happened</h3>
+      {a ? (
+        <div className="mt-2 flex flex-col gap-3">
+          {order.map((u) => {
+            const facts = a.utilities[u] ?? [];
+            return (
+              <div key={u}>
+                <div className="flex items-center gap-1.5 text-[13px] font-medium text-ink">
+                  <UtilityDot utility={u} />
+                  {UTILITY_NAME[u]}
+                </div>
+                {facts.length ? (
+                  <ul className="mt-1 flex list-disc flex-col gap-1 pl-4 text-[12.5px] leading-[18px] text-ink-2">
+                    {facts.map((f) => (
+                      <li key={f.text}>
+                        {f.text}{" "}
+                        <a href={f.url} target="_blank" rel="noreferrer" className="text-ink-3 underline underline-offset-2">
+                          {f.source}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-1 text-[12.5px] leading-[18px] text-ink-3">No published figures found for this storm.</p>
+                )}
+              </div>
+            );
+          })}
+          {a.notes?.length ? (
+            <ul className="flex flex-col gap-1 text-[12px] leading-[17px] text-ink-3">
+              {a.notes.map((f) => (
+                <li key={f.text}>
+                  {f.text}{" "}
+                  {f.url ? (
+                    <a href={f.url} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                      {f.source}
+                    </a>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      ) : (
+        <p className="mt-1 text-[12.5px] leading-[18px] text-ink-3">No published restoration figures collected for this storm.</p>
+      )}
+    </div>
+  );
+}
+
 export function TimeSavedBlock({ data }: { data: ResponseData }) {
   if (!data.mutualAid) return null;
-  return <TimeSavedCard aid={data.mutualAid} counties={data.counties} outageCost={data.outageCost} />;
+  return <TimeSavedCard
+      aid={data.mutualAid}
+      counties={data.counties}
+      outageCost={data.outageCost}
+      outageCostHidden={data.actual?.outageCostHidden}
+    />;
 }
 
 export function ModelCheck({ data, stormId }: { data: ResponseData; stormId: string | null }) {
@@ -148,9 +209,13 @@ export function ModelCheck({ data, stormId }: { data: ResponseData; stormId: str
         {v.countyMaePredicted != null && v.countyMaeBaseline != null ? (
           <>
             {" "}
-            Per county, the predicted share of homes without power was off by{" "}
-            <span className="font-medium text-ink">{fmtMae(v.countyMaePredicted)}</span> on average; a wind-only model
-            was off by <span className="font-medium text-ink">{fmtMae(v.countyMaeBaseline)}</span>.
+            Tested on this storm without training on it, the predicted share of each county&apos;s customers without
+            power was off by <span className="font-medium text-ink">{fmtMae(v.countyMaePredicted)}</span> (percentage
+            points) on average; a wind-only model was off by{" "}
+            <span className="font-medium text-ink">{fmtMae(v.countyMaeBaseline)}</span>
+            {v.countyMaePredicted > v.countyMaeBaseline
+              ? ", so for this storm the full model did worse than the simpler one."
+              : "."}
           </>
         ) : (
           " There are no outage records for this storm, so the county predictions are not checked."

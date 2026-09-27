@@ -1,0 +1,357 @@
+{
+ "checked": "2026-09-27",
+ "storms": {
+  "helene": {
+   "utilities": {
+    "GPC": [
+     {
+      "text": "More than 1,544,000 total outages across its territory after landfall on September 26, 2024 (a running total, not all at once).",
+      "source": "Georgia Power",
+      "url": "https://www.georgiapower.com/about/outages/historic-storms/hurricane-helene.html"
+     },
+     {
+      "text": "More than 523,000 customers restored in the first 48 hours; more than 95% of affected customers (1.3 million+) restored by October 5.",
+      "source": "Georgia Power",
+      "url": "https://www.georgiapower.com/news-hub/press-releases/power-restored-to-95-percent-plus-of-georgia-power-customers-impacted-by-helene.html"
+     },
+     {
+      "text": "More than 20,000 personnel, including crews from 35+ assisting companies (other states, Canada, Alabama Power and Mississippi Power).",
+      "source": "Georgia Power",
+      "url": "https://www.georgiapower.com/about/outages/historic-storms/hurricane-helene.html"
+     },
+     {
+      "text": "345+ transmission structures rebuilt or repaired, against 12,300+ broken distribution poles and 1,500+ miles of downed lines.",
+      "source": "Georgia Power",
+      "url": "https://www.georgiapower.com/about/outages/historic-storms/hurricane-helene.html"
+     }
+    ],
+    "DESC": [
+     {
+      "text": "386,270 customers without power at the peak, on September 27, 2024.",
+      "source": "Dominion Energy",
+      "url": "https://www.dominionenergy.com/south-carolina/updates/hurricane-helene"
+     },
+     {
+      "text": "Nearly 100% of affected customers restored by midday October 8.",
+      "source": "Dominion Energy",
+      "url": "https://news.dominionenergy.com/press-releases/press-releases/2024/Dominion-Energy-Substantially-Completes-Hurricane-Helene-Power-Restoration-in-Hardest-Hit-Communities-10-09-2024/default.aspx"
+     },
+     {
+      "text": "More than 4,000 crew members, a \"14-state army\" of lineworkers, tree crews and employee volunteers.",
+      "source": "Dominion Energy",
+      "url": "https://news.dominionenergy.com/press-releases/press-releases/2024/Dominion-Energy-Substantially-Completes-Hurricane-Helene-Power-Restoration-in-Hardest-Hit-Communities-10-09-2024/default.aspx"
+     },
+     {
+      "text": "Its field force included 1,565 distribution linemen but only 57 transmission linemen, plus 430 tree contractors.",
+      "source": "Dominion Energy",
+      "url": "https://www.dominionenergy.com/south-carolina/updates/hurricane-helene"
+     },
+     {
+      "text": "130 transmission poles and 350 spans of transmission line damaged, against 2,130 distribution poles and 6,840 spans of distribution line.",
+      "source": "Dominion Energy",
+      "url": "https://www.dominionenergy.com/south-carolina/updates/hurricane-helene"
+     }
+    ]
+   },
+   "notes": [
+    {
+     "text": "No source found showing Georgia Power and Dominion Energy SC sent crews to each other. Dominion's president said neighboring states were too hard-hit to send help, so crews came from as far as Illinois and Texas.",
+     "source": "Post and Courier",
+     "url": "https://www.postandcourier.com/hurricanewire/dominion-energy-president-interview-helene-recovery/article_b3d573b0-8379-11ef-b6d4-33e2ae645c97.html"
+    },
+    {
+     "text": "The simulation's tree-damage scale is tuned so Dominion's expected damaged spans match the 350 it reported, so that match is not an independent check.",
+     "source": "",
+     "url": ""
+    }
+   ]
+  },
+  "debby": {
+   "utilities": {
+    "GPC": [],
+    "DESC": [
+     {
+      "text": "About 30,000 customers out at the peak, just before midnight on August 8, 2024, as the storm left; more than 120,000 had outages over the four days.",
+      "source": "ABC News 4",
+      "url": "https://abcnews4.com/news/local/30000-affected-by-outages-thursday-as-tropical-storm-debby-exits-south-carolina-wciv-abc-news-4"
+     },
+     {
+      "text": "About 2,000 employees, crew members and contractors, with help from Georgia, Florida, Kentucky and West Virginia.",
+      "source": "ABC News 4",
+      "url": "https://abcnews4.com/news/local/30000-affected-by-outages-thursday-as-tropical-storm-debby-exits-south-carolina-wciv-abc-news-4"
+     }
+    ]
+   }
+  },
+  "idalia": {
+   "utilities": {
+    "GPC": [
+     {
+      "text": "132,396 customers without power at 4:30 p.m. on August 30, 2023, while the storm was still passing.",
+      "source": "The Cordele Dispatch",
+      "url": "https://www.cordeledispatch.com/2023/08/31/georgia-power-crews-restoring-power-as-hurricane-idalia-impacts-state/"
+     },
+     {
+      "text": "A restoration team of more than 5,500 personnel, with help from Alabama Power and Mississippi Power, restored nearly 200,000 customers by the next day; hardest-hit areas were expected at 95% by September 1-2.",
+      "source": "Georgia Power",
+      "url": "https://www.georgiapower.com/news-hub/community/georgia-power-provides-estimated-restoration-times-for-hardest-hit-areas-following-hurricane-idalia.html"
+     }
+    ],
+    "DESC": [
+     {
+      "text": "About 29,000 customers out at the storm's peak, around 9 p.m. on August 30, 2023; half were back by midnight.",
+      "source": "Dominion Energy (via MarketScreener)",
+      "url": "https://www.marketscreener.com/quote/stock/DOMINION-ENERGY-INC-12255/news/Dominion-Energy-Crews-Worked-Through-the-Night-to-Quickly-Restore-Power-in-South-Carolina-After-Id-44746068/"
+     }
+    ]
+   }
+  },
+  "ian": {
+   "utilities": {
+    "GPC": [
+     {
+      "text": "Only scattered outages: more than 500 customers out in Central Georgia on September 29, 2022 and about 100 in Savannah the next morning.",
+      "source": "13WMAZ",
+      "url": "https://www.13wmaz.com/article/news/local/tracking-power-outages-in-georgia-as-tropical-storm-ian-tracks-towards-ocean/93-88dd8d1f-aaa1-4cf1-a4cb-0f06a0110278"
+     }
+    ],
+    "DESC": [
+     {
+      "text": "More than 110,000 customers out at the peak after landfall near Georgetown on September 30, 2022.",
+      "source": "Dominion Energy (via MarketScreener)",
+      "url": "https://www.marketscreener.com/quote/stock/DOMINION-ENERGY-INC-12255/news/Dominion-Energy-continues-to-restore-power-service-after-a-maximum-of-approximately-110-000-outages-41915626/"
+     },
+     {
+      "text": "Down to about 15,000 in under 18 hours, with the rest expected back by sunset on October 3.",
+      "source": "Dominion Energy (via MarketScreener)",
+      "url": "https://www.marketscreener.com/quote/stock/DOMINION-ENERGY-INC-12255/news/Dominion-Energy-South-Carolina-Customers-Impacted-by-Ian-Will-Have-Power-Restored-by-Sunset-41915652/"
+     },
+     {
+      "text": "About 2,000 South Carolina-based team members, plus 700 crew members and contractors from Dominion Energy Virginia and contract line workers from South Carolina, Tennessee and Maryland.",
+      "source": "Dominion Energy (via MarketScreener)",
+      "url": "https://www.marketscreener.com/quote/stock/DOMINION-ENERGY-INC-12255/news/Dominion-Energy-continues-to-restore-power-service-after-a-maximum-of-approximately-110-000-outages-41915626/"
+     }
+    ]
+   }
+  },
+  "fred": {
+   "utilities": {
+    "GPC": [
+     {
+      "text": "About 8,000 customers statewide without power as of 11 a.m. on August 17, 2021, from scattered tree damage.",
+      "source": "PR Newswire (Georgia Power)",
+      "url": "https://www.prnewswire.com/news-releases/georgia-power-crews-responding-to-scattered-outages-as-remnants-of-tropical-storm-fred-bring-heavy-rains-gusty-winds-to-state-301357069.html"
+     }
+    ],
+    "DESC": []
+   }
+  },
+  "zeta": {
+   "utilities": {
+    "GPC": [
+     {
+      "text": "More than 550,000 customers without power at 7 a.m. on October 29, 2020.",
+      "source": "PR Newswire (Georgia Power)",
+      "url": "https://www.prnewswire.com/news-releases/hurricane-zeta-crossing-georgia-more-than-550-000-customers-without-power-301162857.html"
+     },
+     {
+      "text": "About 798,000 customers restored (more than 97%) by 5:30 p.m. on October 31, and 99% by 1 p.m. on November 2.",
+      "source": "PR Newswire (Georgia Power)",
+      "url": "https://www.prnewswire.com/news-releases/1-pm-update-power-restored-to-99-of-georgia-power-customers-impacted-by-hurricane-zeta-301165120.html"
+     },
+     {
+      "text": "More than 4,000 personnel, with help from utilities in 14 states; 700+ broken poles and 3,400+ spans of wire down.",
+      "source": "PR Newswire (Georgia Power)",
+      "url": "https://www.prnewswire.com/news-releases/530-pm-update-power-restored-to-more-than-97-of-georgia-power-customers-impacted-by-hurricane-zeta-301164447.html"
+     }
+    ],
+    "DESC": []
+   },
+   "notes": [
+    {
+     "text": "In South Carolina, Zeta's outages were mostly in Duke Energy's Upstate territory; no Dominion Energy SC figure was found.",
+     "source": "T&D World",
+     "url": "https://www.tdworld.com/disaster-response/article/21146388/hurricane-zeta-causes-multi-state-power-outage"
+    }
+   ]
+  },
+  "sally": {
+   "utilities": {
+    "GPC": [
+     {
+      "text": "About 28,000 customers without power at 11 a.m. on September 17, 2020; about 88,000 had been restored since midnight and about 9,800 were still out by 5 p.m.",
+      "source": "PR Newswire (Georgia Power)",
+      "url": "https://www.prnewswire.com/news-releases/georgia-power-restores-power-to-nearly-90-000-customers-following-hurricane-sally-announces-estimated-restoration-times-for-those-remaining-301133662.html"
+     },
+     {
+      "text": "Sent about 500 company and contractor personnel to help Alabama Power.",
+      "source": "PR Newswire (Georgia Power)",
+      "url": "https://www.prnewswire.com/news-releases/georgia-power-crews-scheduled-to-assist-with-hurricane-sally-recovery-301132777.html"
+     }
+    ],
+    "DESC": []
+   }
+  },
+  "irma": {
+   "utilities": {
+    "GPC": [
+     {
+      "text": "Nearly 770,000 customers out at the peak on September 11, 2017, by its September 12 count; a day later it said nearly 1 million had initially lost service.",
+      "source": "PR Newswire (Georgia Power)",
+      "url": "https://www.prnewswire.com/news-releases/assessment-of-irma-damage-underway-across-georgia-as-first-phase-of-georgia-power-restoration-efforts-300518023.html"
+     },
+     {
+      "text": "Nearly 8,000 personnel from Georgia Power, other Southern Company utilities and assisting utilities; it targeted 95% of affected customers by Sunday, September 17.",
+      "source": "Georgia Power",
+      "url": "https://southerncompany.mediaroom.com/2017-09-13-Second-full-day-of-Georgia-Power-restoration-reveals-extent-of-Hurricane-Irma-devastation"
+     },
+     {
+      "text": "More than 1,000 broken or damaged distribution poles and about 5,000 spans of wire; no transmission figure was given.",
+      "source": "Georgia Power",
+      "url": "https://southerncompany.mediaroom.com/2017-09-13-Second-full-day-of-Georgia-Power-restoration-reveals-extent-of-Hurricane-Irma-devastation"
+     }
+    ],
+    "DESC": [
+     {
+      "text": "SCE&G (now Dominion Energy SC): more than 154,000 customers lost power on September 11, 2017, and all were restored by Friday morning, September 15.",
+      "source": "WIS",
+      "url": "https://www.wistv.com/story/36374841/power-knocked-out-by-irma-restored-to-most-sc-customers/"
+     },
+     {
+      "text": "About 2,500 employees mobilized for restoration.",
+      "source": "WIS",
+      "url": "https://www.wistv.com/story/36374841/power-knocked-out-by-irma-restored-to-most-sc-customers/"
+     }
+    ]
+   }
+  },
+  "matthew": {
+   "utilities": {
+    "GPC": [
+     {
+      "text": "About 338,000 customers lost power on October 7-8, 2016; 99% were back by October 14.",
+      "source": "Patch",
+      "url": "https://patch.com/georgia/dacula/week-after-hurricane-matthew-power-almost-back-georgia"
+     },
+     {
+      "text": "More than 90% restored by October 12, with about 5,000 personnel including crews from Alabama, Florida, Mississippi, Louisiana and Texas.",
+      "source": "PR Newswire (Georgia Power)",
+      "url": "https://www.prnewswire.com/news-releases/georgia-power-restores-power-to-more-than-90-percent-of-customers-impacted-by-hurricane-matthew-ahead-of-schedule-300343630.html"
+     },
+     {
+      "text": "About 1,000 damaged poles and 3,000 spans of wire (distribution-level figures).",
+      "source": "PR Newswire (Georgia Power)",
+      "url": "https://www.prnewswire.com/news-releases/georgia-power-restores-power-to-more-than-90-percent-of-customers-impacted-by-hurricane-matthew-ahead-of-schedule-300343630.html"
+     }
+    ],
+    "DESC": [
+     {
+      "text": "SCE&G (now Dominion Energy SC): about 290,000 customers, 40% of its customers, out at the peak; 90% restored by the afternoon of October 12.",
+      "source": "SC Public Service Commission testimony",
+      "url": "https://dms.psc.sc.gov/Attachments/Matter/0435fd5b-a776-4b78-8514-d8d688a703c6"
+     },
+     {
+      "text": "About 2,000 of its own resources plus 1,000 off-system linemen and tree crews.",
+      "source": "SC Public Service Commission testimony",
+      "url": "https://dms.psc.sc.gov/Attachments/Matter/0435fd5b-a776-4b78-8514-d8d688a703c6"
+     }
+    ]
+   }
+  },
+  "hermine": {
+   "utilities": {
+    "GPC": [
+     {
+      "text": "More than 49,000 customers without power at 10 p.m. on September 2, 2016, down to about 3,500 by 5 a.m. on September 4.",
+      "source": "WTOC",
+      "url": "http://www.wtoc.com/story/33005160/over-80000-georgia-power-customers-without-power/"
+     },
+     {
+      "text": "More than 3,000 personnel, including more than 30 crews from Tennessee.",
+      "source": "WTOC",
+      "url": "http://www.wtoc.com/story/33005160/over-80000-georgia-power-customers-without-power/"
+     }
+    ],
+    "DESC": []
+   }
+  },
+  "michael": {
+   "utilities": {
+    "GPC": [
+     {
+      "text": "More than 200,000 customers without power on the morning of October 11, 2018.",
+      "source": "Georgia Power",
+      "url": "https://www.georgiapower.com/company/news-center/2018-articles/200000-georgia-power-customers-without-power.html"
+     },
+     {
+      "text": "322,000 customers restored by 4 p.m. on October 12, with more than 5,200 personnel; Albany and Bainbridge were estimated for October 15 and 16.",
+      "source": "PR Newswire (Georgia Power)",
+      "url": "https://www.prnewswire.com/news-releases/georgia-power-updates-estimated-restoration-times-following-historic-hurricane-michael-300730394.html"
+     },
+     {
+      "text": "99%, or more than 385,000 customers, restored by October 19, with more than 5,800 personnel including more than a dozen assisting utilities from as far away as Illinois, New York, Pennsylvania and Texas.",
+      "source": "Southern Company",
+      "url": "https://www.southerncompany.com/newsroom/community/georgia-power-99-percent-restored-hurricane-michael.html"
+     },
+     {
+      "text": "More than 3,500 spans of wire and about 1,000 poles damaged; no separate transmission figure was given.",
+      "source": "Southern Company",
+      "url": "https://www.southerncompany.com/newsroom/community/georgia-power-99-percent-restored-hurricane-michael.html"
+     }
+    ],
+    "DESC": []
+   }
+  },
+  "dorian": {
+   "utilities": {
+    "GPC": [
+     {
+      "text": "About 15,000 customers without power at 8 a.m. on September 5, 2019, with nearly 1,500 personnel responding to more than 250 cases of damage.",
+      "source": "PR Newswire (Georgia Power)",
+      "url": "https://www.prnewswire.com/news-releases/georgia-power-continues-hurricane-dorian-restoration-efforts-300912518.html"
+     }
+    ],
+    "DESC": [
+     {
+      "text": "274,000 South Carolina customers impacted; 10,600 still out on the afternoon of September 7, 2019, with nearly all targeted for Sunday night, September 8.",
+      "source": "PR Newswire (Dominion Energy)",
+      "url": "https://www.prnewswire.com/news-releases/dominion-energy-crews-moving-swiftly-to-restore-power-after-hurricane-dorian-300913660.html"
+     }
+    ]
+   }
+  },
+  "isaias": {
+   "utilities": {
+    "GPC": [],
+    "DESC": [
+     {
+      "text": "About 1,500 outages in the afternoon of August 3, 2020, down to just under 550 by 10:30 p.m.",
+      "source": "ABC News 4",
+      "url": "https://abcnews4.com/news/local/more-than-1000-south-carolinians-without-power-as-effects-from-isaias-are-felt"
+     }
+    ]
+   },
+   "notes": [
+    {
+     "text": "Isaias hit Virginia and North Carolina far harder; Dominion Energy sent available South Carolina crews there.",
+     "source": "PR Newswire (Dominion Energy)",
+     "url": "https://www.prnewswire.com/news-releases/dominion-energy-restoration-efforts-progress-following-isaias-301106847.html"
+    }
+   ]
+  },
+  "florence": {
+   "utilities": {
+    "GPC": [],
+    "DESC": []
+   },
+   "notes": [
+    {
+     "text": "About 77,000 South Carolina customers were out statewide, across all utilities, as repairs began on September 15, 2018; most damage was in northeast SC, which is served mainly by Duke Energy and Santee Cooper. No SCE&G-only figure was found.",
+     "source": "Post and Courier",
+     "url": "https://www.postandcourier.com/news/77-000-without-power-in-sc-after-florence-as-repairs-begin/article_d80f0064-b8fc-11e8-997c-2b0465906488.html"
+    }
+   ],
+   "outageCostHidden": "The model predicts far more outages for these two utilities than were published for Florence, so a dollar figure would be too high."
+  }
+ }
+}

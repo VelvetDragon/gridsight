@@ -8,7 +8,7 @@ import type { ResponseData } from "@/lib/data";
 import { fmtInt, fmtPct } from "@/lib/format";
 import { approxWindRadiusKm, stormAt, zoneLabel } from "@/lib/response";
 import { ALERT, failureColor, INK, SLATE, UTILITY_RGB, VULNERABLE_RGB } from "@/lib/theme";
-import { moveKey, type LendMove, type SharedMove, type TeamUpMove } from "@/lib/teamup";
+import { fullyModeled, moveKey, type LendMove, type SharedMove, type TeamUpMove } from "@/lib/teamup";
 import type { CountyOutage, LineSegmentRisk, Position, RepairZone, VulnerableArea } from "@/lib/types";
 import type { MapMarker } from "./MapCanvas";
 import { neighbourStateMarkers, stateLabelMarkers, yardMarker } from "./mapLabels";
@@ -434,7 +434,7 @@ export function responseMarkers(props: ResponseSceneProps): MapMarker[] {
             )}
           >
             {lend
-              ? `${fmtInt(m.crews)} crews · ${name(m.from)} → ${name(m.to)} · ${Math.round(m.hoursSooner)} h sooner`
+              ? `${fmtInt(m.crews)} crews · ${name(m.from)} → ${name(m.to)} · ${fullyModeled(m.to) ? `${Math.round(m.hoursSooner)} h sooner repairs (sim.)` : "lend crews"}`
               : `${m.kind === "yard" ? "Share a yard" : "Share crews"}: ${name(m.a)} + ${name(m.b)}`}
           </div>
         ),

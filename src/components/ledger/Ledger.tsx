@@ -399,7 +399,7 @@ function StormsTable({ rows }: { rows: StormRow[] }) {
     },
     {
       id: "saved",
-      label: "Power back sooner (hours, 90%)",
+      label: "Sharing crews: transmission repairs sooner (simulated h, 90%)",
       value: (r) => (r.aid ? Math.round(timeSaved(r.aid).to90 * 10) / 10 : null),
       numeric: true,
       width: 16,
