@@ -84,8 +84,14 @@ def main() -> None:
             print(f"skip  {name}")
             continue
         print(f"fetch {name}")
-        resp = requests.get(url, headers=HEADERS, timeout=600)
-        resp.raise_for_status()
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=600)
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            # A site that blocks scripted downloads should not stop the storm pipeline;
+            # each step downloads (or reports) what it actually needs.
+            print(f"warn  {name}: {exc}")
+            continue
         dest.write_bytes(resp.content)
 
 
