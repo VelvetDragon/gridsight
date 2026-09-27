@@ -191,6 +191,7 @@ function useTools(bridge: AgentBridge) {
       const d = await ready();
       b = ref.current;
       if (!d || b.times.length < 2) return json({ error: "No replay for this storm." });
+      b.showSection("storm");
       const start = from === "closest" ? (closestTime(d, b.times) ?? b.times[0]) - 12 * 3600e3 : b.times[0];
       b.replay.playFrom(Math.max(b.times[0], start));
       const peak = Math.max(...d.storm.track.map((p) => p.windKt));
