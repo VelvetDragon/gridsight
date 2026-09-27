@@ -54,6 +54,8 @@ python scripts/fetch_data.py
 python -m gridsight.response.simulate --storm all --device cuda --sims "$SIMS"
 # Outage model, zones, yards, mutual-aid scenarios and JSON (reuses the simulations above).
 python -m gridsight.response.build --storm "$STORM" --skip-sim
+# Cost of an outage hour per utility (ICE 2.0 x EIA-861), shared by every storm.
+python -m gridsight.response.outage_cost
 cd ..
 
 echo

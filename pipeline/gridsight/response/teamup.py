@@ -58,7 +58,7 @@ OWNERS = [
 ]
 NAME = {i: n for i, n, _ in OWNERS}
 
-TREE_SPAN_HOURS = 6.0  # crew-hours to clear a fallen tree and re-string one span (assumption)
+TREE_SPAN_HOURS = mutual_aid.TREE_SPAN_HOURS
 KEEP_HOURS = 24.0  # a lender keeps enough crews to finish its own work within a day
 KEEP_SHARE = 0.5  # and never sends more than half its crews
 NEED_HOURS = 24.0  # a utility needs help when its crews alone need more than a day

@@ -1,7 +1,8 @@
 """Mutual-aid restoration scenario model: separate vs coordinated DESC / GPC response.
 
 This is a scenario model, not a prediction. It takes the simulated transmission damage
-(expected failed structures per segment, best-track run) and schedules repairs with a
+(expected failed structures and tree-struck spans per segment, best-track run, the same
+damage as teamup.py) and schedules repairs with a
 simple, transparent greedy list scheduler under two staging / dispatch rules. Every
 number that is not measured is an explicit assumption listed in the output.
 
@@ -29,10 +30,11 @@ Output: public/data/response/<storm>/mutual-aid.json
       "restorationCurve": [{"hour": number, "pctRestored": number}]   // pct is 0-100
     }
 
-Work: every DESC / GPC segment with expected failed structures >= MIN_STRUCTURES. Segments
+Work: every DESC / GPC segment with damage probability (wind or trees) >= MIN_P_SEG. Segments
 inside a repair zone form one work item per zone and utility; the rest form one item per
 county and utility, located at the damage-weighted centroid. Each item is split into
-jobs of about one structure. Job crew-hours = structures x REPAIR_HOURS[structure type].
+jobs of about one repair (a failed structure or a tree-struck span). Crew-hours =
+structures x REPAIR_HOURS[structure type] + tree-struck spans x TREE_SPAN_HOURS.
 
 Staging:
     own-side yards   the OSM city/town in the utility's own state (DESC: SC, GPC: GA)
@@ -75,8 +77,9 @@ GPC_WORKFORCE = 20000  # "20,000+ personnel", Georgia Power Helene anniversary r
 TRANSMISSION_SHARE = 0.05  # share of the storm workforce on transmission line work
 CREW_SIZE = 5
 REPAIR_HOURS = {"pole": 12.0, "lattice": 48.0}  # crew-hours per failed structure
+TREE_SPAN_HOURS = 6.0  # crew-hours to clear a fallen tree and re-string one span (assumption)
 CROSS_EFFICIENCY = 0.85  # productivity on the other utility's assets (standards, escorts)
-MIN_STRUCTURES = 0.01
+MIN_P_SEG = 0.01  # segments less likely than this to be damaged are left out
 VULN_RADIUS_KM = 15.0
 FALLBACK_KMH = 50.0  # if OSRM has no route: straight-line x 1.3 at 50 km/h
 SOURCES = {
@@ -94,18 +97,20 @@ def crews() -> dict[str, int]:
 
 
 def work_items(seg: pd.DataFrame, members: pd.DataFrame, zlist: list[dict], vuln: pd.DataFrame) -> pd.DataFrame:
-    s = seg[seg.utility.isin(["DESC", "GPC"]) & (seg.e_struct >= MIN_STRUCTURES)].copy()
+    s = seg[seg.utility.isin(["DESC", "GPC"]) & (seg.p_seg >= MIN_P_SEG)].copy()
     s["zone"] = members["zone"].reindex(s.index) if "zone" in members else np.nan
-    s["hours"] = s["e_struct"] * s["structure"].map(REPAIR_HOURS)
+    s["repairs"] = s["e_struct"] + s["tree_spans"]
+    s["hours"] = s["e_struct"] * s["structure"].map(REPAIR_HOURS).fillna(REPAIR_HOURS["pole"]) + s["tree_spans"] * TREE_SPAN_HOURS
     s["key"] = np.where(s["zone"].notna(), s["zone"].astype(str), "C" + s["fips"].astype(str))
     zpeople = {z["id"]: z["vulnerablePeople"] for z in zlist}
     rows = []
     for (key, util), g in s.groupby(["key", "utility"]):
-        w = g["e_struct"].to_numpy()
+        w = g["p_seg"].to_numpy()
         lon = float((g.mid_lon * w).sum() / w.sum())
         lat = float((g.mid_lat * w).sum() / w.sum())
         rows.append({"key": key, "utility": util, "lon": lon, "lat": lat,
-                     "structures": float(w.sum()), "segments": float(g["p_seg"].sum()),
+                     "structures": float(g["e_struct"].sum()), "treeSpans": float(g["tree_spans"].sum()),
+                     "repairs": float(g["repairs"].sum()), "segments": float(w.sum()),
                      "hours": float(g["hours"].sum())})
     items = pd.DataFrame(rows)
     if items.empty:
@@ -177,11 +182,11 @@ def schedule(
     """
     jobs = []
     for i, r in items.iterrows():
-        n = max(1, math.ceil(r.structures - 1e-9))
+        n = max(1, math.ceil(r.repairs - 1e-9))
         prio = r.people / max(r.hours, 1e-9)
         for _ in range(n):
             jobs.append({"item": i, "utility": r.utility, "hours": r.hours / n,
-                         "segments": r.segments / n, "people": r.people / n, "prio": prio, "size": r.structures})
+                         "segments": r.segments / n, "people": r.people / n, "prio": prio, "size": r.repairs})
     jobs.sort(key=lambda j: (-j["prio"], -j["size"]))
     free = {u: [0.0] * ncrew[u] for u in ("DESC", "GPC")}
     for u in free:
@@ -236,21 +241,21 @@ def run_storm(key: str) -> dict:
     items = work_items(sim.seg, members, zlist, vuln)
     n = crews()
     assumptions = [
-        f"Scenario model, not a prediction: schedules the simulated transmission damage (best-track run, {sim.sims} simulations, expected failed structures) with a greedy list scheduler.",
+        f"Scenario model, not a prediction: schedules the simulated transmission damage (best-track run, {sim.sims} simulations: expected failed structures and tree-struck spans, the same damage as Team up) with a greedy list scheduler.",
         f"Crews: DESC {n['DESC']}, GPC {n['GPC']} transmission crews = public Helene storm workforce (DESC more than {DESC_WORKFORCE:,} crew members, Dominion Energy 2024-10-09; GPC {GPC_WORKFORCE:,}+ personnel, Georgia Power) x {TRANSMISSION_SHARE:.0%} assumed on transmission / {CREW_SIZE} people per crew. The same crews are used for every storm.",
-        f"Repair time: {REPAIR_HOURS['pole']:.0f} crew-hours per failed pole structure, {REPAIR_HOURS['lattice']:.0f} per failed lattice tower (assumed).",
+        f"Repair time: {REPAIR_HOURS['pole']:.0f} crew-hours per failed pole structure, {REPAIR_HOURS['lattice']:.0f} per failed lattice tower, {TREE_SPAN_HOURS:.0f} per span hit by a tree (assumed).",
         "Hour 0 = restoration start after the storm passes; mobilization, damage assessment, tree clearing and distribution work are not modeled.",
         "Travel: OSRM drive time from the staging yard to the work, driven there and back for every job (straight line x 1.3 at 50 km/h if no route).",
         "Separate: each utility repairs only its own assets and stages only at the nearest city/town on its own side (DESC in SC, GPC in GA).",
         f"Coordinated: shared staging at every own-side town and the joint yards in yards.json ({len(joint)} for this storm), and mutual aid: a free crew takes the next job from either utility, at {CROSS_EFFICIENCY:.0%} productivity on the other utility's assets (assumed).",
         "Both scenarios use the same priority order (electricity-dependent residents per crew-hour, then size), so savings come only from staging and mutual aid.",
-        f"Work covers DESC/GPC segments with at least {MIN_STRUCTURES} expected failed structures; OTHER owners' lines are excluded. Percent restored counts expected damaged segments.",
+        f"Work covers DESC/GPC line sections at least {MIN_P_SEG:.0%} likely to be damaged; other owners' lines are excluded. Percent restored counts expected damaged line sections (wind or trees).",
     ]
-    if items.empty or items.structures.sum() < 0.5:
+    if items.empty or items.repairs.sum() < 0.5:
         res = summarize([], 0, 0)
         out = {"scenarios": {"separate": res, "coordinated": res},
                "savedHours": {"to50pct": None, "to90pct": None, "to100pct": None, "vulnerableTo90pct": None},
-               "assumptions": assumptions + ["This storm has less than one expected failed DESC/GPC transmission structure, so there is nothing to schedule."]}
+               "assumptions": assumptions + ["This storm has less than one expected DESC/GPC transmission repair, so there is nothing to schedule."]}
         write_json("mutual-aid.json", out, RESPONSE_OUT / key)
         return out
     own = own_side_yards(items)
@@ -294,7 +299,7 @@ def run_storm(key: str) -> dict:
         "savedHours": {"to50pct": saved("hoursTo50pct"), "to90pct": saved("hoursTo90pct"),
                        "to100pct": saved("hoursTo100pct"), "vulnerableTo90pct": saved("vulnerableHoursTo90pct")},
         "assumptions": assumptions + [
-            f"Work items: {len(items)} ({items.structures.sum():.1f} expected failed structures: DESC {items.loc[items.utility == 'DESC', 'structures'].sum():.1f}, GPC {items.loc[items.utility == 'GPC', 'structures'].sum():.1f}).",
+            f"Work items: {len(items)}; expected damaged line sections DESC {items.loc[items.utility == 'DESC', 'segments'].sum():.1f}, GPC {items.loc[items.utility == 'GPC', 'segments'].sum():.1f} ({items.structures.sum():.1f} failed structures and {items.treeSpans.sum():.1f} tree-struck spans).",
             f"Shared staging alone (no mutual aid) reaches 90 % at {so['hoursTo90pct']} h and 100 % at {so['hoursTo100pct']} h, vs {res['separate']['hoursTo90pct']} h and {res['separate']['hoursTo100pct']} h separate.",
         ],
     }

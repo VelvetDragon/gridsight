@@ -134,7 +134,7 @@ export function BothGridsLine({ data }: { data: ResponseData }) {
 
 export function TimeSavedBlock({ data }: { data: ResponseData }) {
   if (!data.mutualAid) return null;
-  return <TimeSavedCard aid={data.mutualAid} />;
+  return <TimeSavedCard aid={data.mutualAid} counties={data.counties} outageCost={data.outageCost} />;
 }
 
 export function ModelCheck({ data, stormId }: { data: ResponseData; stormId: string | null }) {
@@ -155,16 +155,17 @@ export function ModelCheck({ data, stormId }: { data: ResponseData; stormId: str
         ) : (
           " There are no outage records for this storm, so the county predictions are not checked."
         )}
-        {v.reportedDescTransmissionPoles != null ? (
+        {v.predictedDescDamagedSections != null ? (
           <>
             {" "}
-            {UTILITY_NAME.DESC} reported{" "}
-            <span className="font-medium text-ink">{fmtInt(v.reportedDescTransmissionPoles)}</span> transmission poles
-            down
-            {v.predictedDescTransmissionFailures != null ? (
+            The model expects about{" "}
+            <span className="font-medium text-ink">{fmtInt(v.predictedDescDamagedSections)}</span> damaged{" "}
+            {UTILITY_NAME.DESC} transmission line sections (wind or falling trees)
+            {v.reportedDescDamagedSpans != null ? (
               <>
-                ; the model expected about{" "}
-                <span className="font-medium text-ink">{fmtInt(v.predictedDescTransmissionFailures)}</span>
+                ; {UTILITY_NAME.DESC} reported{" "}
+                <span className="font-medium text-ink">{fmtInt(v.reportedDescDamagedSpans)}</span> damaged spans. The
+                tree-fall part was tuned to that report, so it is a consistency check, not a test
               </>
             ) : null}
             .

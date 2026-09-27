@@ -192,10 +192,11 @@ function compact(n: number): string {
 
 /** What teaming up changes for this storm, in four numbers and a sentence. */
 function Impact({ data, t }: { data: ResponseData; t: TeamUp }) {
-  const imp = teamUpImpact(t, data.counties);
+  const imp = teamUpImpact(t, data.counties, data.outageCost);
   const aid = data.mutualAid ? timeSaved(data.mutualAid) : null;
   const top = imp.sooner[0];
   const perCh = imp.customerHours > 0 ? imp.costCountedUsd / imp.customerHours : null;
+  const ratio = imp.usd != null && imp.costCountedUsd > 0 ? imp.usd / imp.costCountedUsd : null;
   return (
     <Block>
       <h3 className="display text-[19px] font-medium text-ink">What teaming up changes</h3>
@@ -203,6 +204,9 @@ function Impact({ data, t }: { data: ResponseData; t: TeamUp }) {
         {top ? <Stat big={hours(top.hours)} label={`sooner power for ${top.name}`} /> : null}
         {imp.customerHours > 0 ? (
           <Stat big={`up to ${compact(imp.customerHours)}`} label="fewer customer-hours in the dark" />
+        ) : null}
+        {imp.usd != null && imp.usd >= 1 ? (
+          <Stat big={`up to ${fmtUsd(imp.usd, { compact: true })}`} label="outage costs avoided for customers" />
         ) : null}
         {imp.costUsd > 0 ? <Stat big={fmtUsd(imp.costUsd, { compact: true })} label="crew time for the help" /> : null}
         {imp.sharedYards ? (
@@ -213,7 +217,9 @@ function Impact({ data, t }: { data: ResponseData; t: TeamUp }) {
         ) : null}
       </div>
       <p className="mt-3 text-[13px] leading-[19px] text-ink-2">
-        {perCh != null
+        {ratio != null && ratio >= 1
+          ? `Every $1 of borrowed crew time saves customers up to about $${fmtInt(ratio)} in outage costs.`
+          : perCh != null
           ? `Every dollar of borrowed crew time buys back power: about ${perCh < 1 ? `${Math.round(perCh * 100)}¢` : fmtUsd(perCh)} per customer-hour of outage avoided.`
           : top
             ? "Borrowed crews shorten the outage for the utility that needs them most."
@@ -457,10 +463,19 @@ function TeamUpBody({
               two utilities in Crosswire.
             </li>
             <li>
-              Customer-hours: customers predicted out in the state (South Carolina for Dominion, Georgia for Georgia Power) x
-              hours sooner x {AVERAGE_GAIN}, because restoration is spread over the outage. It is an upper bound: the crew
-              math covers transmission lines, and many homes also wait on local distribution repairs.
+              Customer-hours: customers predicted out in the state (South Carolina for Dominion, Georgia for Georgia Power)
+              {data.outageCost ? " x the utility's share of the state's customers (EIA-861)" : ""} x hours sooner x{" "}
+              {AVERAGE_GAIN}, because restoration is spread over the outage. It is an upper bound: the crew math covers
+              transmission lines, and many homes also wait on local distribution repairs.
             </li>
+            {data.outageCost ? (
+              <li>
+                Outage costs: customer-hours x ${data.outageCost.utilities.DESC.usdPerCustomerHour.toFixed(0)} per
+                customer-hour for Dominion (SC) and ${data.outageCost.utilities.GPC.usdPerCustomerHour.toFixed(0)} for
+                Georgia Power (GA): LBNL ICE 2.0 interruption costs ({data.outageCost.dollarYear} dollars) weighted by each
+                utility&apos;s homes and businesses and their electricity use (EIA-861).
+              </li>
+            ) : null}
             {t.assumptions.map((a) => (
               <li key={a}>{a}</li>
             ))}

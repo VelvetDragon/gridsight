@@ -224,9 +224,10 @@ export interface ResponseMeta {
   validation: {
     countyMaePredicted: number | null;
     countyMaeBaseline: number | null;
-    /** Public DESC figure for this storm, or null when none was published. */
-    reportedDescTransmissionPoles: number | null;
-    predictedDescTransmissionFailures: number | null;
+    /** Damaged DESC transmission spans reported for this storm, or null when none was published. */
+    reportedDescDamagedSpans: number | null;
+    /** Expected damaged DESC transmission line sections (wind or trees), the one damage number shown. */
+    predictedDescDamagedSections: number | null;
   };
   /**
    * Leave-one-storm-out test: the outage model is trained on every other storm

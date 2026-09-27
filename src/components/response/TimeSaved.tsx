@@ -1,6 +1,9 @@
 "use client";
 
+import { fmtInt, fmtUsd } from "@/lib/format";
+import { outageCostLines, restorationValue, type OutageCost } from "@/lib/outageCost";
 import { fmtHours, fmtHoursNumber, timeSaved, type MutualAid, type RestorationScenario } from "@/lib/savings";
+import type { CountyOutage } from "@/lib/types";
 import { useCountUp } from "@/lib/useCountUp";
 import { HowCalculated } from "../plan/Savings";
 
@@ -38,7 +41,7 @@ export function RestorationChart({
         viewBox={`0 0 ${width} ${height}`}
         width="100%"
         role="img"
-        aria-label="Share of customers with power back over time, separate versus working together"
+        aria-label="Share of damaged transmission line sections repaired over time, separate versus working together"
       >
         {[0, 50, 100].map((v) => (
           <g key={v}>
@@ -86,19 +89,34 @@ export function RestorationChart({
           </svg>
           Each on its own
         </span>
-        <span className="text-ink-3">hours after landfall</span>
+        <span className="text-ink-3">% of damaged lines repaired, hours after repairs start</span>
       </figcaption>
     </figure>
   );
 }
 
-/** "Time saved by working together" headline card (Response mode). */
-export function TimeSavedCard({ aid }: { aid: MutualAid }) {
+/** "Time and money saved by working together" headline card (Response mode). */
+export function TimeSavedCard({
+  aid,
+  counties,
+  outageCost,
+}: {
+  aid: MutualAid;
+  counties: CountyOutage[];
+  outageCost: OutageCost | null;
+}) {
   const saved = timeSaved(aid);
   const hours = useCountUp(saved.to90);
   const { separate, coordinated } = aid.scenarios;
+  const value = outageCost ? restorationValue(aid, counties, outageCost) : null;
   const lines = [
-    `Hours until 90% of customers have power: ${separate.hoursTo90pct} h each on its own, ${coordinated.hoursTo90pct} h working together (mutual-aid scenarios from the pipeline, mutual-aid.json).`,
+    `Hours until 90% of the damaged transmission lines are repaired: ${separate.hoursTo90pct} h each on its own, ${coordinated.hoursTo90pct} h working together (mutual-aid scenarios from the pipeline, mutual-aid.json).`,
+    ...(value && outageCost
+      ? [
+          `Outage cost avoided: ${fmtInt(value.customers)} customers out x ${value.avgHoursSooner.toFixed(1)} hours sooner on average (area between the two curves) x the utility's cost per customer-hour = ${fmtUsd(value.usd, { compact: false })}.`,
+          ...outageCostLines(outageCost),
+        ]
+      : []),
     ...aid.assumptions,
   ];
   if (saved.to90 < 0.5 && saved.vulnerableTo90 < 0.5) {
@@ -120,9 +138,17 @@ export function TimeSavedCard({ aid }: { aid: MutualAid }) {
           Power back <span className="tabular-nums">{fmtHoursNumber(hours)}</span> hours sooner
         </p>
         <p className="mt-0.5 text-[13px] text-ink-2">
-          when 90% of homes are restored, if both companies share crews and yards.
+          to repair 90% of the damaged transmission lines, if both companies share crews and yards.
         </p>
       </div>
+      {value && value.usd >= 1 ? (
+        <p className="rounded-[10px] bg-white/55 px-3 py-2 text-[13px] leading-5 text-ink">
+          Up to <span className="font-semibold">{fmtUsd(value.usd)}</span> in outage costs avoided:{" "}
+          {fmtInt(value.customers)} customers back about {fmtHours(value.avgHoursSooner)} sooner on average, at $
+          {Math.round(value.byUtility[0].usdPerCustomerHour)} (SC) and ${Math.round(value.byUtility[1].usdPerCustomerHour)}{" "}
+          (GA) per customer-hour.
+        </p>
+      ) : null}
       {saved.vulnerableTo90 >= 0.5 ? (
         <p className="rounded-[10px] bg-white/55 px-3 py-2 text-[13px] leading-5 text-ink">
           Vulnerable residents get power back{" "}
