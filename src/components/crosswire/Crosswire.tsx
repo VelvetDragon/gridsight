@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { FALLBACK_IDS } from "@/lib/catalog";
 import { UTILITY_NAME } from "@/lib/theme";
+import { setUrlParams, useUrlParam } from "@/lib/useUrlState";
 import type { MapPadding } from "../map/MapCanvas";
 import type { PlanSceneProps } from "../map/planScene";
 import { KeyList, planKeyRows } from "../MapKey";
@@ -74,6 +75,8 @@ export function Crosswire() {
   const [open, setOpen] = useState(true);
   const [active, setActive] = useState("pairs");
   const [finderOpen, setFinderOpen] = useState(false);
+  // ?find=1 (linked from the Switchboard) opens "Find another utility" straight away.
+  const findLinked = useUrlParam("find") === "1" && cw.findAvailable;
   const { clearMatch, selected } = cw;
 
   useEffect(() => {
@@ -127,11 +130,12 @@ export function Crosswire() {
         onChange={cw.setPair}
         onFind={cw.findAvailable ? () => setFinderOpen(true) : null}
       />
-      {finderOpen || cw.finding ? (
+      {finderOpen || findLinked || cw.finding ? (
         <FindUtility
           cw={cw}
           onClose={() => {
             setFinderOpen(false);
+            setUrlParams({ find: null });
             cw.cancelFind();
           }}
         />
