@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ArrowUpRight, CloudLightning, Plus, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CloudLightning, GitMerge, Plus, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { useSession } from "@/lib/auth";
@@ -88,38 +88,40 @@ export function Switchboard() {
               className="display sb-rise mt-4 text-[44px] leading-[1.04] font-medium tracking-[-0.02em] text-ink sm:text-[56px]"
               style={{ animationDelay: "0.12s" }}
             >
-              Neighbouring utilities plan alone. See where{" "}
+              Neighbours do the same work. Now they can do it{" "}
               <span className="relative inline-block whitespace-nowrap">
-                their plans meet.
+                together.
                 <Squiggle />
               </span>
             </h1>
 
             <p className="sb-rise mt-6 text-[17px] leading-[27px] text-ink-2" style={{ animationDelay: "0.22s" }}>
-              Pick any two utilities. MrGridy reads their public transmission plans and finds where they could share
-              land, staging yards or crews. Then it replays past hurricanes over every grid in the region to show how
-              much sooner the lights come back when neighbours share crews.
+              MrGridy helps neighbouring power companies in two ways.
             </p>
 
-            <div className="sb-rise mt-8 flex flex-wrap items-center gap-3" style={{ animationDelay: "0.32s" }}>
-              <Link
-                href="/compare"
-                className="group inline-flex h-12 items-center gap-2 rounded-full bg-ink pr-5 pl-6 text-[15px] font-medium text-paper shadow-[0_10px_30px_-10px_rgba(20,24,30,0.55)] transition hover:bg-ink-2"
-              >
-                Compare two utilities
-                <ArrowRight size={17} className="transition-transform group-hover:translate-x-0.5" aria-hidden />
-              </Link>
-              <Link
+            <ul className="sb-rise mt-5 grid gap-3 sm:grid-cols-2" style={{ animationDelay: "0.3s" }}>
+              <Pillar
+                n="1"
                 href="/storm"
-                className="glass group inline-flex h-12 items-center gap-2 rounded-full px-5 text-[15px] font-medium text-ink transition hover:bg-white/80"
-              >
-                <CloudLightning size={17} className="text-slate" aria-hidden />
-                Replay a hurricane
-              </Link>
-            </div>
+                icon={<CloudLightning size={18} aria-hidden />}
+                when="Before a hurricane"
+                title="Who loses power, and who can help"
+                body="Predicts which companies and areas lose power, who needs workers and who can send them, so crews get ready early."
+                cta="Open Stormline"
+              />
+              <Pillar
+                n="2"
+                href="/compare"
+                icon={<GitMerge size={18} aria-hidden />}
+                when="When they build"
+                title="Where their plans meet"
+                body="Finds projects in the same place at the same time, so neighbours share one work yard, one trip, one crew."
+                cta="Open Crosswire"
+              />
+            </ul>
 
             <dl
-              className="sb-rise mt-10 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-hairline pt-6 sm:grid-cols-4"
+              className="sb-rise mt-8 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-hairline pt-6 sm:grid-cols-4"
               style={{ animationDelay: "0.42s" }}
             >
               <Fact value={data?.storms.length} label="hurricanes" note="replayed 10,000 times each" />
@@ -323,6 +325,47 @@ function Counted({ value }: { value: number | undefined }) {
   const n = useCountUp(value ?? 0, 1400);
   if (value === undefined) return <span className="text-ink-3">…</span>;
   return <span className="tabular-nums">{Math.round(n).toLocaleString("en-US")}</span>;
+}
+
+/** One of the two things MrGridy does, and the screen that does it. */
+function Pillar({
+  n,
+  href,
+  icon,
+  when,
+  title,
+  body,
+  cta,
+}: {
+  n: string;
+  href: string;
+  icon: ReactNode;
+  when: string;
+  title: string;
+  body: string;
+  cta: string;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className="group flex h-full flex-col rounded-[18px] border border-hairline bg-white/60 p-4 shadow-[0_1px_2px_rgba(20,24,30,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/90 hover:shadow-[0_20px_40px_-24px_rgba(20,24,30,0.35)]"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="grid size-8 place-items-center rounded-full bg-ink text-paper">{icon}</span>
+          <span className="text-[12px] font-medium tracking-[0.06em] text-ink-3 uppercase">
+            <span className="num mr-1 text-ink-2">{n}</span> {when}
+          </span>
+        </div>
+        <div className="display mt-3 text-[19px] leading-6 font-medium text-ink">{title}</div>
+        <p className="mt-1.5 text-[14px] leading-[21px] text-ink-2">{body}</p>
+        <span className="mt-auto flex items-center gap-1.5 pt-3 text-[13.5px] font-medium text-ink">
+          {cta}
+          <ArrowRight size={14} aria-hidden className="transition-transform group-hover:translate-x-1" />
+        </span>
+      </Link>
+    </li>
+  );
 }
 
 function Fact({ value, label, note }: { value: number | undefined; label: string; note: string }) {
