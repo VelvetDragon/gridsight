@@ -16,7 +16,7 @@ export interface Geocoded {
   /** Two-letter state the hit is in. */
   state: string;
 }
-const UA = "MrGridy/0.1 (ShellHacks 2026 hackathon; https://github.com/VelvetDragon/gridsight)";
+const UA = "Mr.Gridy/0.1 (ShellHacks 2026 hackathon; https://github.com/VelvetDragon/gridsight)";
 const GENERIC = new Set(["customer", "new", "existing", "tbd", "various", "area", "system", "load", "tap", "delivery", "point"]);
 let cache: Record<string, Geocoded | null> | null = null;
 let lastCall = 0;

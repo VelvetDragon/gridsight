@@ -67,7 +67,7 @@ let cache: { at: number; body: { storms: LiveStorm[]; checkedAt: string } } | nu
 export async function GET() {
   if (cache && Date.now() - cache.at < 10 * 60 * 1000) return Response.json(cache.body);
   try {
-    const res = await fetch(NHC_URL, { headers: { "User-Agent": "MrGridy (ShellHacks 2026)" }, cache: "no-store" });
+    const res = await fetch(NHC_URL, { headers: { "User-Agent": "Mr.Gridy (ShellHacks 2026)" }, cache: "no-store" });
     if (!res.ok) throw new Error(`NHC ${res.status}`);
     const data = (await res.json()) as { activeStorms?: NhcStorm[] };
     const storms: LiveStorm[] = (data.activeStorms ?? [])

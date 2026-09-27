@@ -28,7 +28,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: { default: "MrGridy", template: "%s · MrGridy" },
+  title: { default: "Mr.Gridy", template: "%s · Mr.Gridy" },
   description: "Where neighbouring utilities' plans cross, and where the next storm meets both grids.",
 };
 

@@ -78,7 +78,7 @@ export function Switchboard() {
               </h1>
 
               <p className="sb-rise mt-5 text-[17px] leading-[27px] text-ink-2" style={{ animationDelay: "0.22s" }}>
-                MrGridy maps where neighbouring power companies meet, using only public data, so they can share the work{" "}
+                Mr.Gridy maps where neighbouring power companies meet, using only public data, so they can share the work{" "}
                 <span className="font-medium text-ink">when they build</span> new lines and share crews{" "}
                 <span className="font-medium text-ink">when a hurricane hits</span>.
               </p>

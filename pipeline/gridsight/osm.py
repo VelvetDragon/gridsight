@@ -19,7 +19,7 @@ OVERPASS_URLS = (
     "https://overpass.private.coffee/api/interpreter",
     "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
 )
-USER_AGENT = "MrGridy/0.1 (ShellHacks 2026 research; github.com/VelvetDragon/gridsight)"
+USER_AGENT = "Mr.Gridy/0.1 (ShellHacks 2026 research; github.com/VelvetDragon/gridsight)"
 _CACHE = CACHE_DIR / "overpass"
 
 

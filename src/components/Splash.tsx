@@ -148,7 +148,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
           />
         </svg>
         <span className="gs-splash-word display text-[64px] leading-none font-semibold text-ink">
-          <span className="font-normal">Mr</span>Gridy
+          <span className="font-normal">Mr.</span>Gridy
         </span>
       </div>
       <p className="gs-splash-tag mt-6 text-[15px] text-ink-3">Where neighbouring grids meet.</p>

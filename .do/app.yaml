@@ -1,4 +1,4 @@
-# DigitalOcean App Platform spec for MrGridy.
+# DigitalOcean App Platform spec for Mr.Gridy.
 #   doctl apps create --spec .do/app.yaml          (first deploy)
 #   doctl apps update <app-id> --spec .do/app.yaml (later changes)
 # Set the SECRET values in the DigitalOcean console (Settings > App-Level or
@@ -51,7 +51,7 @@ services:
         value: REPLACE_IN_CONSOLE
         type: SECRET
         scope: RUN_TIME
-      # "Ask MrGridy" voice agents (scripts/create-agent.mjs): Stormline and Crosswire.
+      # "Ask Mr.Gridy" voice agents (scripts/create-agent.mjs): Stormline and Crosswire.
       - key: ELEVENLABS_AGENT_ID
         value: REPLACE_IN_CONSOLE
         type: SECRET

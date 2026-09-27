@@ -1,4 +1,4 @@
-/** The four places in MrGridy, in keyboard-shortcut order (1–4). */
+/** The four places in Mr.Gridy, in keyboard-shortcut order (1–4). */
 export const NAV = [
   {
     href: "/home",

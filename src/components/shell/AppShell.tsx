@@ -45,7 +45,7 @@ export function AppShell({ children, aside }: { children: ReactNode; aside?: Rea
         className="glass fixed z-50 flex items-center gap-1 rounded-[16px] pr-2 pl-2 sm:gap-2 sm:pl-4"
         style={{ top: NAV_TOP, left: NAV_TOP, right: NAV_TOP, height: NAV_H }}
       >
-        <Link href="/home" className="mr-3 hidden shrink-0 rounded-[8px] sm:block" aria-label="MrGridy, Switchboard">
+        <Link href="/home" className="mr-3 hidden shrink-0 rounded-[8px] sm:block" aria-label="Mr.Gridy, Switchboard">
           <Wordmark size={20} />
         </Link>
         <ul className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] sm:gap-1">

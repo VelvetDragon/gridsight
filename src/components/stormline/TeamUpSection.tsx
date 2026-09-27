@@ -330,7 +330,7 @@ function OwnerExplain({ o, t, data, names }: { o: TeamUpOwner; t: TeamUp; data: 
   const n = (id: string) => names.get(id) ?? id;
   let meaning: string;
   if (o.role === "little on this map") {
-    meaning = `Only ${fmtInt(o.lineKm)} km of its lines are on this map, too little to judge its crews, so MrGridy does not plan loans to or from it.`;
+    meaning = `Only ${fmtInt(o.lineKm)} km of its lines are on this map, too little to judge its crews, so Mr.Gridy does not plan loans to or from it.`;
   } else if (o.role === "needs help") {
     meaning = `Its ${fmtInt(o.crews)} crews would need ${hours(o.hoursAlone)} for about ${fmtInt(o.workHours)} crew-hours of repairs: more than a day, so it needs outside crews.`;
   } else if (o.role === "can help") {

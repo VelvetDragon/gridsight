@@ -28,7 +28,7 @@ const MAX_PROJECTS = 60;
 const MAX_GEOCODES = 45;
 const CACHE_DIR = path.join(os.tmpdir(), "mrgridy-finder-v2");
 const COLORS = ["#6D28D9", "#1D4ED8", "#B45309", "#047857", "#BE185D", "#4D7C0F", "#0369A1", "#9D174D"];
-const UA = "Mozilla/5.0 (compatible; MrGridy/0.1; ShellHacks 2026)";
+const UA = "Mozilla/5.0 (compatible; Mr.Gridy/0.1; ShellHacks 2026)";
 
 export class FinderError extends Error {
   constructor(
@@ -435,7 +435,7 @@ export async function findUtilityPlan(input: { name: string; url?: string | null
     if (data.projects.length) await cachePut(extractKey, data as never);
   }
   if (data.ceiiMarked && !/non[-\s_]?CEII/i.test(`${data.document.title} ${chosen.title} ${pdf.finalUrl}`)) {
-    throw new FinderError("That document is marked CEII, so MrGridy will not use it.", "Look for the public (non-CEII) version.");
+    throw new FinderError("That document is marked CEII, so Mr.Gridy will not use it.", "Look for the public (non-CEII) version.");
   }
   const rows = data.projects.slice(0, MAX_PROJECTS);
   if (!rows.length) {

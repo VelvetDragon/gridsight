@@ -18,7 +18,7 @@ import requests
 
 from gridsight.integrations.common import env, read_json
 
-PRODUCT = "MrGridy"
+PRODUCT = "Mr.Gridy"
 
 STORY_TITLES = [
     "Two neighbors",
@@ -547,7 +547,7 @@ def sfx_seconds(clip: Clip) -> float:
 TRANSLATE_SYSTEM = (
     "You translate storm briefings for Spanish-speaking utility line crews in Georgia and South Carolina. "
     "Write natural, calm, spoken Latin American Spanish. Keep every number, county name, place name, company "
-    "name and the product name MrGridy exactly as given. Do not add or drop any fact."
+    "name and the product name Mr.Gridy exactly as given. Do not add or drop any fact."
 )
 
 

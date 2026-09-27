@@ -243,7 +243,7 @@ export interface ResponseMeta {
 /* ---------------- Utility catalog (compare any two utilities) ---------------- */
 
 /**
- * One utility MrGridy knows about. Its planned projects live in
+ * One utility Mr.Gridy knows about. Its planned projects live in
  * /data/catalog/projects/<id>.json (CatalogProject[]); the list of utilities is
  * /data/catalog/utilities.json (CatalogUtility[]).
  */

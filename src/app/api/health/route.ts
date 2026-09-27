@@ -24,7 +24,7 @@ export async function GET() {
   return Response.json(
     {
       ok: true,
-      product: "MrGridy",
+      product: "Mr.Gridy",
       data: plan?.origin ?? "missing",
       integrations: {
         gemini: Boolean(serverEnv("GEMINI_API_KEY")),

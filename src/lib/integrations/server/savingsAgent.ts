@@ -40,7 +40,7 @@ import { gemini, GeminiHttpError, geminiJson, geminiKey, stripFence } from "./ge
 
 type Emit = (e: AgentEvent) => void;
 
-const UA = "Mozilla/5.0 (compatible; MrGridy/0.1)";
+const UA = "Mozilla/5.0 (compatible; Mr.Gridy/0.1)";
 const HOUR = 3600_000;
 const MAX_LISTINGS = 8;
 const MAX_WEB = 4;

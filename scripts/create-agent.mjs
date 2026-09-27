@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Create (or update) the "Ask MrGridy" voice agent on ElevenLabs Agents.
+ * Create (or update) the "Ask Mr.Gridy" voice agent on ElevenLabs Agents.
  *
  *   node scripts/create-agent.mjs              # Stormline agent   -> ELEVENLABS_AGENT_ID
  *   node scripts/create-agent.mjs crosswire    # Crosswire agent   -> ELEVENLABS_CROSSWIRE_AGENT_ID
@@ -9,7 +9,7 @@
  * ELEVENLABS_VOICE_ID and ELEVENLABS_AGENT_ID from .env.local. Without an agent id it
  * creates one and writes ELEVENLABS_AGENT_ID back to .env.local; with one it updates it.
  * The tools are client tools: they run in the Stormline page (StormAgent.tsx) and read
- * the storm data on screen, so every number the agent says comes from MrGridy's files.
+ * the storm data on screen, so every number the agent says comes from Mr.Gridy's files.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 
@@ -36,7 +36,7 @@ const tool = (name, description, properties = {}, required = []) => ({
 const str = (description) => ({ type: "string", description });
 
 const TOOLS = [
-  tool("list_storms", "List the storms MrGridy can replay, with year and a one-line headline, and which one is open."),
+  tool("list_storms", "List the storms Mr.Gridy can replay, with year and a one-line headline, and which one is open."),
   tool("open_storm", "Open a storm on the map by name, for example Helene or Matthew.", { name: str("Storm name") }, ["name"]),
   tool(
     "storm_summary",
@@ -93,10 +93,10 @@ const TOOLS = [
     { show: str("Layers to show"), hide: str("Layers to hide") },
   ),
   tool("impact_overall", "Total impact across every replayed storm: crews lent, hours sooner, customer-hours avoided, crew cost, and time saved for people on medical equipment."),
-  tool("future_work", "What MrGridy does today and what comes next (live forecast runs, phone alerts, more regions, utility data, joint construction and storm plans)."),
+  tool("future_work", "What Mr.Gridy does today and what comes next (live forecast runs, phone alerts, more regions, utility data, joint construction and storm plans)."),
 ];
 
-const PROMPT = `You are MrGridy, the storm desk for transmission planners at Dominion Energy South Carolina, Georgia Power and their neighbours.
+const PROMPT = `You are Mr.Gridy, the storm desk for transmission planners at Dominion Energy South Carolina, Georgia Power and their neighbours.
 You explain what a hurricane would break, who should lend crews to whom, where to stage, and what it costs.
 
 Rules:
@@ -118,7 +118,7 @@ Rules:
 - Connect the facts: who is short of crews, who has spare, where damage overlaps, who needs power first, and what it costs versus the hours saved.`;
 
 const CROSSWIRE_TOOLS = [
-  tool("list_utilities", "Utilities MrGridy can compare, and the pair that is open now."),
+  tool("list_utilities", "Utilities Mr.Gridy can compare, and the pair that is open now."),
   tool(
     "compare",
     "Open two utilities side by side on the map, for example Dominion Energy and Georgia Power.",
@@ -147,7 +147,7 @@ const CROSSWIRE_TOOLS = [
   tool("clear_match", "Close the selected match and show the whole pair again."),
 ];
 
-const CROSSWIRE_PROMPT = `You are MrGridy on Crosswire, helping transmission planners at two neighbouring utilities find where their planned lines meet and how to work together.
+const CROSSWIRE_PROMPT = `You are Mr.Gridy on Crosswire, helping transmission planners at two neighbouring utilities find where their planned lines meet and how to work together.
 
 Rules:
 - Every fact and number comes from a tool. Never invent numbers or project names.
@@ -162,16 +162,16 @@ Rules:
 const PAGE = process.argv[2] === "crosswire" ? "crosswire" : "storm";
 const PAGES = {
   storm: {
-    name: "Ask MrGridy",
+    name: "Ask Mr.Gridy",
     envKey: "ELEVENLABS_AGENT_ID",
-    first: "Hi, I'm MrGridy. Ask me about any storm: what breaks, who should help whom, and what it costs.",
+    first: "Hi, I'm Mr.Gridy. Ask me about any storm: what breaks, who should help whom, and what it costs.",
     prompt: PROMPT,
     tools: TOOLS,
   },
   crosswire: {
-    name: "Ask MrGridy: Crosswire",
+    name: "Ask Mr.Gridy: Crosswire",
     envKey: "ELEVENLABS_CROSSWIRE_AGENT_ID",
-    first: "Hi, I'm MrGridy. Ask me where two utilities' plans meet and how they can work together.",
+    first: "Hi, I'm Mr.Gridy. Ask me where two utilities' plans meet and how they can work together.",
     prompt: CROSSWIRE_PROMPT,
     tools: CROSSWIRE_TOOLS,
   },

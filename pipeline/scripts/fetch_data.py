@@ -74,7 +74,7 @@ RESPONSE_SOURCES = {
 }
 SOURCES.update(RESPONSE_SOURCES)
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; MrGridy/0.1; ShellHacks 2026 research)"}
+HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; Mr.Gridy/0.1; ShellHacks 2026 research)"}
 
 
 def main() -> None:

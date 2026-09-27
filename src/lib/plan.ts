@@ -71,7 +71,7 @@ export function buildMemo(
   const road = roadNote(o);
   const lines: string[] = [];
   lines.push(`COORDINATION MEMO: ${desc.name} / ${gpc.name}`);
-  lines.push(`Prepared with MrGridy. Opportunity #${rank} of the current ranking.`);
+  lines.push(`Prepared with Mr.Gridy. Opportunity #${rank} of the current ranking.`);
   lines.push("");
   lines.push("WHAT");
   lines.push(

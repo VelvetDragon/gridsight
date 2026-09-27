@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * "Ask MrGridy": a voice agent (ElevenLabs Agents) that answers from the storm on screen
- * and moves the map. Every tool below reads MrGridy's own data files, so the agent can
+ * "Ask Mr.Gridy": a voice agent (ElevenLabs Agents) that answers from the storm on screen
+ * and moves the map. Every tool below reads Mr.Gridy's own data files, so the agent can
  * only say what the data says. The API key stays on the server: /api/agent hands out a
  * short-lived signed URL.
  */
@@ -625,14 +625,14 @@ function useTools(bridge: AgentBridge) {
   };
 }
 
-/** Floating "Ask MrGridy" voice button for Stormline. */
+/** Floating "Ask Mr.Gridy" voice button for Stormline. */
 export function StormAgent({ bridge }: { bridge: AgentBridge }) {
   const tools = useTools(bridge);
   return (
     <VoiceAgent
       tools={tools}
       page="storm"
-      hint="Talk to MrGridy about this storm (voice by ElevenLabs)"
+      hint="Talk to Mr.Gridy about this storm (voice by ElevenLabs)"
       className="fixed left-1/2 max-md:top-auto! max-md:bottom-[124px]"
       style={{ top: NAV_CLEARANCE }}
     />

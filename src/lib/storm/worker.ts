@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 /**
- * Web Worker running a block of MrGridy storm-physics ensemble members off the main
+ * Web Worker running a block of Mr.Gridy storm-physics ensemble members off the main
  * thread (client.ts spreads the members over a small pool of these workers).
  *
  * In:  { id, track, options, memberStart, count, networkUrl }

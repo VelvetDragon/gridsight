@@ -32,7 +32,7 @@ export function ErrorCard({ message, onRetry }: { message: string; onRetry: () =
     <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-4">
       <Panel className="pointer-events-auto w-[380px] p-5" role="alert">
         <div className="eyebrow mb-2">Data unavailable</div>
-        <div className="text-[15px] font-medium">MrGridy could not load this mode&apos;s data.</div>
+        <div className="text-[15px] font-medium">Mr.Gridy could not load this mode&apos;s data.</div>
         <p className="mt-1.5 text-[13px] leading-5 text-ink-3">
           Neither the pipeline output nor the bundled sample could be read. Check that the dev server is serving{" "}
           <span className="num">public/data</span>.

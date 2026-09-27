@@ -79,7 +79,7 @@ def build() -> tuple[dict, pd.DataFrame]:
     cty = counties()
     cidx = {f: i for i, f in enumerate(cty.fips)}
     out = {
-        "note": "MrGridy downsampled transmission network for in-browser storm physics; see pipeline/gridsight/response/lite.py",
+        "note": "Mr.Gridy downsampled transmission network for in-browser storm physics; see pipeline/gridsight/response/lite.py",
         "sampling": {"stride": STRIDE, "sourceSegments": int(len(seg)), "segments": int(len(lite))},
         "utilities": UTILS,
         "segments": {

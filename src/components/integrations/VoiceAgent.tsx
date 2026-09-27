@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * The "Ask MrGridy" voice button and conversation bubble, shared by Stormline and Crosswire.
+ * The "Ask Mr.Gridy" voice button and conversation bubble, shared by Stormline and Crosswire.
  * Each page passes its own client tools; /api/agent?page=... hands out a signed URL for that
  * page's ElevenLabs agent, so the API key never reaches the browser. While the planner talks
- * the bubble shows what MrGridy heard; once it answers, the answer replaces it.
+ * the bubble shows what Mr.Gridy heard; once it answers, the answer replaces it.
  */
 import { ConversationProvider, useConversation, type ClientTools } from "@elevenlabs/react";
 import { LoaderCircle, Mic, Square } from "lucide-react";
@@ -27,7 +27,7 @@ function Agent({
   style?: CSSProperties;
 }) {
   const [line, setLine] = useState<string | null>(null);
-  /** What the planner just said; shown until MrGridy's answer arrives. */
+  /** What the planner just said; shown until Mr.Gridy's answer arrives. */
   const [heard, setHeard] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
@@ -78,7 +78,7 @@ function Agent({
               aria-hidden
               className={cx("h-2.5 w-2.5 rounded-full", convo.isSpeaking ? "animate-pulse bg-[#2F6F45]" : "bg-alert")}
             />
-            <span className="text-[13px] font-medium text-ink">{convo.isSpeaking ? "MrGridy is speaking" : "Listening"}</span>
+            <span className="text-[13px] font-medium text-ink">{convo.isSpeaking ? "Mr.Gridy is speaking" : "Listening"}</span>
             <button
               type="button"
               onClick={() => convo.endSession()}
@@ -96,7 +96,7 @@ function Agent({
             title={hint}
           >
             {busy ? <LoaderCircle size={15} className="animate-spin" aria-hidden /> : <Mic size={15} aria-hidden />}
-            {busy ? "Connecting…" : "Ask MrGridy"}
+            {busy ? "Connecting…" : "Ask Mr.Gridy"}
           </button>
         )}
       </div>

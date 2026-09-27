@@ -49,7 +49,7 @@ export function StormWatch() {
       ) : (
         <p className="text-[14px] leading-[21px] text-ink">
           {storms.length === 0
-            ? "No active Atlantic storms right now. Replay a past storm below to see how MrGridy plans ahead."
+            ? "No active Atlantic storms right now. Replay a past storm below to see how Mr.Gridy plans ahead."
             : `${others.map((s) => `${s.kind} ${s.name}`).join(" and ")} ${
                 others.length === 1 ? "is" : "are"
               } active in the Atlantic, but none threatens Georgia or South Carolina right now.`}

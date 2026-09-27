@@ -157,7 +157,7 @@ export function buildFlightScript(o: Overlap, desc: Project | undefined, gpc: Pr
   const descName = desc?.name ?? o.descId;
   const gpcName = gpc?.name ?? o.gpcId;
   const captions: FlightCaption[] = [
-    { atMs: 600, durMs: 3400, kicker: "MrGridy corridor flight", text: `${descName} meets ${gpcName}`, tone: "ink" },
+    { atMs: 600, durMs: 3400, kicker: "Mr.Gridy corridor flight", text: `${descName} meets ${gpcName}`, tone: "ink" },
     {
       atMs: 4400,
       durMs: 5600,

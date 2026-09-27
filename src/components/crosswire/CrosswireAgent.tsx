@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * "Ask MrGridy" on Crosswire: the voice agent drives the board (which two utilities, which
+ * "Ask Mr.Gridy" on Crosswire: the voice agent drives the board (which two utilities, which
  * match) and answers from the pair on screen: distances, timing, savings, ways to work
  * together and grants. Every tool reads useCrosswire's state, so the agent only says what
  * the data says.
@@ -222,14 +222,14 @@ function useTools(cw: Cw) {
   };
 }
 
-/** "Ask MrGridy" voice button for Crosswire, placed over the map. */
+/** "Ask Mr.Gridy" voice button for Crosswire, placed over the map. */
 export function CrosswireAgent({ cw }: { cw: Cw }) {
   const tools = useTools(cw);
   return (
     <VoiceAgent
       tools={tools}
       page="crosswire"
-      hint="Talk to MrGridy about these two utilities (voice by ElevenLabs)"
+      hint="Talk to Mr.Gridy about these two utilities (voice by ElevenLabs)"
       className="absolute top-2 left-1/2"
     />
   );

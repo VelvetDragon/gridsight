@@ -1,4 +1,4 @@
-"""Load everything MrGridy knows into Tiger Data (Postgres + TimescaleDB).
+"""Load everything Mr.Gridy knows into Tiger Data (Postgres + TimescaleDB).
 
 Hypertables (time series):
   eaglei_outages       15-minute EAGLE-I customers out per county (GA, SC) for each storm window

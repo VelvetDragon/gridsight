@@ -23,7 +23,7 @@ import type { ExplainMemo, ExplainResult } from "@/lib/integrations/explain";
 import { readDataFile, type DataOrigin } from "./dataFiles";
 import { geminiJson, geminiKey, geminiModels } from "./gemini";
 
-const PRODUCT = "MrGridy";
+const PRODUCT = "Mr.Gridy";
 const SIGN_OFF = `Prepared with ${PRODUCT} from public filings.`;
 
 const TIER_TEXT: Record<Overlap["tier"], string> = {

@@ -1,7 +1,7 @@
 /**
  * GET /api/agent?page=storm|crosswire -> { signedUrl }
  *
- * A short-lived signed URL for the "Ask MrGridy" ElevenLabs agent, so the browser can
+ * A short-lived signed URL for the "Ask Mr.Gridy" ElevenLabs agent, so the browser can
  * start a voice conversation without ever seeing the API key. 404 when the agent is not
  * configured (ELEVENLABS_API_KEY / ELEVENLABS_AGENT_ID for Stormline,
  * ELEVENLABS_CROSSWIRE_AGENT_ID for Crosswire; see scripts/create-agent.mjs).

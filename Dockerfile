@@ -1,4 +1,4 @@
-# MrGridy web app: Next.js standalone server.
+# Mr.Gridy web app: Next.js standalone server.
 #   docker build -t mrgridy .
 #   docker run -p 3000:3000 --env-file .env.local mrgridy
 # Keys are read at run time only; nothing secret is baked into the image.

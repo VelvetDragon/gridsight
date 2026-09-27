@@ -1,5 +1,5 @@
 /**
- * In-browser storm physics for MrGridy "next hurricane" runs.
+ * In-browser storm physics for Mr.Gridy "next hurricane" runs.
  *
  * A TypeScript port of the Python Response pipeline (pipeline/gridsight/response):
  *   wind.py       Holland (1980) gradient-wind profile, B fitted to the 34-kt radius when

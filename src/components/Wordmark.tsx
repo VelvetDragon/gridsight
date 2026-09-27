@@ -1,5 +1,5 @@
 /** Product name, used everywhere it is shown to people. */
-export const PRODUCT_NAME = "MrGridy";
+export const PRODUCT_NAME = "Mr.Gridy";
 
 /**
  * The mark: a power line drawn as one loose, hand-drawn wave (sagging between
@@ -24,13 +24,13 @@ export function LogoMark({ size = 26, spark = true }: { size?: number; spark?: b
   );
 }
 
-/** Wordmark: the mark plus "MrGridy" in Fraunces. */
+/** Wordmark: the mark plus "Mr.Gridy" in Fraunces. */
 export function Wordmark({ size = 21 }: { size?: number }) {
   return (
     <span className="flex items-center gap-2 select-none">
       <LogoMark size={Math.round(size * 0.95)} />
       <span className="display leading-none font-semibold text-ink" style={{ fontSize: size }}>
-        <span className="font-normal">Mr</span>Gridy
+        <span className="font-normal">Mr.</span>Gridy
       </span>
     </span>
   );
