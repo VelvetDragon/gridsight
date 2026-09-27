@@ -3,25 +3,14 @@
 import { ArrowRight, ArrowUpRight, Plus, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
-import { useSession } from "@/lib/auth";
 import { loadCatalog } from "@/lib/catalog";
 import { useRecentComparisons } from "@/lib/recent";
 import { UTILITY_HEX } from "@/lib/theme";
 import type { CatalogUtility } from "@/lib/types";
-import { useCountUp } from "@/lib/useCountUp";
 import { AppShell, NAV_CLEARANCE } from "../shell/AppShell";
 import { NAV } from "../shell/nav";
 import { HeroMap, useHeroData, useLiveStormLine, useStormUtilities, type HeroData } from "./HeroMap";
 import { CrosswireArt, LedgerArt, StormlineArt } from "./Illustrations";
-
-function greeting(): string {
-  const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-}
-
-function today(): string {
-  return new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-}
 
 function ago(ms: number): string {
   const m = Math.round((Date.now() - ms) / 60000);
@@ -56,37 +45,25 @@ function useUtilities(): CatalogUtility[] | null {
 
 /** Switchboard: the first page after signing in. */
 export function Switchboard() {
-  const session = useSession();
   const recent = useRecentComparisons();
   const data = useHeroData();
   const live = useLiveStormLine();
   const stormUtilities = useStormUtilities(data?.storms);
   const utilities = useUtilities();
   const pair = pairFacts(data);
-  const first = session.status === "authenticated" ? session.session.user.name.split(" ")[0] : null;
 
   return (
     <AppShell>
       <main className="h-dvh overflow-y-auto bg-paper">
         {/* Hero: the pitch, the map and the three screens, all above the fold */}
         <section
-          className="mx-auto flex max-w-[1360px] flex-col px-6 pb-8 lg:min-h-dvh lg:px-10"
-          style={{ paddingTop: NAV_CLEARANCE + 20 }}
+          className="mx-auto flex max-w-[1360px] flex-col px-6 pb-8 lg:px-10"
+          style={{ paddingTop: NAV_CLEARANCE + 16 }}
         >
-          <div className="grid flex-1 items-center gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
+          <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
             <div className="max-w-[560px]">
-              <p className="sb-rise text-[14px] text-ink-3" style={{ animationDelay: "0.05s" }} suppressHydrationWarning>
-                {today()}
-                {first ? (
-                  <>
-                    <span className="mx-2 text-hairline-strong">/</span>
-                    {greeting()}, {first}.
-                  </>
-                ) : null}
-              </p>
-
               <h1
-                className="display sb-rise mt-3 text-[42px] leading-[1.05] font-medium tracking-[-0.02em] text-ink sm:text-[clamp(40px,6.2dvh,50px)]"
+                className="display sb-rise text-[42px] leading-[1.05] font-medium tracking-[-0.02em] text-ink sm:text-[clamp(40px,6.2dvh,50px)]"
                 style={{ animationDelay: "0.12s" }}
               >
                 Neighbours do the same work. Now they can do it{" "}
@@ -102,15 +79,6 @@ export function Switchboard() {
                 <span className="font-medium text-ink">when they build</span> new power lines.
               </p>
 
-              <dl
-                className="sb-rise mt-7 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-hairline pt-5 sm:grid-cols-4"
-                style={{ animationDelay: "0.32s" }}
-              >
-                <Fact value={data?.storms.length} label="hurricanes" note="replayed 10,000 times each" />
-                <Fact value={stormUtilities?.length} label="utilities" note="in the storm model" />
-                <Fact value={pair?.overlaps} label="places" note="where the featured pair meets" />
-                <Fact value={pair?.crossings} label="lines cross" note="and must be coordinated" />
-              </dl>
             </div>
 
             <div className="sb-rise relative" style={{ animationDelay: "0.1s" }}>
@@ -153,6 +121,7 @@ export function Switchboard() {
               nav={NAV[1]}
               k="2"
               art={<CrosswireArt />}
+              tint={UTILITY_HEX.DESC}
               when="When they build"
               line="Where two utilities' plans meet, and what sharing saves"
             />
@@ -160,6 +129,7 @@ export function Switchboard() {
               nav={NAV[2]}
               k="3"
               art={<StormlineArt />}
+              tint="#334155"
               when="Before a hurricane"
               line="Who loses power, who needs workers, who can send them"
             />
@@ -167,6 +137,7 @@ export function Switchboard() {
               nav={NAV[3]}
               k="4"
               art={<LedgerArt />}
+              tint={UTILITY_HEX.GPC}
               when="Every number behind them"
               line="Every project, match and source, one click to Excel"
             />
@@ -176,12 +147,12 @@ export function Switchboard() {
         {/* Beyond the featured pair */}
         <section className="mx-auto max-w-[1360px] px-6 pt-4 pb-6 lg:px-10" aria-labelledby="range-h">
           <h2 id="range-h" className="display text-[28px] font-medium text-ink">
-            Not just these two
+            Try it yourself
           </h2>
           <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
             <Panel
               kicker="Crosswire"
-              title="Any two utilities"
+              title="Compare any two utilities"
               body="Type a utility's name. Gemini finds its public transmission plan, reads it and places every project. Anything marked CEII is refused."
             >
               <ul className="mt-4 flex flex-wrap gap-2">
@@ -307,24 +278,6 @@ function listNames(names: string[]): string {
   return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 
-function Counted({ value }: { value: number | undefined }) {
-  const n = useCountUp(value ?? 0, 1400);
-  if (value === undefined) return <span className="text-ink-3">…</span>;
-  return <span className="tabular-nums">{Math.round(n).toLocaleString("en-US")}</span>;
-}
-
-function Fact({ value, label, note }: { value: number | undefined; label: string; note: string }) {
-  return (
-    <div>
-      <dd className="num text-[28px] leading-8 font-medium text-ink">
-        <Counted value={value} />
-      </dd>
-      <dt className="mt-1 text-[13px] leading-[18px] text-ink-2">{label}</dt>
-      <div className="text-[12px] leading-[16px] text-ink-3">{note}</div>
-    </div>
-  );
-}
-
 function Dot({ color }: { color: string }) {
   return <span className="inline-block size-2 shrink-0 rounded-full" style={{ background: color }} />;
 }
@@ -377,12 +330,15 @@ function Door({
   nav,
   k,
   art,
+  tint,
   when,
   line,
 }: {
   nav: (typeof NAV)[number];
   k: string;
   art: ReactNode;
+  /** The illustration panel's own soft colour, so it never blends into the page. */
+  tint: string;
   when: string;
   line: string;
 }) {
@@ -390,9 +346,15 @@ function Door({
     <li>
       <Link
         href={nav.href}
-        className="group relative flex h-full items-stretch overflow-hidden rounded-[18px] border border-hairline bg-white/60 shadow-[0_1px_2px_rgba(20,24,30,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/90 hover:shadow-[0_24px_48px_-24px_rgba(20,24,30,0.32)]"
+        className="group relative flex h-full items-stretch overflow-hidden rounded-[18px] border border-hairline bg-white/80 shadow-[0_1px_2px_rgba(20,24,30,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/90 hover:shadow-[0_24px_48px_-24px_rgba(20,24,30,0.32)]"
       >
-        <div className="w-[128px] shrink-0 overflow-hidden border-r border-hairline bg-[#F2EEE6]">
+        <div
+          className="m-1.5 mr-0 w-[124px] shrink-0 overflow-hidden rounded-[13px]"
+          style={{
+            background: `linear-gradient(150deg, ${tint}1f, ${tint}0a 70%), #FBFAF7`,
+            boxShadow: `inset 0 0 0 1px ${tint}26`,
+          }}
+        >
           <div className="flex h-full items-center transition-transform duration-500 ease-out group-hover:scale-[1.12]">{art}</div>
         </div>
         <div className="flex min-w-0 flex-1 flex-col px-4 py-3.5">
