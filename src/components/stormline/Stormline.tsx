@@ -61,7 +61,13 @@ export function Stormline() {
       content: (
         <>
           <Block>
-            <StormWatch />
+            <StormWatch
+              stormIds={response.storms?.map((x) => x.id)}
+              onOpen={(id) => {
+                response.pickStorm(id);
+                setActive("storm");
+              }}
+            />
           </Block>
           <Block>
             <StormPicker storms={response.storms} stormId={response.stormId} onStorm={response.pickStorm} />

@@ -34,6 +34,8 @@ export interface LiveStorm {
   position: [number, number];
   distanceKm: number;
   moving: string | null;
+  /** Direction of motion, degrees clockwise from north (NHC movementDir), when known. */
+  headingDeg: number | null;
   updated: string;
   watch: boolean;
 }
@@ -84,6 +86,7 @@ export async function GET() {
           distanceKm,
           moving:
             s.movementDir != null && s.movementSpeed != null ? `${compass(s.movementDir)} at ${s.movementSpeed} mph` : null,
+          headingDeg: s.movementDir ?? null,
           updated: s.lastUpdate,
           watch: distanceKm <= WATCH_KM,
         };

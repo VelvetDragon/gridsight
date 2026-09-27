@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { LiveStorm } from "@/app/api/storms/live/route";
+import { loadTracks, SAMPLE_STORM, stormTwins, type LiveStormLike, type StormTwin } from "@/lib/stormTwin";
 
 /** One live sentence from the National Hurricane Center feed, above the storm replays. */
-export function StormWatch() {
+export function StormWatch({ onOpen, stormIds }: { onOpen?: (id: string) => void; stormIds?: string[] }) {
   const [storms, setStorms] = useState<LiveStorm[] | null | undefined>(undefined);
 
   useEffect(() => {
@@ -55,6 +56,68 @@ export function StormWatch() {
               } active in the Atlantic, but none threatens Georgia or South Carolina right now.`}
         </p>
       )}
+      {onOpen && stormIds?.length ? <TwinBlock live={storms[0] ?? null} ids={stormIds} onOpen={onOpen} /> : null}
+    </div>
+  );
+}
+
+/** Storm Twin: the replayed storm most like the nearest live storm (or a labelled sample). */
+function TwinBlock({ live, ids, onOpen }: { live: LiveStorm | null; ids: string[]; onOpen: (id: string) => void }) {
+  const [sample, setSample] = useState(false);
+  const [twin, setTwin] = useState<{ key: string; t: StormTwin } | null>(null);
+  const subject: (LiveStormLike & { sample?: boolean }) | null = sample
+    ? SAMPLE_STORM
+    : live
+      ? { name: `${live.kind} ${live.name}`, position: live.position, windKt: live.windKt, headingDeg: live.headingDeg }
+      : null;
+  const key = subject ? `${subject.name}:${ids.join()}` : "";
+
+  useEffect(() => {
+    if (!subject) return;
+    let alive = true;
+    loadTracks(ids).then(({ storms, ids: got }) => {
+      const best = stormTwins(subject, storms, got)[0];
+      if (alive && best) setTwin({ key, t: best });
+    });
+    return () => {
+      alive = false;
+    };
+    // subject is derived from key
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+
+  const t = twin?.key === key ? twin.t : null;
+  return (
+    <div className="mt-2 rounded-[10px] border border-hairline bg-white/60 px-3 py-2.5">
+      <div className="text-[12px] font-medium text-ink-3">Storm Twin</div>
+      {subject && t ? (
+        <>
+          <p className="mt-0.5 text-[13px] leading-[19px] text-ink">
+            {subject.name} looks most like <b>{t.name} {t.year}</b> ({t.match} match: {t.distanceKm} km from where {t.name} was,{" "}
+            {Math.abs(t.windDiffKt)} kt {t.windDiffKt >= 0 ? "weaker" : "stronger"}
+            {t.headingDiffDeg != null ? `, ${t.headingDiffDeg}° off its heading` : ""}).
+            {t.hoursToBorder != null
+              ? ` From that point, ${t.name} reached Georgia and South Carolina ${t.hoursToBorder} hours later.`
+              : ""}
+          </p>
+          <button
+            type="button"
+            onClick={() => onOpen(t.stormId)}
+            className="mt-1.5 text-[13px] font-medium text-ink underline underline-offset-2"
+          >
+            Open {t.name}&apos;s plan
+          </button>
+        </>
+      ) : subject ? (
+        <p className="mt-0.5 text-[13px] text-ink-3">Comparing with 14 past storms…</p>
+      ) : null}
+      <button
+        type="button"
+        onClick={() => setSample((v) => !v)}
+        className="mt-1.5 block text-[12px] text-ink-3 underline underline-offset-2 hover:text-ink"
+      >
+        {sample ? "Back to the live storm" : "Try it with a sample hurricane near the Bahamas"}
+      </button>
     </div>
   );
 }
