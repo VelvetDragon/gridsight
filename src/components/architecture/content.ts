@@ -44,6 +44,8 @@ export type RegionId = "offline" | "data" | "browser" | "server" | "outside";
 export interface Region {
   id: RegionId;
   name: string;
+  /** One plain line, shown under the name in the full-system view. */
+  summary: string;
   tone: Tone;
   x: number;
   y: number;
@@ -52,11 +54,11 @@ export interface Region {
 }
 
 export const REGIONS: Region[] = [
-  { id: "offline", name: "Before the demo", tone: "emerald", x: -120, y: 70, w: 470, h: 520 },
-  { id: "data", name: "Our data", tone: "cyan", x: 420, y: 30, w: 200, h: 700 },
-  { id: "browser", name: "In the browser", tone: "cyan", x: 668, y: 20, w: 336, h: 610 },
-  { id: "server", name: "Our server", tone: "violet", x: 1016, y: 110, w: 404, h: 590 },
-  { id: "outside", name: "Outside services", tone: "amber", x: 1446, y: 30, w: 208, h: 850 },
+  { id: "offline", name: "Before the demo", summary: "Turns public records into results, once", tone: "emerald", x: -120, y: 40, w: 470, h: 550 },
+  { id: "data", name: "Our data", summary: "Files and one database", tone: "cyan", x: 420, y: -10, w: 200, h: 740 },
+  { id: "browser", name: "In the browser", summary: "What planners see and use", tone: "cyan", x: 668, y: -20, w: 336, h: 660 },
+  { id: "server", name: "Our server", summary: "Only where a secret key is needed", tone: "violet", x: 1016, y: 70, w: 404, h: 630 },
+  { id: "outside", name: "Outside services", summary: "AI, voices, storms, maps, grants", tone: "amber", x: 1446, y: -20, w: 208, h: 900 },
 ];
 
 export interface Part {

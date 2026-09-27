@@ -249,6 +249,7 @@ function Show() {
   const cam = useRef<Cam>(START_CAM);
   const [view, setView] = useState<{ t: number; cam: Cam; replay: Replay }>({ t: 0, cam: START_CAM, replay: null });
   const [isPaused, setIsPaused] = useState(false);
+  const [hover, setHover] = useState<string | null>(null);
   const live = useLiveStorms();
 
   useEffect(() => {
@@ -341,6 +342,11 @@ function Show() {
   const out = f.mode === "out" ? easeInOut(clamp(f.lt / (FIN_OUT - 0.4))) : 0;
   const built = f.mode === "build" ? f.ch + (f.lt >= T_FILL ? 1 : 0) : CHAPTERS.length;
 
+  // The full system is calm by default: faint lines, names only. Hovering a part, or a request
+  // running through the system, lights up just the parts and lines involved.
+  const overview = f.mode !== "build" && !rp;
+  const lit = overview ? litSet(f, hover) : null;
+
   return (
     <div className={`fixed inset-0 overflow-hidden bg-[#060910] select-none ${isPaused ? "ab-paused" : ""}`}>
       <svg
@@ -361,9 +367,15 @@ function Show() {
         >
           <River f={f} />
           {REGIONS.map((r) => (
-            <RegionBox key={r.id} r={r} f={f} />
+            <RegionBox
+              key={r.id}
+              r={r}
+              f={f}
+              overview={overview}
+              dim={lit ? !PARTS.some((p) => p.region === r.id && lit.parts.has(p.id)) : false}
+            />
           ))}
-          <Edges f={f} />
+          <Edges f={f} overview={overview} lit={lit} />
           {flow && f.mode === "flow" && !rp ? <FlowPulses f={f} /> : null}
           {PARTS.map((p) => (
             <Station
@@ -373,9 +385,14 @@ function Show() {
               t={view.t}
               replayLt={rp?.id === p.id ? rp.lt : null}
               onPick={() => pick(p.id)}
+              overview={overview}
+              dim={lit ? !lit.parts.has(p.id) : false}
+              onHover={overview ? (on) => setHover((h) => (on ? p.id : h === p.id ? null : h)) : undefined}
             />
           ))}
         </g>
+
+        {overview && hover && f.mode !== "flow" ? <PartTip part={PART[hover]} cam={c} /> : null}
 
         {current && f.mode === "build" ? <Focus part={current} ch={f.ch} lt={f.lt} cam={c} live={live} /> : null}
         {rp ? <Focus part={PART[rp.id]} ch={FILL_CH[rp.id]} lt={rp.lt} cam={c} live={live} /> : null}
@@ -602,15 +619,60 @@ function River({ f }: { f: Frame }) {
   );
 }
 
-function RegionBox({ r, f }: { r: Region; f: Frame }) {
+function RegionBox({ r, f, overview, dim }: { r: Region; f: Frame; overview: boolean; dim: boolean }) {
   const o = Math.max(...PARTS.filter((p) => p.region === r.id).map((p) => status(p.id, f).filled));
   if (o <= 0) return null;
   const hex = TONE[r.tone];
+  const n = REGIONS.findIndex((x) => x.id === r.id) + 1;
   return (
-    <g opacity={easeOut(o)}>
+    <g opacity={easeOut(o) * (dim ? 0.35 : 1)} style={{ transition: "opacity 300ms ease" }}>
       <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={26} fill={hex} fillOpacity={0.028} stroke={hex} strokeOpacity={0.16} strokeDasharray="2 6" />
-      <text x={r.x + 20} y={r.y + 28} fontSize="12" letterSpacing="2.6" fill={hex} fillOpacity={0.75} fontFamily="var(--font-numbers)">
-        {r.name.toUpperCase()}
+      <text x={r.x + 20} y={r.y + 30} fontSize="13" letterSpacing="2.6" fill={hex} fillOpacity={0.85} fontFamily="var(--font-numbers)">
+        {overview ? `${n} · ${r.name.toUpperCase()}` : r.name.toUpperCase()}
+      </text>
+      {overview ? (
+        <text x={r.x + 20} y={r.y + 52} fontSize="14" fill="#94a3b8" fontFamily="var(--font-sans-ui)">
+          {r.summary}
+        </text>
+      ) : null}
+    </g>
+  );
+}
+
+const edgeKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`);
+
+/** What to light up in the full-system view: the running request's path, or the hovered part and its neighbours. */
+function litSet(f: Frame, hover: string | null): { parts: Set<string>; edges: Set<string> } | null {
+  if (f.mode === "flow") {
+    const steps = FLOWS[f.fi].steps.flat();
+    return { parts: new Set(steps.flatMap((s) => [s.a, s.b])), edges: new Set(steps.map((s) => edgeKey(s.a, s.b))) };
+  }
+  if (!hover) return null;
+  const touching = EDGES.filter((e) => e.a === hover || e.b === hover);
+  return {
+    parts: new Set([hover, ...touching.flatMap((e) => [e.a, e.b])]),
+    edges: new Set(touching.map((e) => edgeKey(e.a, e.b))),
+  };
+}
+
+/** A small card next to the hovered part in the full-system view. */
+function PartTip({ part, cam }: { part: Part; cam: Cam }) {
+  const at = toScreen(cam, part);
+  const hex = TONE[part.tone];
+  const w = 300;
+  const x = at.x > W - w - 80 ? at.x - w - 44 * cam.s - 12 : at.x + 44 * cam.s + 12;
+  const y = clamp(at.y - 48, 100, H - 160);
+  return (
+    <g pointerEvents="none" transform={`translate(${x},${y})`}>
+      <rect width={w} height={96} rx={14} fill="#0b1222" fillOpacity={0.96} stroke={hex} strokeOpacity={0.45} />
+      <text x={16} y={30} fontSize="16" fontWeight="600" fill="#f8fafc" fontFamily="var(--font-sans-ui)">
+        {part.name}
+      </text>
+      <text x={16} y={54} fontSize="13.5" fill="#cbd5e1" fontFamily="var(--font-sans-ui)">
+        {part.does}
+      </text>
+      <text x={16} y={78} fontSize="12" fill={hex} fontFamily="var(--font-numbers)">
+        {`\u21b3 ${part.via}`}
       </text>
     </g>
   );
@@ -618,7 +680,15 @@ function RegionBox({ r, f }: { r: Region; f: Frame }) {
 
 const WIRES = EDGES.map((e) => ({ ...e, w: wire(PART[e.a], PART[e.b]) }));
 
-function Edges({ f }: { f: Frame }) {
+function Edges({
+  f,
+  overview,
+  lit,
+}: {
+  f: Frame;
+  overview: boolean;
+  lit: { parts: Set<string>; edges: Set<string> } | null;
+}) {
   return (
     <g>
       {WIRES.map((e) => {
@@ -635,8 +705,10 @@ function Edges({ f }: { f: Frame }) {
         const w = earlier === e.a ? e.w : wire(PART[e.b], PART[e.a]);
         const tone = e.backup ? "#FBBF24" : "#7dd3fc";
         const tip = bez(w.a, w.c, w.b, easeOut(draw));
+        const on = lit?.edges.has(edgeKey(e.a, e.b)) ?? false;
+        const calm = !overview ? 1 : lit ? (on ? 1 : 0.12) : 0.4;
         return (
-          <g key={`${e.a}|${e.b}`}>
+          <g key={`${e.a}|${e.b}`} opacity={calm} style={{ transition: "opacity 300ms ease" }}>
             <path
               d={w.d}
               fill="none"
@@ -650,13 +722,13 @@ function Edges({ f }: { f: Frame }) {
               d={w.d}
               fill="none"
               stroke={tone}
-              strokeOpacity={e.backup ? 0.55 : 0.32}
-              strokeWidth={1.6}
+              strokeOpacity={e.backup ? 0.55 : overview && on ? 0.85 : 0.32}
+              strokeWidth={overview && on ? 2.2 : 1.6}
               strokeDasharray={e.backup ? "5 7" : undefined}
               opacity={solid}
             />
             {draw < 1 ? <circle cx={tip.x} cy={tip.y} r={5} fill="#e0f2fe" filter="url(#ab-glow)" /> : null}
-            {e.backup && solid > 0 ? (
+            {e.backup && solid > 0 && (!overview || on) ? (
               <text
                 x={bez(w.a, w.c, w.b, 0.5).x}
                 y={bez(w.a, w.c, w.b, 0.5).y - 8}
@@ -682,12 +754,18 @@ function Station({
   t,
   replayLt,
   onPick,
+  overview = false,
+  dim = false,
+  onHover,
 }: {
   part: Part;
   f: Frame;
   t: number;
   replayLt: number | null;
   onPick: () => void;
+  overview?: boolean;
+  dim?: boolean;
+  onHover?: (on: boolean) => void;
 }) {
   const st = status(part.id, f);
   const { shown, filled } = st;
@@ -704,6 +782,10 @@ function Station({
       transform={`translate(${part.x},${part.y}) scale(${pop})`}
       className={filled >= 1 ? "cursor-pointer" : undefined}
       onClick={filled >= 1 ? onPick : undefined}
+      onMouseEnter={onHover ? () => onHover(true) : undefined}
+      onMouseLeave={onHover ? () => onHover(false) : undefined}
+      opacity={dim ? 0.28 : 1}
+      style={{ transition: "opacity 300ms ease" }}
     >
       {/* Not explained yet: the icon in grey, no label */}
       <g opacity={1 - filled}>
@@ -733,6 +815,7 @@ function Station({
             >
               {part.name}
             </text>
+            {overview ? null : (
             <text
               y={r + 45}
               textAnchor="middle"
@@ -746,6 +829,7 @@ function Station({
             >
               {part.tech.slice(0, 2).join(" · ")}
             </text>
+            )}
           </g>
         </g>
       ) : null}
@@ -1272,7 +1356,7 @@ function FinaleTitle({ lt }: { lt: number }) {
         The whole system
       </text>
       <text y={32} textAnchor="middle" fontSize="17" fill="#94a3b8" fontFamily="var(--font-sans-ui)">
-        {`Built once before the demo, served as files, with agents doing the legwork. Now watch ${FLOWS.length} real requests.`}
+        {`Five areas, read left to right. Hover any part to see what it talks to, or watch ${FLOWS.length} real requests.`}
       </text>
     </g>
   );
