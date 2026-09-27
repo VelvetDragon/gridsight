@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { FALLBACK_IDS } from "@/lib/catalog";
 import { UTILITY_NAME } from "@/lib/theme";
+import { setUrlParams, useUrlParam } from "@/lib/useUrlState";
 import { FindUtility } from "../crosswire/FindUtility";
 import { useCrosswire } from "../crosswire/useCrosswire";
 import { CrosswireAgent } from "../crosswire/CrosswireAgent";
@@ -57,6 +58,8 @@ export function CrossBoard() {
   const cw = useCrosswire();
   const [split, setSplit] = useState<Split>("even");
   const [finderOpen, setFinderOpen] = useState(false);
+  // ?find=1 (linked from the Switchboard) opens "Find another utility" straight away.
+  const findLinked = useUrlParam("find") === "1" && cw.findAvailable;
   const [keyOpen, setKeyOpen] = useState(false);
   const { clearMatch, selectOverlap, selected, ranked } = cw;
 
@@ -110,12 +113,13 @@ export function CrossBoard() {
         <h1 className="sr-only">Crosswire</h1>
         <Panel className="edge-shine relative z-30 shrink-0 px-3 py-2" aria-label="Which utilities">
           <BoardHeader cw={cw} onFind={cw.findAvailable ? () => setFinderOpen(true) : null} />
-          {finderOpen || cw.finding ? (
+          {finderOpen || findLinked || cw.finding ? (
             <div className="mt-2 max-w-[520px]">
               <FindUtility
                 cw={cw}
                 onClose={() => {
                   setFinderOpen(false);
+                  setUrlParams({ find: null });
                   cw.cancelFind();
                 }}
               />
