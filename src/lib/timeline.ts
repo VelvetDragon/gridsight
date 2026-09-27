@@ -39,3 +39,19 @@ export function windowOverlap(
   const e = a[1] < b[1] ? a[1] : b[1];
   return s < e ? [s, e] : null;
 }
+
+/**
+ * Longest gap between two build windows at which the pair still has anything to
+ * coordinate: a crew finishing one job and moving straight on to the other.
+ */
+export const MAX_GAP_MONTHS = 12;
+
+/**
+ * True when two windows overlap or one starts within MAX_GAP_MONTHS of the other
+ * ending. Unknown windows count as close, since nothing rules the pair out.
+ */
+export function closeInTime(a: [string, string] | null, b: [string, string] | null): boolean {
+  if (!a || !b) return true;
+  const gap = Math.max(Date.parse(a[0]), Date.parse(b[0])) - Math.min(Date.parse(a[1]), Date.parse(b[1]));
+  return gap / (1000 * 3600 * 24 * 30.44) <= MAX_GAP_MONTHS;
+}

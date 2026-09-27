@@ -10,6 +10,7 @@ import Map, { Marker, Popup, useControl, type MapRef } from "react-map-gl/maplib
 import { loadNaturalStyle } from "@/lib/basemap";
 import type { Bounds } from "@/lib/geo";
 import type { Position } from "@/lib/types";
+import { declutter } from "./declutter";
 import type { FxController } from "./fx/FxController";
 import { FxMapHost } from "./fx/FxMapHost";
 
@@ -36,6 +37,11 @@ export interface MapMarker {
   position: Position;
   node: ReactNode;
   onClick?: () => void;
+  /**
+   * Keep this label clear of the other ranked labels. Lower ranks hold their
+   * place; higher ones are nudged aside when they would overlap.
+   */
+  declutter?: number;
 }
 
 export interface MapPopup {
@@ -52,9 +58,14 @@ export interface MapCanvasProps {
   view?: ViewRequest | null;
   padding: MapPadding;
   onHover?: (info: PickingInfo) => void;
-  onClick?: (info: PickingInfo, event?: { srcEvent?: { shiftKey?: boolean } }) => void;
+  onClick?: (info: PickingInfo, event?: MapClickEvent) => void;
   /** Realistic map effects; when set, layers pass through it on their way to the overlay. */
   fx?: FxController | null;
+  /**
+   * When the container changes size, frame the same area again instead of
+   * keeping the zoom and cropping or padding it (for resizable map panes).
+   */
+  keepFramedOnResize?: boolean;
 }
 
 function DeckOverlay({ fx, ...props }: MapboxOverlayProps & { fx?: FxController | null }) {
@@ -68,10 +79,37 @@ function DeckOverlay({ fx, ...props }: MapboxOverlayProps & { fx?: FxController 
 
 type LoadState = "loading" | "ready" | "error";
 
-export default function MapCanvas({ layers, markers = [], popup, view, padding, onHover, onClick, fx }: MapCanvasProps) {
+/**
+ * deck.gl types `srcEvent` as the DOM event, but over MapLibre it is MapLibre's own event,
+ * which carries the DOM event as `originalEvent`.
+ */
+export interface MapClickEvent {
+  srcEvent?: { shiftKey?: boolean } | { originalEvent?: { shiftKey?: boolean } };
+}
+
+/** True when the click was a shift-click. */
+export function isShiftClick(event?: MapClickEvent): boolean {
+  const src = event?.srcEvent;
+  if (!src) return false;
+  return "originalEvent" in src ? !!src.originalEvent?.shiftKey : !!("shiftKey" in src && src.shiftKey);
+}
+
+export default function MapCanvas({
+  layers,
+  markers = [],
+  popup,
+  view,
+  padding,
+  onHover,
+  onClick,
+  fx,
+  keepFramedOnResize = false,
+}: MapCanvasProps) {
   const mapRef = useRef<MapRef>(null);
   const [load, setLoad] = useState<LoadState>("loading");
   const lastViewKey = useRef<string | null>(null);
+  // What the map last showed at rest, so a resize can frame it again.
+  const framed = useRef<maplibregl.LngLatBounds | null>(null);
   // The basemap style is fetched once and re-coloured before the map mounts.
   const [mapStyle, setMapStyle] = useState<maplibregl.StyleSpecification | string | null>(null);
 
@@ -111,6 +149,37 @@ export default function MapCanvas({ layers, markers = [], popup, view, padding, 
     if (load === "ready") applyView(view);
   }, [view, load, applyView]);
 
+  const rememberFrame = useCallback(() => {
+    const map = mapRef.current;
+    if (keepFramedOnResize && map && map.getPitch() === 0) framed.current = map.getBounds();
+  }, [keepFramedOnResize]);
+
+  const reframe = useCallback(() => {
+    if (!keepFramedOnResize) return;
+    // A frame later, once the deck.gl overlay has taken the new size from its own
+    // resize listener; moving before that draws the lines at the old size.
+    requestAnimationFrame(() => {
+      const map = mapRef.current;
+      const bounds = framed.current;
+      // Mid-flight or tilted, the target camera matters more than the old frame.
+      if (!map || !bounds || map.isMoving() || map.getPitch() !== 0) return;
+      map.fitBounds(bounds, { padding: 0, maxZoom: map.getMaxZoom(), duration: 0 });
+    });
+  }, [keepFramedOnResize]);
+
+  // Nudge overlapping labels apart after every frame the markers move in.
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (load !== "ready" || !map) return;
+    const run = () => declutter(map.getContainer());
+    map.on("render", run);
+    const raf = requestAnimationFrame(run);
+    return () => {
+      map.off("render", run);
+      cancelAnimationFrame(raf);
+    };
+  }, [load, markers]);
+
   const handleHover = useCallback(
     (info: PickingInfo) => {
       const canvas = mapRef.current?.getCanvas();
@@ -131,11 +200,15 @@ export default function MapCanvas({ layers, markers = [], popup, view, padding, 
           style={{ position: "absolute", inset: 0 }}
           attributionControl={{ compact: false }}
           dragRotate={false}
+          // Shift-click adds to a selection, so shift-drag must not start a box zoom.
+          boxZoom={false}
           pitchWithRotate={false}
           touchPitch={false}
           minZoom={5}
           maxZoom={14}
           onLoad={() => setLoad("ready")}
+          onMoveEnd={rememberFrame}
+          onResize={reframe}
           onStyleData={() => {
             if (load === "loading") setLoad("ready");
           }}
@@ -152,6 +225,7 @@ export default function MapCanvas({ layers, markers = [], popup, view, padding, 
               longitude={m.position[0]}
               latitude={m.position[1]}
               anchor="center"
+              className={m.declutter != null ? `gs-declutter gs-rank-${m.declutter}` : undefined}
               onClick={(e) => {
                 if (!m.onClick) return;
                 e.originalEvent.stopPropagation();

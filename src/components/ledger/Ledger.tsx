@@ -304,7 +304,7 @@ function ProjectsTable({ rows, catalog }: { rows: ProjectRow[]; catalog: Catalog
 
 function OverlapsTable({ pair }: { pair: PairBundle }) {
   const byId = new Map(pair.plan.projects.map((p) => [p.id, p]));
-  const ranges = pair.plan.costRanges ? new Map(pair.plan.costRanges.map((r) => [r.overlapId, r])) : null;
+  const saved = new Map(pair.plan.overlaps.map((o) => [o.id, matchSavings(o, byId.get(o.descId), byId.get(o.gpcId))]));
   type Row = (typeof pair.plan.overlaps)[number];
   const columns: LedgerColumn<Row>[] = [
     { id: "rank", label: "Rank", value: (o) => o.rank, numeric: true, width: 7 },
@@ -334,28 +334,12 @@ function OverlapsTable({ pair }: { pair: PairBundle }) {
       width: 14,
     },
     {
-      id: "central",
-      label: "Could save (USD, central)",
-      value: (o) => money(matchSavings(o, ranges)?.central),
-      render: (o) => moneyText(money(matchSavings(o, ranges)?.central)),
+      id: "saving",
+      label: "Could save (USD, estimated)",
+      value: (o) => money(saved.get(o.id)?.total),
+      render: (o) => moneyText(money(saved.get(o.id)?.total)),
       numeric: true,
       width: 16,
-    },
-    {
-      id: "low",
-      label: "Low",
-      value: (o) => money(matchSavings(o, ranges)?.low),
-      render: (o) => moneyText(money(matchSavings(o, ranges)?.low)),
-      numeric: true,
-      width: 12,
-    },
-    {
-      id: "high",
-      label: "High",
-      value: (o) => money(matchSavings(o, ranges)?.high),
-      render: (o) => moneyText(money(matchSavings(o, ranges)?.high)),
-      numeric: true,
-      width: 12,
     },
     ...sourceColumns<Row>((o) => byId.get(o.descId)?.source ?? null),
   ];
@@ -378,7 +362,7 @@ function OverlapsTable({ pair }: { pair: PairBundle }) {
       intro={
         <>
           {pair.plan.overlaps.length} places where {pair.you.shortName}&apos;s and {pair.neighbor.shortName}&apos;s
-          plans come within 40 km.{" "}
+          plans come within 40 km, built no more than a year apart.{" "}
           <Link
             href={`/compare?you=${pair.you.id}&neighbor=${pair.neighbor.id}`}
             className="font-medium text-ink underline underline-offset-2"

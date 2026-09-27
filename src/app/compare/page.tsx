@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Crosswire } from "@/components/crosswire/Crosswire";
+import { CrossBoard } from "@/components/crossboard/CrossBoard";
 
 export const metadata: Metadata = {
   title: "Crosswire",
-  description: "Where two utilities' plans cross, on the map and on the calendar.",
+  description: "Where two utilities' plans cross: map, calendar and details side by side.",
 };
 
 export default function Page() {
-  return <Crosswire />;
+  return <CrossBoard />;
 }

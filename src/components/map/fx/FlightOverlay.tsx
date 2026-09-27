@@ -34,14 +34,13 @@ export function FlightOverlay({
   const start = useCallback(() => {
     const map = fx.controller.getMap();
     if (!map || !plan || !selected) return;
-    const ranges = plan.data.costRanges ? new Map(plan.data.costRanges.map((r) => [r.overlapId, r])) : null;
-    const s = matchSavings(selected, ranges);
+    const s = matchSavings(selected, plan.projectsById.get(selected.descId), plan.projectsById.get(selected.gpcId));
     // The pre-voiced ElevenLabs narration (public/audio/flight-1.mp3) describes the top Dominion / Georgia Power pair.
     const narration = audioUrl ?? (selected.id === NARRATED_PAIR ? "/audio/flight-1.mp3" : undefined);
     const handle = startCorridorFlight(map, selected, plan.projectsById, {
       audioUrl: narration,
       reducedMotion: fx.reducedMotion,
-      savings: s ? { low: s.low, high: s.high } : null,
+      savings: s?.total ?? null,
     });
     flight.current = handle;
     handle.subscribe(setState);

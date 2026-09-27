@@ -1,8 +1,14 @@
-"""Minimal Gemini API client (REST generateContent) with model fallback."""
+"""Minimal Gemini API client (REST generateContent) with model fallback.
+
+Request starts are spaced at least GEMINI_MIN_INTERVAL_MS apart (default 1000 ms)
+so batch runs stay under the rate limit, and a 429 waits the delay Gemini asks for.
+"""
 
 from __future__ import annotations
 
 import json
+import re
+import threading
 import time
 from typing import Any
 
@@ -17,6 +23,37 @@ DEFAULT_MODELS = ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3-flash-p
 
 class GeminiAuthError(RuntimeError):
     pass
+
+
+_lock = threading.Lock()
+_next_slot = 0.0
+
+
+def _paced() -> None:
+    """Wait for this request's turn: starts are spaced evenly across threads."""
+    global _next_slot
+    raw = env("GEMINI_MIN_INTERVAL_MS")
+    try:
+        gap = max(0.0, float(raw)) / 1000 if raw else 1.0
+    except ValueError:
+        gap = 1.0
+    with _lock:
+        now = time.monotonic()
+        slot = max(now, _next_slot)
+        _next_slot = slot + gap
+    if slot > now:
+        time.sleep(slot - now)
+
+
+def _retry_delay(resp: requests.Response) -> float | None:
+    """Seconds Gemini asked us to wait (RetryInfo.retryDelay or Retry-After), if it said."""
+    m = re.search(r'"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"', resp.text or "")
+    if m:
+        return float(m.group(1))
+    try:
+        return float(resp.headers.get("Retry-After", ""))
+    except ValueError:
+        return None
 
 
 def models() -> list[str]:
@@ -40,6 +77,7 @@ def generate_json(prompt: str | list[dict[str, Any]], schema: dict[str, Any], *,
     last: Exception | None = None
     for model in models():
         for attempt in range(2):
+            _paced()
             try:
                 resp = requests.post(ENDPOINT.format(model=model), json=body, timeout=timeout,
                                      headers={"x-goog-api-key": key, "Content-Type": "application/json"})
@@ -48,8 +86,12 @@ def generate_json(prompt: str | list[dict[str, Any]], schema: dict[str, Any], *,
                 break
             if resp.status_code in (401, 403):
                 raise GeminiAuthError(f"Gemini rejected the key ({resp.status_code})")
+            if resp.status_code == 429 and "quota" in resp.text.lower():
+                # Out of quota for this model: move on to the next one instead of hammering it.
+                last = RuntimeError(f"{model}: 429 quota exceeded")
+                break
             if resp.status_code in (429, 500, 503) and attempt == 0:
-                time.sleep(4)
+                time.sleep(min(_retry_delay(resp) or 4, 30))
                 continue
             if not resp.ok:
                 last = RuntimeError(f"{model}: {resp.status_code} {resp.text[:160]}")

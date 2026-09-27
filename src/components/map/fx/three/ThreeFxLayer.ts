@@ -83,7 +83,9 @@ export class ThreeFxLayer implements CustomLayerInterface {
       pixelRatio,
     };
     renderer.resetState();
-    renderer.setPixelRatio(1);
+    // No setPixelRatio/setSize here: three would write back the canvas size it saw in
+    // onAdd, shrinking MapLibre's drawing buffer after every resize (a stretched map).
+    // The canvas belongs to MapLibre; three only needs the viewport.
     renderer.setViewport(0, 0, canvas.width, canvas.height);
     for (const p of this.passes) p.render(frame);
   }

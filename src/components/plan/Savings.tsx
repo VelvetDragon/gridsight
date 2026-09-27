@@ -3,25 +3,25 @@
 import { useState } from "react";
 import { COMBINED_CUSTOMERS, DESC_CUSTOMERS, GPC_CUSTOMERS } from "@/lib/customers";
 import { fmtInt } from "@/lib/format";
-import { perCustomer, type MatchSavings, type SavingsSummary, type YearPoint } from "@/lib/savings";
+import { sourceHref } from "@/lib/plan";
+import { perCustomer, SAVINGS_METHOD, type MatchSavings, type SavingsSummary, type YearPoint } from "@/lib/savings";
+import type { SourceRef } from "@/lib/types";
 import { useCountUp } from "@/lib/useCountUp";
 import { cx, Panel, Tooltip } from "../ui/primitives";
 
-/** Three natural tones for the savings parts (kept apart from the company colours). */
+/** Two natural tones for the savings parts (kept apart from the company colours). */
 export const PART_COLOR = {
   land: "#6E8B5E",
-  yard: "#C49A48",
   crew: "#56708F",
 } as const;
 
 export const PART_LABEL = {
   land: "Land & permits",
-  yard: "Shared yards",
   crew: "Crew setup",
 } as const;
 
 export const HONEST_NOTE =
-  "Counts only costs the utilities disclose; some redact theirs (Georgia Power does), so real savings could be higher.";
+  "An estimate from published unit costs, in 2026 dollars. Georgia Power does not publish project costs, and yards, surveys and bulk buying are not priced, so real savings could be higher.";
 
 /** "$4.2M", "$369k". */
 export function fmtMoney(n: number): string {
@@ -31,25 +31,24 @@ export function fmtMoney(n: number): string {
   return `$${Math.round(n)}`;
 }
 
-/** "$2.4M–$7.7M", or a single value when low and high agree. */
-export function fmtRange(low: number, high: number): string {
-  return Math.round(low) === Math.round(high) ? fmtMoney(low) : `${fmtMoney(low)}–${fmtMoney(high)}`;
+/** Small "estimated" tag set beside a savings figure. */
+export function EstimatedTag({ className }: { className?: string }) {
+  return (
+    <span
+      className={cx(
+        "ml-2 inline-flex h-5 items-center rounded-full border border-dashed border-hairline-strong px-2 align-middle font-sans text-[11px] font-medium tracking-normal text-ink-2",
+        className,
+      )}
+    >
+      estimated
+    </span>
+  );
 }
 
-/** First line of every assumptions list: the range and where it comes from. */
-export function rangeSourceLine(s: { low: number; high: number; total: number; ranged: boolean }): string {
-  return s.ranged
-    ? `Range ${fmtRange(s.low, s.high)} (central ${fmtMoney(s.total)}): low, central and high scenarios from the pipeline's cost-range model (plan/insights/cost-ranges.json).`
-    : `${fmtMoney(s.total)}: single estimate from the pipeline's cost model (overlap cost in plan/overlaps.json); no range published yet.`;
-}
-
-/** Thin stacked bar with a legend: land & permits, shared yards, crew setup. */
-export function SavingsBar({ land, yard, crew }: { land: number; yard: number; crew: number }) {
-  const total = land + yard + crew || 1;
-  const parts = (["land", "yard", "crew"] as const).map((k) => ({
-    k,
-    v: k === "land" ? land : k === "yard" ? yard : crew,
-  }));
+/** Thin stacked bar with a legend: land & permits, crew setup. */
+export function SavingsBar({ land, crew }: { land: number; crew: number }) {
+  const total = land + crew || 1;
+  const parts = (["land", "crew"] as const).map((k) => ({ k, v: k === "land" ? land : crew }));
   return (
     <div className="flex flex-col gap-2">
       <div className="flex h-2 w-full overflow-hidden rounded-full bg-wash-2" role="img" aria-label="Savings breakdown">
@@ -77,8 +76,17 @@ export function SavingsBar({ land, yard, crew }: { land: number; yard: number; c
   );
 }
 
-/** "estimate · how we calculated this": opens the assumptions list in place. */
-export function HowCalculated({ lines }: { lines: string[] }) {
+/** "estimated · how we calculated this": opens the working in place. */
+export function HowCalculated({
+  lines,
+  unpriced = [],
+  linked = false,
+}: {
+  lines: string[];
+  unpriced?: string[];
+  /** Point to the "Where this comes from" links. */
+  linked?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <div>
@@ -88,18 +96,64 @@ export function HowCalculated({ lines }: { lines: string[] }) {
         onClick={() => setOpen((v) => !v)}
         className="text-[12px] text-ink-3 underline decoration-dotted underline-offset-2 hover:text-ink-2"
       >
-        estimate · how we calculated this
+        estimated · how we calculated this
       </button>
       {open ? (
-        <ul className="mt-2 flex list-disc flex-col gap-1 rounded-[10px] bg-white/55 py-2.5 pr-3 pl-7 text-[12px] leading-[17px] text-ink-2">
-          {lines.map((l, i) => (
-            <li key={l} className={i === 0 ? "font-medium text-ink" : undefined}>
-              {l}
-            </li>
-          ))}
-        </ul>
+        <div className="mt-2 rounded-[10px] bg-white/55 py-2.5 pr-3 pl-7 text-[12px] leading-[17px] text-ink-2">
+          <ul className="flex list-disc flex-col gap-1">
+            {lines.map((l, i) => (
+              <li key={l} className={i === 0 ? "font-medium text-ink" : undefined}>
+                {l}
+              </li>
+            ))}
+          </ul>
+          {unpriced.length ? (
+            <>
+              <p className="mt-2 -ml-4 font-medium text-ink">Not counted, no published price:</p>
+              <ul className="mt-1 flex list-disc flex-col gap-1">
+                {unpriced.map((l) => (
+                  <li key={l}>{l}</li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+          {linked ? (
+            <p className="mt-2 -ml-4 text-ink-3">Links to every document are under &ldquo;Where this comes from&rdquo;.</p>
+          ) : null}
+        </div>
       ) : null}
     </div>
+  );
+}
+
+/** A published document behind a figure, linked to its page. */
+export function DocumentLink({ source, note }: { source: SourceRef; note?: string }) {
+  const href = sourceHref({ source });
+  return (
+    <li>
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className="-m-1.5 flex items-start gap-2.5 rounded-[8px] p-1.5 transition-colors hover:bg-wash"
+      >
+        <span aria-hidden className="w-[3px] shrink-0 self-stretch rounded-full bg-hairline-strong" />
+        <span className="min-w-0 flex-1">
+          <span className="block text-[13px] leading-[18px] text-ink underline decoration-hairline-strong underline-offset-2">
+            {source.document}
+          </span>
+          <span className="block text-[12px] text-ink-3">
+            {source.page != null ? (
+              <>
+                page <span className="num">{source.page}</span>
+              </>
+            ) : (
+              (note ?? "fact sheet")
+            )}
+          </span>
+        </span>
+      </a>
+    </li>
   );
 }
 
@@ -126,42 +180,15 @@ function YearSpark({ points, year }: { points: YearPoint[]; year: number | null 
   );
 }
 
-/** Headline figure: a range with the central value highlighted, or a single "up to" value. */
-export function SavingsHeadline({
-  summary,
-  size = "md",
-  caption = true,
-}: {
-  summary: SavingsSummary;
-  size?: "md" | "xl";
-  caption?: boolean;
-}) {
-  const central = useCountUp(summary.total);
-  const low = useCountUp(summary.low);
-  const high = useCountUp(summary.high);
-  const ranged = summary.rangedCount > 0 && Math.round(summary.low) !== Math.round(summary.high);
+/** Headline figure with its "estimated" tag. */
+export function SavingsHeadline({ summary, size = "md" }: { summary: SavingsSummary; size?: "md" | "xl" }) {
+  const total = useCountUp(summary.total);
   const big = size === "xl" ? "text-[44px] leading-[52px]" : "text-[26px] leading-8";
-  if (!ranged) {
-    return (
-      <p className={cx("display font-medium text-ink", big)}>
-        Up to <span className="tabular-nums">{fmtMoney(central)}</span> could be saved
-      </p>
-    );
-  }
   return (
-    <div>
-      <p className={cx("display font-medium text-ink", big)}>
-        <span className="tabular-nums">
-          {fmtMoney(low)}–{fmtMoney(high)}
-        </span>
-      </p>
-      <p className={cx("mt-0.5 text-[13px] text-ink-2", !caption && "hidden")}>
-        estimated savings, most likely about{" "}
-        <span className="rounded-[5px] bg-[rgba(110,139,94,0.16)] px-1.5 py-px font-semibold text-ink tabular-nums">
-          {fmtMoney(central)}
-        </span>
-      </p>
-    </div>
+    <p className={cx("display font-medium text-ink", big)}>
+      <span className="tabular-nums">{fmtMoney(total)}</span>
+      <EstimatedTag />
+    </p>
   );
 }
 
@@ -183,10 +210,9 @@ export function SavingsCard({
   const byThen = byYear.find((p) => p.year === shownYear)?.cumulative ?? summary.total;
   const animatedByThen = useCountUp(byThen, 400);
   const lines = [
-    rangeSourceLine({ ...summary, ranged: summary.rangedCount > 0 }),
-    HONEST_NOTE,
+    ...SAVINGS_METHOD,
     ...assumptions,
-    `Per customer: central estimate ÷ ${fmtInt(COMBINED_CUSTOMERS)} customers (${fmtInt(DESC_CUSTOMERS)} Dominion Energy SC + ${fmtInt(GPC_CUSTOMERS)} Georgia Power); one-time and illustrative.`,
+    `Per customer: estimate ÷ ${fmtInt(COMBINED_CUSTOMERS)} customers (${fmtInt(DESC_CUSTOMERS)} Dominion Energy SC + ${fmtInt(GPC_CUSTOMERS)} Georgia Power); one-time and illustrative.`,
   ];
 
   return (
@@ -200,7 +226,7 @@ export function SavingsCard({
         <span className="num text-ink-2">{summary.acres.toFixed(1)}</span> acres of land shared
       </p>
       <div className="mt-3">
-        <SavingsBar land={summary.land} yard={summary.yard} crew={summary.crew} />
+        <SavingsBar land={summary.land} crew={summary.crew} />
       </div>
       <div className="mt-3 flex items-center gap-3 border-t border-hairline pt-3">
         <YearSpark points={byYear} year={radarYear} />
@@ -215,7 +241,7 @@ export function SavingsCard({
             side="bottom"
             content={
               <>
-                Central estimate ÷ both companies&apos; customers ({fmtInt(DESC_CUSTOMERS)} Dominion Energy SC +{" "}
+                Estimate ÷ both companies&apos; customers ({fmtInt(DESC_CUSTOMERS)} Dominion Energy SC +{" "}
                 {fmtInt(GPC_CUSTOMERS)} Georgia Power). One-time and illustrative: project savings are recovered through
                 rates over many years, not refunded.
               </>
@@ -236,34 +262,20 @@ export function SavingsCard({
 }
 
 /** Per-match savings block for the pair drawer. */
-export function MatchSavingsBlock({ savings, assumptions }: { savings: MatchSavings; assumptions: string[] }) {
-  const central = useCountUp(savings.central, 500);
-  const ranged = savings.ranged && Math.round(savings.low) !== Math.round(savings.high);
-  const lines = [
-    rangeSourceLine({ low: savings.low, high: savings.high, total: savings.central, ranged: savings.ranged }),
-    HONEST_NOTE,
-    ...assumptions,
-  ];
+export function MatchSavingsBlock({ savings }: { savings: MatchSavings }) {
+  const total = useCountUp(savings.total, 500);
   return (
     <div className="rounded-[12px] border border-hairline bg-white/50 px-4 py-3.5">
       <div className="text-[12px] text-ink-3">Could save by working together</div>
       <p className="display mt-0.5 text-[28px] leading-9 font-medium text-ink">
-        {ranged ? (
-          <span className="tabular-nums">{fmtRange(savings.low, savings.high)}</span>
-        ) : (
-          <span className="tabular-nums">{fmtMoney(central)}</span>
-        )}
+        <span className="tabular-nums">{fmtMoney(total)}</span>
+        <EstimatedTag />
       </p>
-      {ranged ? (
-        <p className="text-[12px] text-ink-2">
-          central <span className="font-semibold text-ink tabular-nums">{fmtMoney(savings.central)}</span>
-        </p>
-      ) : null}
       <div className="mt-3">
-        <SavingsBar land={savings.land} yard={savings.yard} crew={savings.crew} />
+        <SavingsBar land={savings.land} crew={savings.crew} />
       </div>
       <div className="mt-2.5">
-        <HowCalculated lines={lines} />
+        <HowCalculated lines={savings.lines} unpriced={savings.unpriced} linked />
       </div>
     </div>
   );
