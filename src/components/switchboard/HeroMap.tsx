@@ -2,7 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { TIER_HEX, TIER_LABEL, UTILITY_HEX } from "@/lib/theme";
 import type { OverlapTier, Position, Project } from "@/lib/types";
 
@@ -63,12 +63,15 @@ export function HeroMap({
   states,
   river,
   liveLine,
+  title,
 }: {
   projects: Project[];
   overlaps: HeroOverlap[];
   states: StateFeature[];
   river: RiverFeature[];
   liveLine: string | null;
+  /** Which pair this is, shown in the top corner. */
+  title?: ReactNode;
 }) {
   const [hover, setHover] = useState<HeroOverlap | null>(null);
 
@@ -221,17 +224,24 @@ export function HeroMap({
         })}
       </svg>
 
-      {/* Live storm watch, from the National Hurricane Center */}
-      {liveLine ? (
-        <div className="hm-rise glass absolute top-4 left-4 flex max-w-[78%] items-center gap-2 rounded-full py-1.5 pr-3.5 pl-3 text-[12.5px] text-ink-2" style={{ animationDelay: "2.4s" }}>
-          <span className="relative flex size-2">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-alert opacity-50" />
-            <span className="relative inline-flex size-2 rounded-full bg-alert" />
-          </span>
-          <span className="font-medium text-ink">Live</span>
-          <span className="truncate">{liveLine}</span>
-        </div>
-      ) : null}
+      {/* Which pair, and the live storm watch from the National Hurricane Center */}
+      <div className="absolute top-4 left-4 flex max-w-[82%] flex-col items-start gap-2">
+        {title ? (
+          <div className="hm-rise glass flex flex-wrap items-center gap-x-1.5 gap-y-0.5 rounded-full px-3.5 py-1.5 text-[12.5px] font-medium text-ink" style={{ animationDelay: "0.3s" }}>
+            {title}
+          </div>
+        ) : null}
+        {liveLine ? (
+          <div className="hm-rise glass flex max-w-full items-center gap-2 rounded-full py-1.5 pr-3.5 pl-3 text-[12.5px] text-ink-2" style={{ animationDelay: "2.4s" }}>
+            <span className="relative flex size-2 shrink-0">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-alert opacity-50" />
+              <span className="relative inline-flex size-2 rounded-full bg-alert" />
+            </span>
+            <span className="font-medium text-ink">Live</span>
+            <span className="truncate">{liveLine}</span>
+          </div>
+        ) : null}
+      </div>
 
       {/* Legend */}
       <div className="hm-rise glass absolute bottom-4 left-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-[12px] px-3.5 py-2.5 text-[12.5px] text-ink-2" style={{ animationDelay: "2.2s" }}>
@@ -302,12 +312,20 @@ function HoverCard({ o, at: [x, y] }: { o: HeroOverlap; at: [number, number] }) 
 
 /* ---------------------------------------------------------------- data */
 
+export interface StormEntry {
+  id: string;
+  name: string;
+  year: number;
+  focus: "inland" | "coastal";
+  headline: string;
+}
+
 export interface HeroData {
   projects: Project[];
   overlaps: HeroOverlap[];
   states: StateFeature[];
   river: RiverFeature[];
-  storms: number;
+  storms: StormEntry[];
 }
 
 async function get<T>(path: string): Promise<T> {
@@ -326,10 +344,10 @@ export function useHeroData(): HeroData | null {
       get<HeroOverlap[]>("plan/overlaps.json"),
       get<{ features: StateFeature[] }>("context/states.geojson"),
       get<{ features: RiverFeature[] }>("context/savannah-river.geojson"),
-      get<unknown[]>("response/storms.json").catch(() => []),
+      get<StormEntry[]>("response/storms.json").catch(() => []),
     ])
       .then(([projects, overlaps, states, river, storms]) => {
-        if (alive) setData({ projects, overlaps, states: states.features, river: river.features, storms: storms.length });
+        if (alive) setData({ projects, overlaps, states: states.features, river: river.features, storms });
       })
       .catch(() => {});
     return () => {
@@ -337,6 +355,29 @@ export function useHeroData(): HeroData | null {
     };
   }, []);
   return data;
+}
+
+/** Every utility the storm model covers, across all replayed storms (read after the hero has drawn). */
+export function useStormUtilities(storms: StormEntry[] | undefined): string[] | null {
+  const [names, setNames] = useState<string[] | null>(null);
+  useEffect(() => {
+    if (!storms?.length) return;
+    let alive = true;
+    Promise.all(
+      storms.map((st) =>
+        get<{ owners: { id: string; name: string }[] }>(`response/${st.id}/teamup.json`).catch(() => ({ owners: [] })),
+      ),
+    ).then((all) => {
+      if (!alive) return;
+      const seen = new Map<string, string>();
+      for (const t of all) for (const o of t.owners) seen.set(o.id, o.name);
+      setNames([...seen.values()]);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [storms]);
+  return names;
 }
 
 interface LiveStorm {
