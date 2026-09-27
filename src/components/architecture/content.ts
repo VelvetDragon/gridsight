@@ -14,8 +14,11 @@ import {
   Database,
   FileJson,
   FileText,
+  HandCoins,
+  Landmark,
   Map,
   MapPin,
+  Mic,
   Monitor,
   Route,
   Server,
@@ -51,9 +54,9 @@ export interface Region {
 export const REGIONS: Region[] = [
   { id: "offline", name: "Before the demo", tone: "emerald", x: -120, y: 70, w: 470, h: 520 },
   { id: "data", name: "Our data", tone: "cyan", x: 420, y: 30, w: 200, h: 700 },
-  { id: "browser", name: "In the browser", tone: "cyan", x: 668, y: 20, w: 336, h: 400 },
+  { id: "browser", name: "In the browser", tone: "cyan", x: 668, y: 20, w: 336, h: 610 },
   { id: "server", name: "Our server", tone: "violet", x: 1016, y: 110, w: 404, h: 590 },
-  { id: "outside", name: "Outside services", tone: "amber", x: 1446, y: 50, w: 208, h: 730 },
+  { id: "outside", name: "Outside services", tone: "amber", x: 1446, y: 30, w: 208, h: 850 },
 ];
 
 export interface Part {
@@ -123,10 +126,10 @@ export const PARTS: Part[] = [
     stat: { value: "10,000", label: "runs per storm, on a GPU" },
     points: [
       "Rebuilds each storm's wind field hour by hour",
-      "Asks which poles and towers fail, ten thousand times",
-      "Plans crews with and without the two utilities sharing",
+      "Asks which poles, towers and roadside trees fail, ten thousand times",
+      "Plans crews with and without sharing, and prices every customer-hour out",
     ],
-    tech: ["PyTorch", "CUDA", "RunPod"],
+    tech: ["PyTorch", "CUDA", "NLCD tree canopy"],
   },
   {
     id: "static",
@@ -138,10 +141,10 @@ export const PARTS: Part[] = [
     via: "Written by the plan pipeline",
     icon: FileJson,
     tone: "cyan",
-    stat: { value: "50", label: "overlaps ready before anyone asks" },
+    stat: { value: "14", label: "hurricanes replayed, ready before anyone asks" },
     points: [
+      "50 places the plans meet, 29 of them close in time too",
       "Shipped with the site, so the map opens instantly",
-      "No database needed to show the main screens",
       "Still works if every other service is down",
     ],
     tech: ["JSON", "~20 MB"],
@@ -312,7 +315,7 @@ export const PARTS: Part[] = [
     id: "nhc",
     region: "outside",
     x: 1550,
-    y: 680,
+    y: 600,
     name: "Hurricane Center",
     does: "Where the live storms come from",
     via: "The storm feed checks it every 10 minutes",
@@ -330,7 +333,7 @@ export const PARTS: Part[] = [
     id: "gemini",
     region: "outside",
     x: 1550,
-    y: 140,
+    y: 120,
     name: "Gemini",
     does: "Reads long PDFs and writes plain text",
     via: "The cache calls it when it has no answer",
@@ -338,8 +341,8 @@ export const PARTS: Part[] = [
     tone: "amber",
     stat: { value: "1", label: "fixed format for every plan it reads" },
     points: [
-      "Finds a utility's public plan on the web",
-      "Reads the PDF into projects, in the same shape every time",
+      "Reads a utility's public plan into projects, the same shape every time",
+      "Checks grant requirements against filings, quoting both word for word",
       "Refuses anything marked CEII",
     ],
     tech: ["Google AI", "Flash-Lite"],
@@ -348,25 +351,25 @@ export const PARTS: Part[] = [
     id: "elevenlabs",
     region: "outside",
     x: 1550,
-    y: 320,
+    y: 280,
     name: "ElevenLabs",
-    does: "Gives the call two real voices",
+    does: "Gives MrGridy a voice, and a way to listen",
     via: "Voices the memo writer's call scripts",
     icon: AudioLines,
     tone: "amber",
-    stat: { value: "2", label: "voices, one per utility" },
+    stat: { value: "2", label: "voice agents, plus two voices per call" },
     points: [
+      "Runs the Ask MrGridy agents on Stormline and Crosswire",
       "Voices the call between the two planners",
-      "Records the storm briefings",
-      "A 50-second call says more than a paragraph",
+      "Records the storm briefings ahead of time",
     ],
-    tech: ["Text to Dialogue"],
+    tech: ["Agents", "Text to Dialogue"],
   },
   {
     id: "osm",
     region: "outside",
     x: 1550,
-    y: 500,
+    y: 440,
     name: "OpenStreetMap",
     does: "Turns place names into points on the map",
     via: "The cache calls it to place each project",
@@ -379,6 +382,60 @@ export const PARTS: Part[] = [
       "Open data, no key needed",
     ],
     tech: ["Nominatim", "OSRM", "Overpass"],
+  },
+  {
+    id: "savings",
+    region: "server",
+    x: 1320,
+    y: 520,
+    name: "Savings agent",
+    does: "Finds grants each shared project could apply for",
+    via: "Crosswire runs it on the matched pairs",
+    icon: HandCoins,
+    tone: "violet",
+    stat: { value: "4", label: "steps, streamed live: grants, rules, verify, notes" },
+    points: [
+      "Searches Grants.gov and official .gov pages for programs that fund transmission",
+      "Checks every project against each program's stated requirements",
+      "Gemini marks a requirement met only by quoting the filing word for word",
+    ],
+    tech: ["Route handler", "NDJSON stream", "Gemini"],
+  },
+  {
+    id: "grants",
+    region: "outside",
+    x: 1550,
+    y: 760,
+    name: "Grants.gov",
+    does: "Open federal funding listings",
+    via: "The savings agent searches it",
+    icon: Landmark,
+    tone: "amber",
+    stat: { value: "0", label: "keys needed, it is a public API" },
+    points: [
+      "Open and forecast federal funding listings",
+      "Energy and utility programs are kept and read in full",
+      "Searched at most once a day, then cached",
+    ],
+    tech: ["Grants.gov API", "Search grounding"],
+  },
+  {
+    id: "voice",
+    region: "browser",
+    x: 740,
+    y: 565,
+    name: "Ask MrGridy",
+    does: "Answers planners out loud, from the data on screen",
+    via: "Built into Stormline and Crosswire",
+    icon: Mic,
+    tone: "cyan",
+    stat: { value: "28", label: "tools: 19 on Stormline, 9 on Crosswire" },
+    points: [
+      "Planners ask by voice: open Helene, who should help whom, what can we share",
+      "Its tools run in the page, so every number it says comes from MrGridy's files",
+      "Our server hands it a short-lived signed link; the key never reaches the browser",
+    ],
+    tech: ["ElevenLabs Agents", "Client tools"],
   },
 ];
 
@@ -406,6 +463,11 @@ export const EDGES: { a: string; b: string; backup?: boolean }[] = [
   { a: "cache", b: "gemini" },
   { a: "cache", b: "elevenlabs" },
   { a: "cache", b: "osm" },
+  { a: "app", b: "savings" },
+  { a: "savings", b: "gemini" },
+  { a: "savings", b: "grants" },
+  { a: "app", b: "voice" },
+  { a: "voice", b: "elevenlabs" },
 ];
 
 /**
@@ -433,6 +495,10 @@ export const CHAPTERS: { fill: string; spawn: string[] }[] = [
   { fill: "explain", spawn: ["explain"] },
   { fill: "elevenlabs", spawn: ["elevenlabs"] },
   { fill: "audio", spawn: ["audio"] },
+  // Agents that do the legwork
+  { fill: "savings", spawn: ["savings"] },
+  { fill: "grants", spawn: ["grants"] },
+  { fill: "voice", spawn: ["voice"] },
 ];
 
 /** The three stories the chapters are grouped into, by first chapter. */
@@ -440,6 +506,7 @@ export const ACTS: { from: number; title: string }[] = [
   { from: 0, title: "Where two plans meet" },
   { from: 6, title: "When a hurricane hits" },
   { from: 10, title: "Reading new plans and briefing planners" },
+  { from: 17, title: "Agents that do the legwork" },
 ];
 
 export interface Flow {
@@ -468,6 +535,17 @@ export const FLOWS: Flow[] = [
       [{ a: "osm", b: "cache" }],
       [{ a: "cache", b: "find" }],
       [{ a: "find", b: "app" }],
+    ],
+  },
+  {
+    title: "Asking MrGridy out loud",
+    caption: "The agent calls tools that read the page, so every number it says comes from MrGridy's files.",
+    steps: [
+      [{ a: "app", b: "voice" }],
+      [{ a: "voice", b: "elevenlabs" }],
+      [{ a: "elevenlabs", b: "voice" }],
+      [{ a: "voice", b: "app" }],
+      [{ a: "app", b: "map" }],
     ],
   },
   {
