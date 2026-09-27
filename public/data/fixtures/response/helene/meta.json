@@ -5,8 +5,8 @@
   "validation": {
     "countyMaePredicted": 0.052,
     "countyMaeBaseline": 0.212,
-    "reportedDescTransmissionPoles": 31,
-    "predictedDescTransmissionFailures": 27
+    "reportedDescDamagedSpans": 350,
+    "predictedDescDamagedSections": 27
   },
   "crossValidation": [
     {

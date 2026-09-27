@@ -35,13 +35,14 @@ from gridsight.response.geo import counties
 from gridsight.response.hurdat import load_storms, storm_json
 from gridsight.response.storms import STORMS, resolve
 
-# Public damage figures to validate against (only Helene has one for DESC transmission).
-REPORTED_DESC_TX_POLES = {
-    # Keller Kissam (DESC president), quoted by SC Daily Gazette, 2024-10-07:
-    # 130 transmission poles, 350 spans of transmission line, 2,130 distribution poles,
-    # 1,090 transformers damaged in DESC's service area.
-    "helene": 130,
-}
+# Public damage figures to compare with (only Helene has one for DESC transmission).
+# Keller Kissam (DESC president), quoted by SC Daily Gazette, 2024-10-07: 130 transmission
+# poles, 350 spans of transmission line, 2,130 distribution poles, 1,090 transformers
+# damaged in DESC's service area. The single damage number shown is expected damaged
+# DESC line sections (wind or trees), compared with the 350 damaged spans. The tree-fall
+# term is calibrated on those 350 spans (treefall.py), so this is a consistency check;
+# the independent test is the county outage error (countyMae*).
+REPORTED_DESC_TX_SPANS = {"helene": 350}
 REPORTED_SOURCE = "https://scdailygazette.com/2024/10/07/sc-led-southeast-in-customers-in-the-dark-days-after-helene-utilities-respond-to-complaints/"
 
 SEG_MIN_P = 0.005  # segments below this failure probability are not written
@@ -138,7 +139,7 @@ def check_contract(files: dict) -> list[str]:
         errs.append("meta extra keys")
     if m["device"] not in ("cuda", "cpu"):
         errs.append("meta.device")
-    if set(m["validation"]) != {"countyMaePredicted", "countyMaeBaseline", "reportedDescTransmissionPoles", "predictedDescTransmissionFailures"}:
+    if set(m["validation"]) != {"countyMaePredicted", "countyMaeBaseline", "reportedDescDamagedSpans", "predictedDescDamagedSections"}:
         errs.append("meta.validation keys")
     return errs
 
@@ -201,8 +202,8 @@ def main(argv=None) -> None:
             "validation": {
                 "countyMaePredicted": own["maePredicted"] if own else None,
                 "countyMaeBaseline": own["maeBaseline"] if own else None,
-                "reportedDescTransmissionPoles": REPORTED_DESC_TX_POLES.get(key),
-                "predictedDescTransmissionFailures": round(float(util_seg.mean()), 1),
+                "reportedDescDamagedSpans": REPORTED_DESC_TX_SPANS.get(key),
+                "predictedDescDamagedSections": round(float(util_seg.mean()), 1),
             },
         }
         if cv_public:
@@ -234,7 +235,7 @@ def main(argv=None) -> None:
             "gpcExpectedFailedStructures": round(float(sim.util_struct[:, 1].mean()), 1),
             "predictedTotalPeakOut": int(pred["pred"].sum()),
             "actualTotalPeakOut": None if act.isna().all() else int(act.sum()),
-            "reportedDescTransmissionPoles": REPORTED_DESC_TX_POLES.get(key),
+            "reportedDescDamagedSpans": REPORTED_DESC_TX_SPANS.get(key),
         }
         index.append(
             {

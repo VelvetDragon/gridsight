@@ -1,3 +1,4 @@
+import { customersOut, type OutageCost, type UtilityKey } from "./outageCost";
 import type { Position } from "./types";
 
 /** Shape of /data/response/<id>/teamup.json (pipeline/gridsight/response/teamup.py). */
@@ -85,15 +86,19 @@ export function isTeamUp(v: unknown): v is TeamUp {
   return !!t && Array.isArray(t.owners) && Array.isArray(t.moves);
 }
 
-/** Customers in each state stand in for Dominion (SC) and Georgia Power (GA) customers. */
-const STATE_OF: Record<string, "SC" | "GA"> = { desc: "SC", "georgia-power": "GA" };
+/** Team-up owner ids whose customers and outage cost we can count. */
+const UTILITY_OF: Record<string, UtilityKey> = { desc: "DESC", "georgia-power": "GPC" };
+/** Without outage-cost.json, a state's outages stand in for the utility's customers. */
+const STATE_OF: Record<UtilityKey, "SC" | "GA"> = { DESC: "SC", GPC: "GA" };
 /** Restoration is spread over the outage, so the average customer gains about half the time saved. */
 export const AVERAGE_GAIN = 0.5;
 
 export interface TeamUpImpact {
   /** Receiving utility -> hours sooner (sum of its lend moves). */
-  sooner: { id: string; name: string; hours: number; customers: number | null }[];
+  sooner: { id: string; name: string; hours: number; customers: number | null; usd: number | null }[];
   customerHours: number;
+  /** Outage cost avoided (customer-hours x the utility's cost per customer-hour), or null without rates. */
+  usd: number | null;
   costUsd: number;
   /** Crew cost of the moves whose customer-hours are counted (Dominion / Georgia Power). */
   costCountedUsd: number;
@@ -101,7 +106,11 @@ export interface TeamUpImpact {
   sharedCrewAreas: number;
 }
 
-export function teamUpImpact(t: TeamUp, counties: { state: string; predictedPeakOut: number }[]): TeamUpImpact {
+export function teamUpImpact(
+  t: TeamUp,
+  counties: { state: string; predictedPeakOut: number }[],
+  oc: OutageCost | null = null,
+): TeamUpImpact {
   const name = new Map(t.owners.map((o) => [o.id, o.name]));
   const byTo = new Map<string, number>();
   let costUsd = 0;
@@ -110,17 +119,26 @@ export function teamUpImpact(t: TeamUp, counties: { state: string; predictedPeak
     if (m.kind !== "lend") continue;
     byTo.set(m.to, (byTo.get(m.to) ?? 0) + m.hoursSooner);
     costUsd += m.costUsd;
-    if (STATE_OF[m.to]) costCountedUsd += m.costUsd;
+    if (UTILITY_OF[m.to]) costCountedUsd += m.costUsd;
   }
-  const out = (st: string) => counties.filter((c) => c.state === st).reduce((a, c) => a + c.predictedPeakOut, 0);
+  const out = (u: UtilityKey) =>
+    oc
+      ? customersOut(counties, oc.utilities[u])
+      : counties.filter((c) => c.state === STATE_OF[u]).reduce((a, c) => a + c.predictedPeakOut, 0);
   const sooner = [...byTo.entries()]
-    .map(([id, hours]) => ({ id, name: name.get(id) ?? id, hours, customers: STATE_OF[id] ? out(STATE_OF[id]) : null }))
+    .map(([id, hours]) => {
+      const u = UTILITY_OF[id];
+      const customers = u ? out(u) : null;
+      const usd = u && oc && customers != null ? customers * hours * AVERAGE_GAIN * oc.utilities[u].usdPerCustomerHour : null;
+      return { id, name: name.get(id) ?? id, hours, customers, usd };
+    })
     // Utilities whose customers we can count come first; then by hours.
     .sort((a, b) => Number(b.customers != null) - Number(a.customers != null) || b.hours - a.hours);
   const customerHours = sooner.reduce((a, s) => a + (s.customers ?? 0) * s.hours * AVERAGE_GAIN, 0);
   return {
     sooner,
     customerHours,
+    usd: oc ? sooner.reduce((a, s) => a + (s.usd ?? 0), 0) : null,
     costUsd,
     costCountedUsd,
     sharedYards: t.moves.filter((m) => m.kind === "yard").length,
