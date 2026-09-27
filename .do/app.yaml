@@ -51,3 +51,12 @@ services:
         value: REPLACE_IN_CONSOLE
         type: SECRET
         scope: RUN_TIME
+      # "Ask MrGridy" voice agents (scripts/create-agent.mjs): Stormline and Crosswire.
+      - key: ELEVENLABS_AGENT_ID
+        value: REPLACE_IN_CONSOLE
+        type: SECRET
+        scope: RUN_TIME
+      - key: ELEVENLABS_CROSSWIRE_AGENT_ID
+        value: REPLACE_IN_CONSOLE
+        type: SECRET
+        scope: RUN_TIME
