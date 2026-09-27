@@ -61,19 +61,20 @@ export function Switchboard() {
           style={{ paddingTop: NAV_CLEARANCE + 16 }}
         >
           <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
-            <div className="max-w-[560px]">
+            <div className="max-w-[600px]">
               <h1
-                className="display sb-rise text-[42px] leading-[1.05] font-medium tracking-[-0.02em] text-ink sm:text-[clamp(40px,6.2dvh,50px)]"
+                className="display sb-rise text-[36px] leading-[1.12] font-medium tracking-[-0.02em] text-ink sm:text-[clamp(34px,5dvh,44px)]"
                 style={{ animationDelay: "0.12s" }}
               >
-                Build together in blue skies.
-                <br />
-                Recover{" "}
-                <span className="relative inline-block whitespace-nowrap">
-                  together
-                  <Squiggle />
-                </span>{" "}
-                in gray skies.
+                <span className="block sm:whitespace-nowrap">Build together in blue skies.</span>
+                <span className="block sm:whitespace-nowrap">
+                  Recover{" "}
+                  <span className="relative inline-block">
+                    together
+                    <Squiggle />
+                  </span>{" "}
+                  in gray skies.
+                </span>
               </h1>
 
               <p className="sb-rise mt-5 text-[17px] leading-[27px] text-ink-2" style={{ animationDelay: "0.22s" }}>
