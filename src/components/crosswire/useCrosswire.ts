@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSession } from "@/lib/auth";
 import {
   findEndpointAvailable,
   findUtility,
@@ -70,19 +69,16 @@ export function pairBounds(o: Overlap, byId: Map<string, Project>): Bounds | nul
   ];
 }
 
-function defaultPair(utilities: CatalogUtility[], org: string | null): [string, string] | null {
+/** The first catalog utility and its nearest listed neighbour. */
+function defaultPair(utilities: CatalogUtility[]): [string, string] | null {
   if (utilities.length < 2) return null;
-  const norm = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
-  const mine =
-    (org && utilities.find((u) => norm(u.name) === norm(org) || norm(u.shortName) === norm(org))) || utilities[0];
+  const mine = utilities[0];
   const neighbour =
     utilities.find((u) => u.id !== mine.id && mine.neighbors.includes(u.id)) ?? utilities.find((u) => u.id !== mine.id)!;
   return [mine.id, neighbour.id];
 }
 
 export function useCrosswire() {
-  const session = useSession();
-  const org = session.status === "authenticated" ? session.session.user.organization : null;
 
   const [catState, retryCatalog] = useDataset(loadCatalog);
   const [found, setFound] = useState<CatalogUtility[]>([]);
@@ -109,8 +105,8 @@ export function useCrosswire() {
     if (youParam && neighborParam && youParam !== neighborParam && ids.has(youParam) && ids.has(neighborParam)) {
       return [youParam, neighborParam];
     }
-    return defaultPair(catalog.utilities, org);
-  }, [catalog, youParam, neighborParam, org]);
+    return defaultPair(catalog.utilities);
+  }, [catalog, youParam, neighborParam]);
 
   const loader = useMemo(() => {
     if (!catalog || !pairIds) return null;
