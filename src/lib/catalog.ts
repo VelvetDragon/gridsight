@@ -314,7 +314,8 @@ type SavedUtility = { utility: CatalogUtility; projects: CatalogProject[] };
 function readSaved(): SavedUtility[] {
   try {
     const v = JSON.parse(window.localStorage.getItem(SAVED_KEY) ?? "[]") as unknown;
-    return Array.isArray(v) ? (v as SavedUtility[]).filter((s) => s?.utility?.id && Array.isArray(s.projects)) : [];
+    // Utilities saved without projects (a failed find) are dropped.
+    return Array.isArray(v) ? (v as SavedUtility[]).filter((s) => s?.utility?.id && Array.isArray(s.projects) && s.projects.length > 0) : [];
   } catch {
     return [];
   }
@@ -336,6 +337,7 @@ function withSaved(list: CatalogUtility[]): CatalogUtility[] {
 }
 
 export function registerFoundUtility(utility: CatalogUtility, projects: CatalogProject[]) {
+  if (!projects.length) return;
   found.set(utility.id, projects);
   try {
     const next = [...readSaved().filter((s) => s.utility.id !== utility.id), { utility, projects }];
@@ -393,6 +395,11 @@ export async function findUtility(
     body: JSON.stringify({ query }),
     signal,
   });
-  if (!res.ok) throw new Error(`Search failed (${res.status})`);
-  return (await res.json()) as { utility: CatalogUtility; projects: CatalogProject[] };
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(body?.error ?? `Search failed (${res.status})`);
+  }
+  const result = (await res.json()) as { utility: CatalogUtility; projects: CatalogProject[] };
+  if (!result.projects?.length) throw new Error(`No projects found for ${query}.`);
+  return result;
 }

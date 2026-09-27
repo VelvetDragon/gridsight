@@ -290,12 +290,14 @@ function minusYear(iso: string): string {
 
 /* ---------------------------------------------------------------- entry */
 
+/** A cached entry, or null. Entries without projects (older failed runs) count as a miss. */
 async function cacheGet(key: string) {
   try {
-    return JSON.parse(await readFile(path.join(CACHE_DIR, `${key}.json`), "utf8")) as {
+    const v = JSON.parse(await readFile(path.join(CACHE_DIR, `${key}.json`), "utf8")) as {
       utility: CatalogUtility;
       projects: CatalogProject[];
     };
+    return Array.isArray(v?.projects) && v.projects.length ? v : null;
   } catch {
     return null;
   }
@@ -313,15 +315,32 @@ async function cachePut(key: string, value: { utility: CatalogUtility; projects:
 /**
  * Public, non-CEII plan documents for utilities we already know where to find.
  * Used when no link is given, so a name alone works even without web search.
+ * The SERTP report groups projects by balancing authority area, not by owner,
+ * so each entry names the section (and states) the utility's projects are in.
  */
 const SERTP_2026 =
   "https://www.southeasternrtp.com/docs/general/2026/2026_SERTP_Preliminary_Expansion_Plan_Report_(Non-CEII).pdf";
-const KNOWN_PLANS: { test: RegExp; url: string }[] = [
-  { test: /duke|tennessee valley|\btva\b|alabama power|mississippi power|georgia transmission|\bgtc\b|meag|lg&e|louisville gas|kentucky utilities|powersouth|associated electric|\baeci\b|southern company/i, url: SERTP_2026 },
+interface KnownPlan {
+  test: RegExp;
+  url: string;
+  section: string;
+  states: string[];
+}
+const KNOWN_PLANS: KnownPlan[] = [
+  { test: /mississippi power/i, url: SERTP_2026, section: "SOUTHERN Balancing Authority Area", states: ["MS"] },
+  { test: /alabama power/i, url: SERTP_2026, section: "SOUTHERN Balancing Authority Area", states: ["AL"] },
+  { test: /powersouth/i, url: SERTP_2026, section: "SOUTHERN Balancing Authority Area", states: ["AL", "FL"] },
+  { test: /georgia power|georgia transmission|\bgtc\b|\bmeag\b/i, url: SERTP_2026, section: "SOUTHERN Balancing Authority Area", states: ["GA"] },
+  { test: /southern company|\bsoco\b/i, url: SERTP_2026, section: "SOUTHERN Balancing Authority Area", states: ["AL", "GA", "MS"] },
+  { test: /duke (energy )?progress|progress energy/i, url: SERTP_2026, section: "DUKE PROGRESS EAST and DUKE PROGRESS WEST Balancing Authority Areas", states: ["NC", "SC"] },
+  { test: /duke (energy )?carolinas|^duke( energy)?$/i, url: SERTP_2026, section: "DUKE CAROLINAS Balancing Authority Area", states: ["NC", "SC"] },
+  { test: /tennessee valley|\btva\b/i, url: SERTP_2026, section: "TVA Balancing Authority Area", states: ["TN", "AL", "MS", "KY", "GA", "NC", "VA"] },
+  { test: /lg&e|louisville gas|kentucky utilities/i, url: SERTP_2026, section: "KU Balancing Authority Area", states: ["KY", "VA"] },
+  { test: /associated electric|\baeci\b/i, url: SERTP_2026, section: "AECI Balancing Authority Area", states: ["MO", "OK", "IA"] },
 ];
 
-function knownPlanUrl(name: string): string | null {
-  return KNOWN_PLANS.find((k) => k.test.test(name))?.url ?? null;
+function knownPlan(name: string): KnownPlan | null {
+  return KNOWN_PLANS.find((k) => k.test.test(name)) ?? null;
 }
 
 export async function findUtilityPlan(input: { name: string; url?: string | null }, emit: Emit): Promise<void> {
@@ -343,9 +362,9 @@ export async function findUtilityPlan(input: { name: string; url?: string | null
   let candidates: Candidate[];
   let via: "search" | "knowledge" | "provided";
   let hinted: SearchOut["utility"];
-  const known = input.url ? null : knownPlanUrl(name);
+  const known = input.url ? null : knownPlan(name);
   if (input.url || known) {
-    const url = (input.url ?? known) as string;
+    const url = input.url ?? known!.url;
     candidates = [{ url, title: fileTitle(url) }];
     via = "provided";
   } else {
@@ -388,15 +407,20 @@ export async function findUtilityPlan(input: { name: string; url?: string | null
   emit({ type: "status", step: "read", message: `Gemini is reading the ${mb} MB document…`, progress: 0.35 });
   // The extraction is cached by document hash and utility name, so re-runs skip Gemini.
   const extractKey = `extract-${createHash("sha1").update(pdf.bytes).update(slug).digest("hex")}`;
+  const scope = known
+    ? ` The document groups projects by balancing authority area, not by owner: use the ${known.section} section` +
+      ` and include only projects located in ${known.states.join(", ")} (judge from the place names).` +
+      " This is the public Non-CEII version; a \"(CEII)\" page template header does not make it CEII."
+    : "";
   let data = (await cacheGet(extractKey)) as unknown as Extracted | null;
-  if (!data || !isExtracted(data)) {
+  if (!data || !isExtracted(data) || !data.projects.length) {
     data = (
       await geminiJson(
         {
           parts: [
             { inline_data: { mime_type: "application/pdf", data: pdf.bytes.toString("base64") } },
             {
-              text: `Extract up to ${MAX_PROJECTS} planned transmission projects that belong to "${name}" from this document.`,
+              text: `Extract up to ${MAX_PROJECTS} planned transmission projects that belong to "${name}" from this document.${scope}`,
             },
           ],
           system: EXTRACT_SYSTEM,
@@ -407,18 +431,22 @@ export async function findUtilityPlan(input: { name: string; url?: string | null
         isExtracted,
       )
     ).data;
-    await cachePut(extractKey, data as never);
+    // An empty extraction is not cached, so the next try asks Gemini again.
+    if (data.projects.length) await cachePut(extractKey, data as never);
   }
   if (data.ceiiMarked && !/non[-\s_]?CEII/i.test(`${data.document.title} ${chosen.title} ${pdf.finalUrl}`)) {
     throw new FinderError("That document is marked CEII, so MrGridy will not use it.", "Look for the public (non-CEII) version.");
   }
   const rows = data.projects.slice(0, MAX_PROJECTS);
+  if (!rows.length) {
+    throw new FinderError(`No planned projects for ${name} were found in ${chosen.title || "the document"}.`, "Paste a link to the utility's own plan PDF and try again.");
+  }
   emit({ type: "status", step: "extract", message: `${rows.length} projects extracted.`, progress: 0.6 });
 
   // 4. Place them (each place is looked up inside the project's own state).
   const states = [
     ...new Set(
-      [...(data.utility.states ?? []), ...(hinted?.states ?? [])].map((x) => stateCode(x)).filter((x): x is string => Boolean(x)),
+      [...(known?.states ?? []), ...(data.utility.states ?? []), ...(hinted?.states ?? [])].map((x) => stateCode(x)).filter((x): x is string => Boolean(x)),
     ),
   ];
   const projectStates = (r: Extracted["projects"][number]) => {
@@ -497,6 +525,9 @@ export async function findUtilityPlan(input: { name: string; url?: string | null
     origin: "gemini",
     neighbors: [],
   };
+  if (!projects.length) {
+    throw new FinderError(`${rows.length} projects were found for ${name}, but none of their places could be put on the map.`);
+  }
   await cachePut(cacheKey, { utility, projects });
   void saveCatalogToTiger(utility, projects);
   emit({
