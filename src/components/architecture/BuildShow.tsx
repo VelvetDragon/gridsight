@@ -995,12 +995,19 @@ function Focus({ part, ch, lt, cam, live }: { part: Part; ch: number; lt: number
         <mask id="ab-spot-mask">
           <rect width={W} height={H} fill="url(#ab-spot)" />
         </mask>
+        <linearGradient id="ab-text-bed" x1="0" x2="1">
+          <stop offset="0" stopColor="#03050a" stopOpacity="0" />
+          <stop offset="0.06" stopColor="#03050a" stopOpacity="0.9" />
+          <stop offset="1" stopColor="#03050a" stopOpacity="0.9" />
+        </linearGradient>
         <linearGradient id="ab-fade-right" x1="0" x2="1">
           <stop offset="0" stopColor="#03050a" stopOpacity="0" />
           <stop offset="1" stopColor="#03050a" stopOpacity="0.5" />
         </linearGradient>
       </defs>
-      <rect width={W} height={H} fill="#03050a" opacity={0.8 * spot} mask="url(#ab-spot-mask)" />
+      <rect width={W} height={H} fill="#03050a" opacity={0.9 * spot} mask="url(#ab-spot-mask)" />
+      {/* A soft bed behind the story text, so neighbours never show through it */}
+      <rect x={padX - 70} y={n.y - 215} width={W} height={400} fill="url(#ab-text-bed)" opacity={spot} />
 
       {/* Ring powering up around the station */}
       {ring > 0 ? (
@@ -1265,7 +1272,7 @@ function FinaleTitle({ lt }: { lt: number }) {
         The whole system
       </text>
       <text y={32} textAnchor="middle" fontSize="17" fill="#94a3b8" fontFamily="var(--font-sans-ui)">
-        Built once before the demo, served as files, calling out only when it has to. Now watch three real requests.
+        {`Built once before the demo, served as files, with agents doing the legwork. Now watch ${FLOWS.length} real requests.`}
       </text>
     </g>
   );
