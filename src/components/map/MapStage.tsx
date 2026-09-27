@@ -93,6 +93,7 @@ export default function MapStage({ mode, plan, response, popup, view, padding, k
         onClick={onClick}
         fx={fx.controller}
         keepFramedOnResize={keepFramedOnResize}
+        basemap={mode === "response" ? "plain" : "natural"}
       />
       <FxControls fx={fx} className="absolute z-20" style={fxControlsStyle} />
       {hover ? (

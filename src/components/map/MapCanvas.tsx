@@ -7,7 +7,7 @@ import { MapboxOverlay, type MapboxOverlayProps } from "@deck.gl/mapbox";
 import * as maplibregl from "maplibre-gl";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Map, { Marker, Popup, useControl, type MapRef } from "react-map-gl/maplibre";
-import { loadNaturalStyle } from "@/lib/basemap";
+import { loadBasemapStyle, type BasemapKind } from "@/lib/basemap";
 import type { Bounds } from "@/lib/geo";
 import type { Position } from "@/lib/types";
 import { declutter } from "./declutter";
@@ -66,6 +66,8 @@ export interface MapCanvasProps {
    * keeping the zoom and cropping or padding it (for resizable map panes).
    */
   keepFramedOnResize?: boolean;
+  /** Paper-style street map (default), or the same without state / county lines. */
+  basemap?: BasemapKind;
 }
 
 function DeckOverlay({ fx, ...props }: MapboxOverlayProps & { fx?: FxController | null }) {
@@ -104,22 +106,23 @@ export default function MapCanvas({
   onClick,
   fx,
   keepFramedOnResize = false,
+  basemap = "natural",
 }: MapCanvasProps) {
   const mapRef = useRef<MapRef>(null);
   const [load, setLoad] = useState<LoadState>("loading");
   const lastViewKey = useRef<string | null>(null);
   // What the map last showed at rest, so a resize can frame it again.
   const framed = useRef<maplibregl.LngLatBounds | null>(null);
-  // The basemap style is fetched once and re-coloured before the map mounts.
+  // The basemap style is fetched (and re-coloured) before the map mounts.
   const [mapStyle, setMapStyle] = useState<maplibregl.StyleSpecification | string | null>(null);
 
   useEffect(() => {
     const ctrl = new AbortController();
-    loadNaturalStyle(ctrl.signal).then((style) => {
+    loadBasemapStyle(basemap, ctrl.signal).then((style) => {
       if (!ctrl.signal.aborted) setMapStyle(style);
     });
     return () => ctrl.abort();
-  }, []);
+  }, [basemap]);
 
   const applyView = useCallback(
     (req: ViewRequest | null | undefined) => {

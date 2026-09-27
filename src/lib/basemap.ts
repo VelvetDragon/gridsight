@@ -1,7 +1,10 @@
 /**
- * Natural basemap: OpenFreeMap's Positron style (no key), re-coloured at runtime
- * so it reads like paper with soft water and faint green, and stays quieter
- * than the GridSight overlays.
+ * Basemaps.
+ *   natural:   OpenFreeMap's Positron style (no key), re-coloured at runtime so it
+ *              reads like paper with soft water and faint green, and stays quieter
+ *              than the GridSight overlays (Crosswire).
+ *   plain:     the same paper map without state / county lines or state tints, so a
+ *              storm crossing several states reads as one area (Stormline).
  */
 import type { StyleSpecification } from "maplibre-gl";
 
@@ -13,6 +16,8 @@ export const BASEMAP_URL = "https://tiles.openfreemap.org/styles/positron";
  * (cb_2018_us_state_20m), public domain; simplified to about 0.006° and rounded.
  */
 export const STATES_URL = "/data/context/states.geojson";
+
+export type BasemapKind = "natural" | "plain";
 
 const PAPER = "#F2EEE6";
 const WATER = "#BCD7EA";
@@ -70,6 +75,8 @@ const PAINT: Record<string, Paint> = {
 
 /** Layers hidden to keep the map quiet (GridSight draws its own state labels). */
 const HIDDEN = new Set(["label_state", "highway-shield-non-us", "highway-shield-us-interstate", "road_shield_us"]);
+/** Also hidden on the plain map: state and county lines (admin levels 3-6). */
+const HIDDEN_PLAIN = new Set([...HIDDEN, "boundary_3"]);
 
 /**
  * Soft state tints drawn inside the basemap (under roads and labels): Georgia a
@@ -95,12 +102,17 @@ function withStateTints(style: StyleSpecification, states: unknown): StyleSpecif
   };
 }
 
-export function naturalizeStyle(style: StyleSpecification, states: unknown = null): StyleSpecification {
-  const tinted = withStateTints(style, states);
+export function naturalizeStyle(
+  style: StyleSpecification,
+  states: unknown = null,
+  kind: BasemapKind = "natural",
+): StyleSpecification {
+  const tinted = kind === "plain" ? style : withStateTints(style, states);
+  const hidden = kind === "plain" ? HIDDEN_PLAIN : HIDDEN;
   return {
     ...tinted,
     layers: tinted.layers.map((layer) => {
-      if (HIDDEN.has(layer.id)) return { ...layer, layout: { ...layer.layout, visibility: "none" } } as typeof layer;
+      if (hidden.has(layer.id)) return { ...layer, layout: { ...layer.layout, visibility: "none" } } as typeof layer;
       const paint = PAINT[layer.id];
       if (!paint) return layer;
       return { ...layer, paint: { ...(layer as { paint?: Paint }).paint, ...paint } } as typeof layer;
@@ -108,7 +120,6 @@ export function naturalizeStyle(style: StyleSpecification, states: unknown = nul
   };
 }
 
-/** Fetch and re-colour the basemap; falls back to the stock style URL on failure. */
 async function loadStates(signal?: AbortSignal): Promise<unknown> {
   try {
     const res = await fetch(STATES_URL, { signal });
@@ -120,13 +131,20 @@ async function loadStates(signal?: AbortSignal): Promise<unknown> {
   }
 }
 
-export async function loadNaturalStyle(signal?: AbortSignal): Promise<StyleSpecification | string> {
+/** Fetch and re-colour the basemap; falls back to the stock style URL on failure. */
+export async function loadBasemapStyle(
+  kind: BasemapKind = "natural",
+  signal?: AbortSignal,
+): Promise<StyleSpecification | string> {
   try {
-    const [res, states] = await Promise.all([fetch(BASEMAP_URL, { signal }), loadStates(signal)]);
+    const [res, states] = await Promise.all([
+      fetch(BASEMAP_URL, { signal }),
+      kind === "plain" ? null : loadStates(signal),
+    ]);
     if (!res.ok) return BASEMAP_URL;
     const style = (await res.json()) as StyleSpecification;
     if (!Array.isArray(style.layers)) return BASEMAP_URL;
-    return naturalizeStyle(style, states);
+    return naturalizeStyle(style, states, kind);
   } catch {
     return BASEMAP_URL;
   }
