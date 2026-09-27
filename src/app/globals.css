@@ -582,8 +582,17 @@ input[type="range"].range::-moz-range-thumb {
     transform: scale(3.2);
   }
 }
+.sb-nudge {
+  animation: sb-nudge 1.6s ease-in-out infinite;
+}
+@keyframes sb-nudge {
+  50% {
+    transform: translateY(3px);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .sb-rise,
+  .sb-nudge,
   .hm-rise,
   .hm-fade,
   .hm-pop,

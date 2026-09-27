@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ArrowUpRight, Plus, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown, Plus, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { loadCatalog } from "@/lib/catalog";
@@ -57,7 +57,7 @@ export function Switchboard() {
       <main className="h-dvh overflow-y-auto bg-paper">
         {/* Hero: the pitch, the map and the three screens, all above the fold */}
         <section
-          className="mx-auto flex max-w-[1360px] flex-col px-6 pb-8 lg:px-10"
+          className="relative mx-auto flex max-w-[1360px] flex-col px-6 pb-8 lg:min-h-dvh lg:justify-center lg:pb-16 lg:px-10"
           style={{ paddingTop: NAV_CLEARANCE + 16 }}
         >
           <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
@@ -142,11 +142,21 @@ export function Switchboard() {
               line="Every project, match and source, one click to Excel"
             />
           </ul>
+
+          <button
+            type="button"
+            onClick={() => document.getElementById("range-h")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            className="sb-rise absolute bottom-4 left-1/2 hidden -translate-x-1/2 items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] text-ink-3 transition hover:text-ink lg:flex"
+            style={{ animationDelay: "1.2s" }}
+          >
+            Try it yourself
+            <ChevronDown size={14} className="sb-nudge" aria-hidden />
+          </button>
         </section>
 
         {/* Beyond the featured pair */}
-        <section className="mx-auto max-w-[1360px] px-6 pt-4 pb-6 lg:px-10" aria-labelledby="range-h">
-          <h2 id="range-h" className="display text-[28px] font-medium text-ink">
+        <section className="mx-auto max-w-[1360px] scroll-mt-24 px-6 pt-10 pb-6 lg:px-10" aria-labelledby="range-h">
+          <h2 id="range-h" className="display scroll-mt-24 text-[28px] font-medium text-ink">
             Try it yourself
           </h2>
           <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
