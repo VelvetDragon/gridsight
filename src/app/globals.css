@@ -606,3 +606,39 @@ input[type="range"].range::-moz-range-thumb {
     stroke-dashoffset: 0;
   }
 }
+
+/* ---------- Architecture page ---------- */
+.ab-river {
+  stroke-dasharray: 14 26;
+  animation: ab-river 6s linear infinite;
+}
+@keyframes ab-river {
+  to {
+    stroke-dashoffset: -80;
+  }
+}
+.ab-blink {
+  animation: ab-blink 1.1s ease-in-out infinite;
+}
+@keyframes ab-blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+.ab-hint {
+  animation: ab-hint 1s ease 10s forwards;
+}
+@keyframes ab-hint {
+  to {
+    opacity: 0;
+  }
+}
+.ab-paused * {
+  animation-play-state: paused !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab-river,
+  .ab-blink {
+    animation: none;
+  }
+}
